@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/ui/widgets/mydatepicker.dart';
+import 'package:prestamo/ui/widgets/mydropdownbutton.dart';
 import 'package:prestamo/ui/widgets/myexpansiontile.dart';
 import 'package:prestamo/ui/widgets/mylisttile.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
@@ -11,6 +13,7 @@ class ClientesAdd extends StatefulWidget {
 }
 
 class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin {
+  ScrollController _scrollController;
   var _txtDocumento = TextEditingController();
   var _txtNombres = TextEditingController();
   var _txtApellidos = TextEditingController();
@@ -25,6 +28,7 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
   void initState() {
     // TODO: implement initState
     _tabController = TabController(length: 2, vsync: this);
+    _scrollController = ScrollController();
     super.initState();
   }
 
@@ -116,58 +120,61 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
         ],
       ),
       body: Row(children: [
-        Container(
-          // color: Colors.red,
-          width: 260,
-          height: MediaQuery.of(context).size.height,
-          child: ListView(children: [
-            SizedBox(height: 5,),
-            // Row(
-            //   children: [
-            //   Padding(
-            //     padding: const EdgeInsets.only(left: 28.0, right: 14, top: 2.0),
-            //     child: Icon(Icons.apps, color: Colors.black,),
-            //   ),
-            //   Text("Todas las apps", style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.8), ),),
-            // ],),
-            // Container(
-            //   color: Colors.transparent,
-            //   padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-            //   child: Row(
-            //     children: [
-            //     Padding(
-            //       padding: const EdgeInsets.only(left: 28.0, right: 14, top: 2.0),
-            //       child: Icon(Icons.apps, color: Colors.black,),
-            //     ),
-            //     Text("Todas las apps", style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.8), ),),
-            //   ],),
-            // ),
-            // Container(
-            //   padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-            //   decoration: BoxDecoration(
-            //     color: Colors.blue[50],
-            //     borderRadius: BorderRadius.only(topRight: Radius.circular(30), bottomRight: Radius.circular(30))
-            //   ),
-            //   child: Row(
-            //     children: [
-            //     Padding(
-            //       padding: const EdgeInsets.only(left: 28.0, right: 14, top: 2.0),
-            //       child: Icon(Icons.tablet_mac, color: Utils.fromHex("#1a73e8"),),
-            //     ),
-            //     Text("Recibidos", style: TextStyle(fontSize: 14, color: Utils.fromHex("#1a73e8"), fontWeight: FontWeight.bold ),),
-            //   ],),
-            // ),
-            MyListTile(title: "Todas las apps", icon: Icons.apps),
-            MyListTile(title: "Recibido", icon: Icons.tablet_mac),
-            // MyListTile(title: "CUlo", icon: Icons.recent_actors),
-            MyListTile(title: "Usuarios y permisos", icon: Icons.recent_actors),
-            MyListTile(title: "Administracion de pedidos", icon: Icons.payment, selected: true,),
-            MyExpansionTile(
-              title: "Descargar informes", 
-              icon: Icons.file_download, 
-              listaMylisttile: [MyListTile(title: "Comentarios", icon: null), MyListTile(title: "Estadisticas", icon: null)]
-            )
-          ],),
+        Visibility(
+          visible: MediaQuery.of(context).size.width > ScreenSize.md,
+          child: Container(
+            // color: Colors.red,
+            width: 260,
+            height: MediaQuery.of(context).size.height,
+            child: ListView(children: [
+              SizedBox(height: 5,),
+              // Row(
+              //   children: [
+              //   Padding(
+              //     padding: const EdgeInsets.only(left: 28.0, right: 14, top: 2.0),
+              //     child: Icon(Icons.apps, color: Colors.black,),
+              //   ),
+              //   Text("Todas las apps", style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.8), ),),
+              // ],),
+              // Container(
+              //   color: Colors.transparent,
+              //   padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              //   child: Row(
+              //     children: [
+              //     Padding(
+              //       padding: const EdgeInsets.only(left: 28.0, right: 14, top: 2.0),
+              //       child: Icon(Icons.apps, color: Colors.black,),
+              //     ),
+              //     Text("Todas las apps", style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.8), ),),
+              //   ],),
+              // ),
+              // Container(
+              //   padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
+              //   decoration: BoxDecoration(
+              //     color: Colors.blue[50],
+              //     borderRadius: BorderRadius.only(topRight: Radius.circular(30), bottomRight: Radius.circular(30))
+              //   ),
+              //   child: Row(
+              //     children: [
+              //     Padding(
+              //       padding: const EdgeInsets.only(left: 28.0, right: 14, top: 2.0),
+              //       child: Icon(Icons.tablet_mac, color: Utils.fromHex("#1a73e8"),),
+              //     ),
+              //     Text("Recibidos", style: TextStyle(fontSize: 14, color: Utils.fromHex("#1a73e8"), fontWeight: FontWeight.bold ),),
+              //   ],),
+              // ),
+              MyListTile(title: "Todas las apps", icon: Icons.apps),
+              MyListTile(title: "Recibido", icon: Icons.tablet_mac),
+              // MyListTile(title: "CUlo", icon: Icons.recent_actors),
+              MyListTile(title: "Usuarios y permisos", icon: Icons.recent_actors),
+              MyListTile(title: "Administracion de pedidos", icon: Icons.payment, selected: true,),
+              MyExpansionTile(
+                title: "Descargar informes", 
+                icon: Icons.file_download, 
+                listaMylisttile: [MyListTile(title: "Comentarios", icon: null), MyListTile(title: "Estadisticas", icon: null)]
+              )
+            ],),
+          ),
         ),
         Expanded(
           child: ListView(
@@ -251,64 +258,70 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.only(left: 18.0, top: 20.0),
-                          child: ListView(children: [
-                            Form(
-                              key: _formKey,
-                              child: LayoutBuilder(
-                                builder: (context, boxconstrains) {
-                                  return Wrap(
-                                    alignment: WrapAlignment.start,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                          Text("Tipo Doc."),
-                                          Container(
-                                            width: boxconstrains.maxWidth > 600 ? boxconstrains.maxWidth / 4 : boxconstrains.maxWidth / 2,
-                                            child: DropdownButton(isExpanded: true, items: [DropdownMenuItem(child: Text("Cedula"), value: "cedula",)], onChanged: (data){}, value: "cedula",)
-                                          )
-                                        ],),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: MyTextFormField(title: "Documento", controller: _txtDocumento, hint: "Documento", width: boxconstrains.maxWidth > 600 ? boxconstrains.maxWidth / 4 : boxconstrains.maxWidth / 2,)
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: MyTextFormField(title: "Nombres", controller: _txtNombres, hint: "Nombres", width: boxconstrains.maxWidth > 600 ? boxconstrains.maxWidth / 4 : boxconstrains.maxWidth / 2,)
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: MyTextFormField(title: "Apellidos", controller: _txtApellidos, hint: "Apellidos", width: boxconstrains.maxWidth > 600 ? boxconstrains.maxWidth / 4 : boxconstrains.maxWidth / 2,)
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: MyTextFormField(title: "Apodo", controller: _txtApodo, hint: "Apodo", width: boxconstrains.maxWidth > 600 ? boxconstrains.maxWidth / 4 : boxconstrains.maxWidth / 2,)
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: MyDatePicker(title: "Fecha Naci.", fecha: _fechaNacimiento, onDateTimeChanged: (newDate) => setState(() => _fechaNacimiento = newDate),),
-                                      ),
-                                      
-                                      // Column(children: [
-                                      //   Text("Documento", style: TextStyle(color: Colors.red),),
-                                      //   Container(
-                                      //     child: TextFormField(
-                                      //       controller: _txtDocumento,
-                                      //         decoration: InputDecoration(
-                                      //           labelText: "Docuemnto"
-                                      //         ),
-                                      //       ),
-                                      //   )
-                                      // ],)
-                                    ],
-                                  );
-                                }
-                              ),
-                            )
-                          ],),
+                          child: Scrollbar(
+                            controller: _scrollController,
+                            
+                            isAlwaysShown: true,
+                            child: ListView(
+                              controller: _scrollController,
+                              children: [
+                              Form(
+                                key: _formKey,
+                                child: LayoutBuilder(
+                                  builder: (context, boxconstrains) {
+                                    return Wrap(
+                                      alignment: WrapAlignment.start,
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: MyDropdownButton(
+                                            screenSize: boxconstrains.maxWidth, 
+                                            title: "Tipo Doc.", 
+                                            onChanged: (data){
+
+                                            }, 
+                                            elements: ["Cedula de identidad", "RNC"],
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: new MyTextFormField(title: "Documento", controller: _txtDocumento, hint: "Documento", screenSize: boxconstrains.maxWidth, medium: 3)
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: MyTextFormField(title: "Nombres", controller: _txtNombres, hint: "Nombres", screenSize: boxconstrains.maxWidth,)
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: MyTextFormField(title: "Apellidos", controller: _txtApellidos, hint: "Apellidos", screenSize: boxconstrains.maxWidth,)
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: MyTextFormField(title: "Apodo", controller: _txtApodo, hint: "Apodo", screenSize: boxconstrains.maxWidth,)
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(6.0),
+                                          child: MyDatePicker(title: "Fecha Naci.", fecha: _fechaNacimiento, onDateTimeChanged: (newDate) => setState(() => _fechaNacimiento = newDate),),
+                                        ),
+                                        
+                                        // Column(children: [
+                                        //   Text("Documento", style: TextStyle(color: Colors.red),),
+                                        //   Container(
+                                        //     child: TextFormField(
+                                        //       controller: _txtDocumento,
+                                        //         decoration: InputDecoration(
+                                        //           labelText: "Docuemnto"
+                                        //         ),
+                                        //       ),
+                                        //   )
+                                        // ],)
+                                      ],
+                                    );
+                                  }
+                                ),
+                              )
+                            ],),
+                          ),
                         ),
                         new Card(
                           child: new ListTile(

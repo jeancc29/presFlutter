@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 
-class MyTextFormField extends StatefulWidget {
+class MyDropdownButton extends StatefulWidget {
+  final ValueChanged<String> onChanged;
   final double screenSize;
   final String title;
-  final TextEditingController controller;
   final String hint;
 
   final int small;
   final int medium;
   final int large;
   final int xlarge;
-  MyTextFormField({Key key, @required this.screenSize, @required this.title, this.controller, this.hint, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5}) : super(key: key);
+
+  final List<String> elements;
+  MyDropdownButton({Key key, @required this.screenSize, @required this.title, @required this.onChanged, this.hint, this.elements, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5}) : super(key: key);
   @override
-  _MyTextFormFieldState createState() => _MyTextFormFieldState();
+  _MyDropdownButtonState createState() => _MyDropdownButtonState();
 }
 
-class _MyTextFormFieldState extends State<MyTextFormField> {
+class _MyDropdownButtonState extends State<MyDropdownButton> {
+  int _index = 0;
   double _width;
   @override
   void initState() {
@@ -57,27 +60,18 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
       children: [
         Text(widget.title, textAlign: TextAlign.start,),
         Container(
-          // color: Colors.red,
-          // decoration: BoxDecoration(
-          //   borderRadius: BorderRadius.circular(10),
-          //   border: Border.all(color: Colors.black, width: 1, style: BorderStyle.solid)
-          // ),
-          width: _width,
-          // height: 50,
-          child: TextFormField(
-              controller: widget.controller,
-              style: TextStyle(fontSize: 15),
-                decoration: InputDecoration(
-                  hintText: widget.hint,
-                  contentPadding: EdgeInsets.all(10),
-                  isDense: true,
-                  border: new OutlineInputBorder(
-                    // borderRadius: new BorderRadius.circular(25.0),
-                    borderSide: new BorderSide(),
-                  ),
-                ),
-              ),
-        ),
+            width: _width,
+            child: DropdownButton(
+              isExpanded: true, 
+              items: widget.elements.map<DropdownMenuItem>((e) => DropdownMenuItem(child: Text(e), value: e,)).toList(), 
+              onChanged: (data){
+                widget.onChanged(data);
+                int idx = widget.elements.indexWhere((element) => element == data);
+                setState(() => _index = idx);
+              }, 
+              value: widget.elements[_index],
+            )
+          )
       ],
     );
   }
