@@ -281,11 +281,13 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
 
                                             }, 
                                             elements: ["Cedula de identidad", "RNC"],
+                                            medium: 2,
+                                            xlarge: 4,
                                           ),
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
-                                          child: new MyTextFormField(title: "Documento", controller: _txtDocumento, hint: "Documento", screenSize: boxconstrains.maxWidth, medium: 3)
+                                          child: new MyTextFormField(title: "Documento", controller: _txtDocumento, hint: "Documento", screenSize: boxconstrains.maxWidth, medium: 2)
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.all(8.0),
