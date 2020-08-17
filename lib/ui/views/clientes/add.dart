@@ -177,25 +177,10 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
           ),
         ),
         Expanded(
-          child: ListView(
-            // color: Colors.blue,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Container(
-              //   decoration: new BoxDecoration(color: Theme.of(context).primaryColor),
-              //   child: new TabBar(
-              //     controller: _controller,
-              //     tabs: [
-              //       new Tab(
-              //         icon: const Icon(Icons.home),
-              //         text: 'Address',
-              //       ),
-              //       new Tab(
-              //         icon: const Icon(Icons.my_location),
-              //         text: 'Location',
-              //       ),
-              //     ],
-              //   ),
-              // ),
+              
               Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text("Clientes", style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold)),
@@ -249,11 +234,8 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                   ),
                 ),
               ),
-              LayoutBuilder(
-                builder: (context, boxConstraints) {
-                  return new Container(
-                    height: 200,
-                    child: new TabBarView(
+              Expanded(
+                child: new TabBarView(
                       controller: _tabController,
                       children: <Widget>[
                         Padding(
@@ -267,44 +249,23 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                               children: [
                               Form(
                                 key: _formKey,
-                                child: LayoutBuilder(
-                                  builder: (context, boxconstrains) {
-                                    return Wrap(
+                                child:  Wrap(
                                       alignment: WrapAlignment.start,
                                       children: [
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: MyDropdownButton(
-                                            screenSize: boxconstrains.maxWidth, 
-                                            title: "Tipo Doc.", 
-                                            onChanged: (data){
+                                        MyDropdownButton(
+                                          medium: 2, 
+                                          title: "Tipo Doc.", 
+                                          onChanged: (data){
 
-                                            }, 
-                                            elements: ["Cedula de identidad", "RNC"],
-                                            medium: 2,
-                                            xlarge: 4,
-                                          ),
+                                          }, 
+                                          elements: ["Cedula de identidad", "RNC"],
+                                          xlarge: 4,
                                         ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: new MyTextFormField(title: "Documento", controller: _txtDocumento, hint: "Documento", screenSize: boxconstrains.maxWidth, medium: 2)
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: MyTextFormField(title: "Nombres", controller: _txtNombres, hint: "Nombres", screenSize: boxconstrains.maxWidth,)
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: MyTextFormField(title: "Apellidos", controller: _txtApellidos, hint: "Apellidos", screenSize: boxconstrains.maxWidth,)
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: MyTextFormField(title: "Apodo", controller: _txtApodo, hint: "Apodo", screenSize: boxconstrains.maxWidth,)
-                                        ),
-                                        Padding(
-                                          padding: const EdgeInsets.all(6.0),
-                                          child: MyDatePicker(title: "Fecha Naci.", fecha: _fechaNacimiento, onDateTimeChanged: (newDate) => setState(() => _fechaNacimiento = newDate),),
-                                        ),
+                                        new MyTextFormField(title: "Documento", controller: _txtDocumento, hint: "Documento", medium: 2,),
+                                        MyTextFormField(title: "Nombres", controller: _txtNombres, hint: "Nombres", medium: 2,),
+                                        MyTextFormField(title: "Apellidos", controller: _txtApellidos, hint: "Apellidos", medium: 2,),
+                                        MyTextFormField(title: "Apodo", controller: _txtApodo, hint: "Apodo", medium: 2,),
+                                        MyDatePicker(title: "Fecha Naci.", fecha: _fechaNacimiento, onDateTimeChanged: (newDate) => setState(() => _fechaNacimiento = newDate),),
                                         
                                         // Column(children: [
                                         //   Text("Documento", style: TextStyle(color: Colors.red),),
@@ -318,9 +279,8 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                         //   )
                                         // ],)
                                       ],
-                                    );
-                                  }
-                                ),
+                                    )
+                                 
                               )
                             ],),
                           ),
@@ -334,9 +294,7 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                         ),
                       ],
                     ),
-                  );
-                }
-              ),
+              )
             ],
           ),
         ),
