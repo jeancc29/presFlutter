@@ -43,7 +43,7 @@ class  Utils {
   };
 
   static MaterialColor colorMaterialCustom = MaterialColor(0xFF0990D0, Utils.color);
-  static Color colorPrimaryBlue = Utils.fromHex("#1a73e8");
+  static Color colorPrimaryBlue = Utils.fromHex("#1170ec");
   static Color colorPrimary = fromHex("#38B6FF");
   static Color colorInfo = fromHex("#00bcd4");
   static Color colorInfoClaro = fromHex("4D00BCD4");

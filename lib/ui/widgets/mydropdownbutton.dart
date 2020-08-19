@@ -6,10 +6,10 @@ class MyDropdownButton extends StatefulWidget {
   final String title;
   final String hint;
 
-  final int small;
-  final int medium;
-  final int large;
-  final int xlarge;
+  final double small;
+  final double medium;
+  final double large;
+  final double xlarge;
 
   final List<String> elements;
   final double padding;

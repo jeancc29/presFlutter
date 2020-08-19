@@ -5,13 +5,14 @@ class MyTextFormField extends StatefulWidget {
   final String title;
   final TextEditingController controller;
   final String hint;
+  final maxLines;
 
-  final int small;
-  final int medium;
-  final int large;
-  final int xlarge;
+  final double small;
+  final double medium;
+  final double large;
+  final double xlarge;
   final double padding;
-  MyTextFormField({Key key, @required this.title, this.controller, this.hint, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8}) : super(key: key);
+  MyTextFormField({Key key, @required this.title, this.controller, this.hint, this.maxLines = 1, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8}) : super(key: key);
   @override
   _MyTextFormFieldState createState() => _MyTextFormFieldState();
 }
@@ -71,6 +72,8 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                 // height: 50,
                 child: TextFormField(
                     controller: widget.controller,
+                    maxLines: widget.maxLines,
+                    keyboardType: (widget.maxLines != 1) ? TextInputType.multiline : null,
                     style: TextStyle(fontSize: 15),
                       decoration: InputDecoration(
                         hintText: widget.hint,

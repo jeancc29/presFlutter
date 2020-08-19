@@ -6,10 +6,10 @@ class MyDatePicker extends StatefulWidget {
   final String title;
   final ValueChanged<DateTime> onDateTimeChanged;
 
-  final int small;
-  final int medium;
-  final int large;
-  final int xlarge;
+  final double small;
+  final double medium;
+  final double large;
+  final double xlarge;
   final double padding;
   MyDatePicker({Key key,@required this.title, this.fecha, @required this.onDateTimeChanged, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8}) : super(key: key);
 
