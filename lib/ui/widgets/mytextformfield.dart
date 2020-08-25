@@ -61,7 +61,7 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.title, textAlign: TextAlign.start,),
+              Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15),),
               Container(
                 // color: Colors.red,
                 // decoration: BoxDecoration(

@@ -51,6 +51,14 @@ class  Utils {
   static Color colorGris = fromHex("#eae9e9");
 
 
+  static Color colorGreyFromPairIndex({int idx}){
+    if(idx % 2 != 0)
+      return colorGris;
+    else
+      return Colors.transparent;
+  }
+
+
 
   static Future<String> createJwt(Map<String, dynamic> data) async {
     var builder = new JWTBuilder();

@@ -1,0 +1,64 @@
+[
+    {
+		"id" : 787678,
+		"id_state" : 2073,
+		"name" : "Agua Santa del Yuna"
+    },
+    {
+		"id" : 787681,
+		"id_state" : 2073,
+		"name" : "Arenoso"
+	},
+    {
+		"id" : 787700,
+		"id_state" : 2073,
+		"name" : "Castillo"
+	},
+    {
+		"id" : 787702,
+		"id_state" : 2073,
+		"name" : "Cenoví"
+	},
+    {
+		"id" : 787744,
+		"id_state" : 2073,
+		"name" : "Hostos"
+	},
+    {
+		"id" : 787768,
+		"id_state" : 2073,
+		"name" : "La Peña"
+	},
+    {
+		"id" : 787773,
+		"id_state" : 2073,
+		"name" : "Las Guaranas"
+	},
+    {
+		"id" : 787822,
+		"id_state" : 2073,
+		"name" : "Pimentel"
+	},
+    {
+		"id" : 787845,
+		"id_state" : 2073,
+		"name" : "San Francisco de Macorís"
+	},
+    {
+		"id" : 787870,
+		"id_state" : 2073,
+		"name" : "Villa Riva"
+    },
+    
+    
+
+
+
+    {
+		"id" : 4982,
+		"id_state" : 387,
+		"name" : "Santo Domingo"
+	}
+
+
+]

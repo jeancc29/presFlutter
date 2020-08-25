@@ -1,6 +1,15 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:html';
+import 'dart:io' as IO;
+import 'dart:typed_data';
+
+import 'package:file_picker_web/file_picker_web.dart';
 import 'package:flutter/material.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
+import 'package:prestamo/core/models/referencia.dart';
+import 'package:prestamo/ui/views/clientes/dialogreferencia.dart';
 import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
 import 'package:prestamo/ui/widgets/mydatepicker.dart';
 import 'package:prestamo/ui/widgets/mydropdownbutton.dart';
@@ -8,6 +17,7 @@ import 'package:prestamo/ui/widgets/myexpansiontile.dart';
 import 'package:prestamo/ui/widgets/mylisttile.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ClientesAdd extends StatefulWidget {
   @override
@@ -15,6 +25,8 @@ class ClientesAdd extends StatefulWidget {
 }
 
 class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin {
+  File _image;
+  StreamController<List<Referencia>> _streamBuilderReferencia;
   ScrollController _scrollController;
   ScrollController _scrollControllerTrabajo;
   var _txtDocumento = TextEditingController();
@@ -55,11 +67,65 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
   var _tabController;
   bool _cargando = false;
   // var _controller = TabController(initialIndex: 0)
+  List<Referencia> listaReferencia = List();
+
+  _agregarReferencia() async {
+    Referencia referencia = await showDialog(context: context, builder: (context){return DialogReferencia(context: context,);});
+    if(referencia != null){
+      listaReferencia.add(referencia);
+      _streamBuilderReferencia.add(listaReferencia);
+    }
+    print("Referencia: ${referencia.toJson()}");
+  }
+
+  _removerReferencia(Referencia referencia){
+    if(referencia != null){
+      listaReferencia.remove(referencia);
+      _streamBuilderReferencia.add(listaReferencia);
+    }
+  }
+
+  // variable to hold image to be displayed 
+
+      Uint8List uploadedImage;
+
+//method to load image and update `uploadedImage`
+
+
+    _startFilePicker() async {
+    InputElement uploadInput = FileUploadInputElement();
+    uploadInput.click();
+
+    uploadInput.onChange.listen((e) {
+      // read file content as dataURL
+      final files = uploadInput.files;
+      if (files.length == 1) {
+        final file = files[0];
+        FileReader reader =  FileReader();
+
+        reader.onLoadEnd.listen((e) {
+                    setState(() {
+                      uploadedImage = reader.result;
+                      
+                    });
+        });
+
+        reader.onError.listen((fileEvent) {
+          setState(() {
+            String option1Text = "Some Error occured while reading the file";
+          });
+        });
+
+        reader.readAsArrayBuffer(file);
+      }
+    });
+    }
 
   @override
   void initState() {
     // TODO: implement initState
-    _tabController = TabController(length: 2, vsync: this);
+    _streamBuilderReferencia = BehaviorSubject();
+    _tabController = TabController(length: 3, vsync: this);
     _scrollController = ScrollController();
     _scrollControllerTrabajo = ScrollController();
     super.initState();
@@ -308,6 +374,10 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                         // icon: const Icon(Icons.my_location),
                         child: Text('Trabajo',),
                       ),
+                      new Tab(
+                        // icon: const Icon(Icons.my_location),
+                        child: Text('Referencias',),
+                      ),
                     ],
                   ),
                 ),
@@ -318,6 +388,7 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                   child: new TabBarView(
                         controller: _tabController,
                         children: <Widget>[
+                          
                           Padding(
                             padding: const EdgeInsets.only(left: 18.0, top: 20.0),
                             child: DraggableScrollbar(
@@ -329,11 +400,51 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                               child: ListView(
                                 controller: _scrollController,
                                 children: [
+                               
                                 Wrap(
                                       alignment: WrapAlignment.start,
                                       children: [
-                                        MySubtitle(title: "Datos personales"),
-                                        MyDropdownButton(
+                                        InkWell(
+                                          onTap: () async {
+                                            // File file = await FilePicker.getFile();
+                                            // IO.File(file.relativePath);
+                                            // // base64.decode(file);
+                                            // setState(() {
+                                            //   _image = file;
+                                            // });
+                                            _startFilePicker();
+                                            // print("Archivo: ${file.name}");
+                                            // Blo
+                                            // print("ArchivoType: ${file.}");
+                                          },
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(top: 8.0, right: 20),
+                                            child: Container(
+                                              // color: ,
+                                              width: 130,
+                                              height: 130,
+                                              child:  ClipRRect(
+                                                borderRadius: BorderRadius.circular(15),
+                                                child: Container(
+                                                  child: Align(
+                                                    alignment: Alignment.topLeft,
+                                                    widthFactor: 0.75,
+                                                    heightFactor: 0.75,
+                                                    child: uploadedImage != null ? Image.memory(uploadedImage) : Image(image: AssetImage('images/user.png'), ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        LayoutBuilder(
+                                          builder: (context, boxconstraints){
+                                            return Container(
+                                              width: boxconstraints.maxWidth / 1.2,
+                                              child: Wrap(
+                                                children: [
+                                                  MySubtitle(title: "Datos personales"),
+                                                  MyDropdownButton(
                                           medium: 2, 
                                           title: "Tipo Doc.", 
                                           onChanged: (data){
@@ -345,6 +456,12 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                         new MyTextFormField(title: "Documento", controller: _txtDocumento, hint: "Documento", medium: 2,),
                                         MyTextFormField(title: "Nombres", controller: _txtNombres, hint: "Nombres", medium: 2, xlarge: 3.7,),
                                         MyTextFormField(title: "Apellidos", controller: _txtApellidos, hint: "Apellidos", medium: 2, xlarge: 3.7,),
+                                                ],
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                        
                                         MyTextFormField(title: "Apodo", controller: _txtApodo, hint: "Apodo", medium: 2, xlarge: 8),
                                         MyDatePicker(title: "Fecha Nacimiento", fecha: _fechaNacimiento, onDateTimeChanged: (newDate) => setState(() => _fechaNacimiento = newDate), medium: 2,),
                                         MyTextFormField(title: "No. Dependientes", controller: _txtNumeroDependientes, hint: "No. Dependientes", medium: 2, xlarge: 6),
@@ -481,10 +598,30 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                               ],),
                             ),
                           ),
+                          Column(
+                            children: [
+                              Align(
+                                alignment: Alignment.topRight,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 25.0),
+                                  child: FlatButton(onPressed: _agregarReferencia, child: Text("+ Agregar referencia", style: TextStyle(fontFamily: "Roboto",color: Utils.colorPrimaryBlue, fontWeight: FontWeight.w600)))
+                                ),
+                              ),
+                              StreamBuilder<List<Referencia>>(
+                                stream: _streamBuilderReferencia.stream,
+                                builder: (context, snapshot) {
+                                  if(snapshot.hasData){
+                                    return _buildTable(snapshot.data);
+                                  }
+                                  return _buildTable(List<Referencia>());
+                                }
+                              ),
+                            ],
+                          )
                         ],
                       ),
                 ),
-              )
+              ),
             ],
           ),
         ),
@@ -492,5 +629,108 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
       ],),
     );
   }
+
+  Widget _buildTable(List<Referencia> map){
+   var tam = (map != null) ? map.length : 0;
+   List<TableRow> rows;
+   if(tam == 0){
+     rows = <TableRow>[];
+   }else{
+     rows = map.asMap().map((idx, b)
+          => MapEntry(
+            idx,
+            TableRow(
+              
+              children: [
+                Container(
+                  padding: EdgeInsets.only(top: 5, bottom: 5),
+                  color: Utils.colorGreyFromPairIndex(idx: idx),
+                  child: Center(
+                    child: InkWell(onTap: (){}, child: Text(b.tipo, style: TextStyle(fontSize: 14, decoration: TextDecoration.underline)))
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.only(top: 5, bottom: 5),
+                  color: Utils.colorGreyFromPairIndex(idx: idx), 
+                  child: Center(child: Text(b.nombre, style: TextStyle(fontSize: 14)))
+                ),
+                Container(
+                  padding: EdgeInsets.only(top: 5, bottom: 5),
+                  color: Utils.colorGreyFromPairIndex(idx: idx), 
+                  child: Center(child: Text(b.telefono, style: TextStyle(fontSize: 14)))
+                ),
+                Container(
+                  padding: EdgeInsets.only(top: 5, bottom: 5),
+                  color: Utils.colorGreyFromPairIndex(idx: idx), 
+                  child: Center(child: Text(b.parentesco, style: TextStyle(fontSize: 14)))
+                ),
+                
+                // Container(
+                //   padding: EdgeInsets.only(top: 5, bottom: 5),
+                //   color: (Utils.toDouble(b["balanceActual"].toString()) >= 0) ? Utils.colorInfoClaro : Utils.colorRosa, 
+                //   child: Center(child: Text("${Utils.toCurrency(b["balanceActual"])}", style: TextStyle(fontSize: 14)))
+                // ),
+                Center(child: IconButton(icon: Icon(Icons.delete, size: 28,), onPressed: () async {_removerReferencia(b);},)),
+              ],
+            )
+          )
+        
+        ).values.toList();
+   }
+
+   rows.insert(0, 
+              TableRow(
+                decoration: BoxDecoration( border: Border(bottom: BorderSide())),
+                children: [
+                  // buildContainer(Colors.blue, 50.0),
+                  // buildContainer(Colors.red, 50.0),
+                  // buildContainer(Colors.blue, 50.0),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 4.0, right: 4.0),
+                    child: Center(child: Text('Tipo', style: TextStyle( fontWeight: FontWeight.bold)),),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 4.0, right: 4.0),
+                    child: Center(child: Text('Nombre', style: TextStyle( fontWeight: FontWeight.bold, )),),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 4.0, right: 4.0),
+                    child: Center(child: Text('Telefono', style: TextStyle( fontWeight: FontWeight.bold)),),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 4.0, right: 4.0),
+                    child: Center(child: Text('Parentesco', style: TextStyle( fontWeight: FontWeight.bold)),),
+                  ),
+                 
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Center(child: Text('Borrar', style: TextStyle( fontWeight: FontWeight.bold)),),
+                  ),
+                ]
+              )
+              );
+
+     
+
+  return  Expanded(
+      child: ListView(
+        children: <Widget>[
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Table(
+                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+                columnWidths: <int, TableColumnWidth>{
+                  // 1 : FractionColumnWidth(.12),
+                  7 : FractionColumnWidth(.28)
+                  },
+                children: rows,
+               ),
+          ),
+        ],
+      ),
+  );
+  
+  
+ }
 }
 

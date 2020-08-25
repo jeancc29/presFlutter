@@ -1,0 +1,159 @@
+[
+    {
+    "id" : 2073,
+    "id_country" : 138,
+    "name" : "Duarte"
+    },
+    {
+		"id" : 387,
+		"id_country" : 138,
+		"name" : "Santo Domingo"
+    },
+    {
+		"id" : 2074,
+		"id_country" : 138,
+		"name" : "Puerto Plata"
+	},
+    {
+		"id" : 2075,
+		"id_country" : 138,
+		"name" : "Valverde"
+	},
+    {
+		"id" : 2076,
+		"id_country" : 138,
+		"name" : "María Trinidad Sánchez"
+	},
+	{
+		"id" : 2077,
+		"id_country" : 138,
+		"name" : "Azua"
+	},
+	{
+		"id" : 2078,
+		"id_country" : 138,
+		"name" : "Santiago"
+	},
+	{
+		"id" : 2079,
+		"id_country" : 138,
+		"name" : "San Cristóbal"
+	},
+	{
+		"id" : 2080,
+		"id_country" : 138,
+		"name" : "Peravia"
+	},
+	{
+		"id" : 2081,
+		"id_country" : 138,
+		"name" : "Elías Piña"
+	},
+	{
+		"id" : 2082,
+		"id_country" : 138,
+		"name" : "Barahona"
+	},
+	{
+		"id" : 2083,
+		"id_country" : 138,
+		"name" : "Monte Plata"
+	},
+	{
+		"id" : 2084,
+		"id_country" : 138,
+		"name" : "Salcedo"
+	},
+	{
+		"id" : 2085,
+		"id_country" : 138,
+		"name" : "La Altagracia"
+	},
+	{
+		"id" : 2086,
+		"id_country" : 138,
+		"name" : "San Juan"
+	},
+	{
+		"id" : 2087,
+		"id_country" : 138,
+		"name" : "Monseñor Nouel"
+	},
+	{
+		"id" : 2088,
+		"id_country" : 138,
+		"name" : "Monte Cristi"
+	},
+	{
+		"id" : 2089,
+		"id_country" : 138,
+		"name" : "Espaillat"
+	},
+	{
+		"id" : 2090,
+		"id_country" : 138,
+		"name" : "Sánchez Ramírez"
+	},
+	{
+		"id" : 2091,
+		"id_country" : 138,
+		"name" : "La Vega"
+	},
+	{
+		"id" : 2092,
+		"id_country" : 138,
+		"name" : "San Pedro de Macorís"
+	},
+	{
+		"id" : 2093,
+		"id_country" : 138,
+		"name" : "Independencia"
+	},
+	{
+		"id" : 2094,
+		"id_country" : 138,
+		"name" : "Dajabón"
+	},
+	{
+		"id" : 2095,
+		"id_country" : 138,
+		"name" : "Baoruco"
+	},
+	{
+		"id" : 2096,
+		"id_country" : 138,
+		"name" : "El Seibo"
+	},
+	{
+		"id" : 2097,
+		"id_country" : 138,
+		"name" : "Hato Mayor"
+	},
+	{
+		"id" : 2098,
+		"id_country" : 138,
+		"name" : "La Romana"
+	},
+	{
+		"id" : 2099,
+		"id_country" : 138,
+		"name" : "Pedernales"
+	},
+	{
+		"id" : 2100,
+		"id_country" : 138,
+		"name" : "Samaná"
+	},
+	{
+		"id" : 2101,
+		"id_country" : 138,
+		"name" : "Santiago Rodríguez"
+	},
+	{
+		"id" : 2102,
+		"id_country" : 138,
+		"name" : "San José de Ocoa"
+	}
+
+
+]

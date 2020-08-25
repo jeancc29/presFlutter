@@ -60,7 +60,7 @@ class _MyDropdownButtonState extends State<MyDropdownButton> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.title, textAlign: TextAlign.start,),
+              Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15),),
               Container(
                   width: getWidth(boxconstraints.maxWidth) - (widget.padding * 2),
                   child: DropdownButton(
