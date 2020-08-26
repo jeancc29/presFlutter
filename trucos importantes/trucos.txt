@@ -2,3 +2,6 @@
 1) How can I scroll to a special widget in a ListView? For instance 
 I want to scroll automatically to some Container in the ListView if I press a specific button.
 https://stackoverflow.com/questions/49153087/flutter-scrolling-to-a-widget-in-listview
+
+2) Como darle formato json api a laravel
+https://medium.com/zero-equals-false/using-laravel-5-5-resources-to-create-your-own-json-api-formatted-api-2c6af5e4d0e8

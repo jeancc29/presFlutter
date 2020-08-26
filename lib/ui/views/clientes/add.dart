@@ -8,7 +8,12 @@ import 'package:file_picker_web/file_picker_web.dart';
 import 'package:flutter/material.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
+import 'package:prestamo/core/models/ciudad.dart';
+import 'package:prestamo/core/models/cliente.dart';
+import 'package:prestamo/core/models/direccion.dart';
+import 'package:prestamo/core/models/estado.dart';
 import 'package:prestamo/core/models/referencia.dart';
+import 'package:prestamo/core/services/customerservice.dart';
 import 'package:prestamo/ui/views/clientes/dialogreferencia.dart';
 import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
 import 'package:prestamo/ui/widgets/mydatepicker.dart';
@@ -25,8 +30,12 @@ class ClientesAdd extends StatefulWidget {
 }
 
 class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin {
+  Cliente _cliente;
   File _image;
   StreamController<List<Referencia>> _streamBuilderReferencia;
+  StreamController<String> _streamControllerFotoCliente;
+  StreamController<List<Ciudad>> _streamControllerCiudades;
+  StreamController<List<Estado>> _streamControllerEstados;
   ScrollController _scrollController;
   ScrollController _scrollControllerTrabajo;
   var _txtDocumento = TextEditingController();
@@ -66,22 +75,41 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
 
   var _tabController;
   bool _cargando = false;
+  List<Ciudad> listaCiudad;
+  List<Estado> listaEstado;
+  int _indexCiudadPersona = 0;
+  int _indexEstadoPersona = 0;
   // var _controller = TabController(initialIndex: 0)
-  List<Referencia> listaReferencia = List();
+  
+  _init() async {
+    try {
+      setState(() => _cargando = true);
+      var parsed = await CustomerService.index(context: context);
+      listaCiudad = (parsed["ciudades"] != null) ? parsed["ciudades"].map<Ciudad>((json) => Ciudad.fromMap(json)).toList() : List<Ciudad>();
+      listaEstado = (parsed["estados"] != null) ? parsed["estados"].map<Estado>((json) => Estado.fromMap(json)).toList() : List<Estado>();
+      _streamControllerCiudades.add(listaCiudad);
+      _streamControllerEstados.add(listaEstado);
+      setState(() => _cargando = false);
+    } catch (e) {
+      setState(() => _cargando = false);
+    }
+  }
 
   _agregarReferencia() async {
     Referencia referencia = await showDialog(context: context, builder: (context){return DialogReferencia(context: context,);});
     if(referencia != null){
-      listaReferencia.add(referencia);
-      _streamBuilderReferencia.add(listaReferencia);
+      if(_cliente.referencias == null)
+         _cliente.referencias = List();
+      _cliente.referencias.add(referencia);
+      _streamBuilderReferencia.add(_cliente.referencias);
     }
     print("Referencia: ${referencia.toJson()}");
   }
 
   _removerReferencia(Referencia referencia){
     if(referencia != null){
-      listaReferencia.remove(referencia);
-      _streamBuilderReferencia.add(listaReferencia);
+      _cliente.referencias.remove(referencia);
+      _streamBuilderReferencia.add(_cliente.referencias);
     }
   }
 
@@ -103,10 +131,10 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
         final file = files[0];
         FileReader reader =  FileReader();
 
-        reader.onLoadEnd.listen((e) {
+         reader.onLoadEnd.listen((e) {
                     setState(() {
                       uploadedImage = reader.result;
-                      
+                      _streamControllerFotoCliente.add(base64Encode(uploadedImage));
                     });
         });
 
@@ -121,13 +149,41 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
     });
     }
 
+    _estadoPersonaChange(data){
+      print("Estado change: ${data}");
+      Estado estado = listaEstado.firstWhere((element) => element.nombre == data);
+      if(_cliente.direccion == null)
+        _cliente.direccion = Direccion();
+
+      _cliente.direccion.idEstado = estado.id;
+      _cliente.direccion.estado = estado;
+
+      if(listaCiudad != null)
+        _streamControllerCiudades.add(listaCiudad.where((element) => element.idEstado == estado.id).toList());
+    }
+
+    _ciudadPersonaChange(data){
+      print("Estado change: ${data}");
+      Ciudad ciudad = listaCiudad.firstWhere((element) => element.nombre == data);
+      if(_cliente.direccion == null)
+        _cliente.direccion = Direccion();
+
+      _cliente.direccion.idCiudad = ciudad.id;
+      _cliente.direccion.ciudad = ciudad;
+    }
+
   @override
   void initState() {
     // TODO: implement initState
+    _cliente = Cliente();
     _streamBuilderReferencia = BehaviorSubject();
+    _streamControllerFotoCliente = BehaviorSubject();
+    _streamControllerCiudades = BehaviorSubject();
+    _streamControllerEstados = BehaviorSubject();
     _tabController = TabController(length: 3, vsync: this);
     _scrollController = ScrollController();
     _scrollControllerTrabajo = ScrollController();
+    _init();
     super.initState();
   }
 
@@ -313,10 +369,14 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                   elevation: 0,
                                   color: Utils.colorPrimaryBlue,
                                   child: Text('Guardar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                  onPressed: (){
+                                  onPressed: () async {
                                     // _connect();
                                     if(_formKey.currentState.validate()){
                                       // _guardar();
+                                      _cliente.nombres = _txtNombres.text;
+                                      _cliente.apellidos = _txtApellidos.text;
+                                      _cliente.apellidos = _txtApellidos.text;
+                                      await CustomerService.store(context: context, cliente: _cliente);
                                     }
                                   },
                               ),
@@ -417,26 +477,26 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                             // Blo
                                             // print("ArchivoType: ${file.}");
                                           },
-                                          child: Padding(
-                                            padding: const EdgeInsets.only(top: 8.0, right: 20),
-                                            child: Container(
-                                              // color: ,
-                                              width: 130,
-                                              height: 130,
-                                              child:  ClipRRect(
-                                                borderRadius: BorderRadius.circular(15),
-                                                child: Container(
-                                                  child: Align(
-                                                    alignment: Alignment.topLeft,
-                                                    widthFactor: 0.75,
-                                                    heightFactor: 0.75,
-                                                    child: uploadedImage != null ? Image.memory(uploadedImage) : Image(image: AssetImage('images/user.png'), ),
+                                          child: StreamBuilder<String>(
+                                            stream: _streamControllerFotoCliente.stream,
+                                            builder: (context, snapshot) {
+                                              if(snapshot.hasData)
+                                                _cliente.foto = snapshot.data; 
+                                              return Container(
+                                                // color: ,
+                                                width: 130,
+                                                height: 130,
+                                                child:  ClipRRect(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  child: Container(
+                                                    child: Utils.getClienteFoto(_cliente),
                                                   ),
                                                 ),
-                                              ),
-                                            ),
+                                              );
+                                            }
                                           ),
                                         ),
+                                        SizedBox(width: 20,),
                                         LayoutBuilder(
                                           builder: (context, boxconstraints){
                                             return Container(
@@ -493,25 +553,55 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                           xlarge: 6,
                                         ),
                                         MySubtitle(title: "Datos direccion"),
+                                        StreamBuilder<List<Estado>>(
+                                          stream: _streamControllerEstados.stream,
+                                          builder: (context, snapshot) {
+                                            if(snapshot.hasData){
+                                              List<String> lista = snapshot.data.map((e) => e.nombre).toList();
+                                              return MyDropdownButton(
+                                                medium: 2, 
+                                                title: "Provincia", 
+                                                onChanged: _estadoPersonaChange, 
+                                                elements: lista,
+                                                xlarge: 4,
+                                              );
+                                            }
+                                            return MyDropdownButton(
+                                              medium: 2, 
+                                              title: "Estado", 
+                                              onChanged: (data){
+
+                                              }, 
+                                              elements: ["No hay datos"],
+                                              xlarge: 4,
+                                            );
+                                          }
+                                        ),
+                                        StreamBuilder<List<Ciudad>>(
+                                          stream: _streamControllerCiudades.stream,
+                                          builder: (context, snapshot) {
+                                            if(snapshot.hasData){
+                                              List<String> lista = snapshot.data.map((e) => e.nombre).toList();
+                                              return MyDropdownButton(
+                                                medium: 2, 
+                                                title: "Ciudad", 
+                                                onChanged: _ciudadPersonaChange, 
+                                                elements: lista,
+                                                xlarge: 4,
+                                              );
+                                            }
+                                            return MyDropdownButton(
+                                              medium: 2, 
+                                              title: "Ciudad", 
+                                              onChanged: (data){
+
+                                              }, 
+                                              elements: ["No hay datos"],
+                                              xlarge: 4,
+                                            );
+                                          }
+                                        ),
                                         MyTextFormField(title: "Direccion", controller: _txtDireccion, hint: "Direccion", medium: 2, xlarge: 3.5),
-                                        MyDropdownButton(
-                                          medium: 2, 
-                                          title: "Ciudad", 
-                                          onChanged: (data){
-
-                                          }, 
-                                          elements: ["Distrito Nacional", "Santo Domingo Este", "Santiago de los Caballeros"],
-                                          xlarge: 4,
-                                        ),
-                                        MyDropdownButton(
-                                          medium: 2, 
-                                          title: "Provincia", 
-                                          onChanged: (data){
-
-                                          }, 
-                                          elements: ["Santiago", "Santo Domingo", "San Cristobal"],
-                                          xlarge: 4,
-                                        ),
                                         MyTextFormField(title: "Sector", controller: _txtSector, hint: "Sector", medium: 2,),
                                         MySubtitle(title: "Contacto"),
                                         MyTextFormField(title: "Telefono", controller: _txtTelefeno, hint: "Telefono", medium: 2,),
