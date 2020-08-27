@@ -3,16 +3,16 @@
 class Documento {
   int id;
   String descripcion;
-  int idTipoe;
+  int idTipo;
   String tipo;
   
 
-  Documento({this.id, this.descripcion, this.idTipoe, this.tipo});
+  Documento({this.id, this.descripcion, this.idTipo, this.tipo});
 
   Documento.fromMap(Map snapshot) :
         id = snapshot['id'] ?? 0,
         descripcion = snapshot['descripcion'] ?? '',
-        idTipoe = snapshot['idTipoe'] ?? 0,
+        idTipo = snapshot['idTipo'] ?? 0,
         tipo = snapshot['tipo'] ?? ''
         ;
 
@@ -23,7 +23,7 @@ class Documento {
     return {
       "id": id,
       "descripcion": descripcion,
-      "idTipoe": idTipoe,
+      "idTipo": idTipo,
       "tipo": tipo,
     };
   }

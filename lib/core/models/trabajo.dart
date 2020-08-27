@@ -1,5 +1,6 @@
 
 
+import 'package:prestamo/core/models/contacto.dart';
 import 'package:prestamo/core/models/direccion.dart';
 import 'package:prestamo/core/models/referencia.dart';
 import 'package:prestamo/core/classes/utils.dart';
@@ -12,11 +13,14 @@ class Trabajo {
   String ocupacion;
   double ingresos;
   double otrosIngresos;
+  DateTime fechaIngreso;
+  int idContacto;
+  Contacto contacto;
   int idDireccion;
   Direccion direccion;
 
 
-  Trabajo({this.id, this.foto, this.nombre, this.ocupacion, this.ingresos, this.otrosIngresos, this.idDireccion, this.direccion});
+  Trabajo({this.id, this.foto, this.nombre, this.ocupacion, this.ingresos, this.otrosIngresos, this.idContacto, this.contacto, this.idDireccion, this.direccion, this.fechaIngreso});
 
   Trabajo.fromMap(Map snapshot) :
         id = snapshot['id'] ?? 0,
@@ -25,8 +29,11 @@ class Trabajo {
         ocupacion = snapshot['ocupacion'] ?? '',
         ingresos = Utils.toDouble(snapshot['ingresos'].toString()) ?? 0,
         otrosIngresos = Utils.toDouble(snapshot['otrosIngresos'].toString()) ?? 0,
+        fechaIngreso = DateTime.parse(snapshot['fechaIngreso']) ?? null,
         idDireccion = snapshot['idDireccion'] ?? 0,
-        direccion = (snapshot['direccion'] != null) ? Direccion.fromMap(snapshot['direccion']) : null
+        direccion = (snapshot['direccion'] != null) ? Direccion.fromMap(snapshot['direccion']) : null,
+        idContacto = snapshot['idContacto'] ?? 0,
+        contacto = (snapshot['contacto'] != null) ? Contacto.fromMap(snapshot['contacto']) : null
         ;
 
 // List sorteosToJson() {
@@ -60,6 +67,11 @@ class Trabajo {
       "ocupacion": ocupacion,
       "ingresos": ingresos,
       "otrosIngresos": otrosIngresos,
+      "fechaIngreso": fechaIngreso,
+      "idDireccion": idDireccion,
+      "direccion": direccion.toJson(),
+      "idContacto": idContacto,
+      "contacto": contacto.toJson(),
     };
   }
 }

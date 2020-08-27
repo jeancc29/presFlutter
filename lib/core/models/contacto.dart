@@ -3,7 +3,7 @@
 class Contacto {
   int id;
   String telefono;
-  int extension;
+  String extension;
   String celular;
   String fax;
   String correo;

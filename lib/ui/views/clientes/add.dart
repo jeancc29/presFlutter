@@ -10,9 +10,13 @@ import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/ciudad.dart';
 import 'package:prestamo/core/models/cliente.dart';
+import 'package:prestamo/core/models/contacto.dart';
 import 'package:prestamo/core/models/direccion.dart';
+import 'package:prestamo/core/models/documento.dart';
 import 'package:prestamo/core/models/estado.dart';
+import 'package:prestamo/core/models/negocio.dart';
 import 'package:prestamo/core/models/referencia.dart';
+import 'package:prestamo/core/models/trabajo.dart';
 import 'package:prestamo/core/services/customerservice.dart';
 import 'package:prestamo/ui/views/clientes/dialogreferencia.dart';
 import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
@@ -31,11 +35,28 @@ class ClientesAdd extends StatefulWidget {
 
 class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin {
   Cliente _cliente;
+  Documento _documento;
+  Trabajo _trabajo;
+  Negocio _negocio;
+  Direccion _direccionCliente;
+  Contacto _contactoCliente;
+  Direccion _direccionTrabajo;
+  Contacto _contactoTrabajo;
+  Direccion _direccionNegocio;
+  Contacto _contactoNegocio;
+  List<Referencia> listaReferencia;
+  String _sexo;
+  String _estadoCivil;
+  String _nacionalidad;
   File _image;
   StreamController<List<Referencia>> _streamBuilderReferencia;
   StreamController<String> _streamControllerFotoCliente;
   StreamController<List<Ciudad>> _streamControllerCiudades;
   StreamController<List<Estado>> _streamControllerEstados;
+  StreamController<List<Ciudad>> _streamControllerCiudadesTrabajo;
+  StreamController<List<Estado>> _streamControllerEstadosTrabajo;
+  StreamController<List<Ciudad>> _streamControllerCiudadesNegocio;
+  StreamController<List<Estado>> _streamControllerEstadosNegocio;
   ScrollController _scrollController;
   ScrollController _scrollControllerTrabajo;
   var _txtDocumento = TextEditingController();
@@ -49,10 +70,13 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
   var _txtSector = TextEditingController();
   var _txtTelefeno = TextEditingController();
   var _txtCelular = TextEditingController();
-  var _txtFax = TextEditingController();
+  var _txtCorreo = TextEditingController();
+  var _txtFacebook = TextEditingController();
+  var _txtInstagram = TextEditingController();
   var _txtTiempoEnResidencia = TextEditingController();
   var _txtReferidoPor = TextEditingController();
 
+  var _txtNombreTrabajo = TextEditingController();
   var _txtDireccionTrabajo = TextEditingController();
   var _txtNumeroTrabajo = TextEditingController();
   var _txtSectorTrabajo = TextEditingController();
@@ -60,6 +84,7 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
   var _txtTelefonoTrabajo = TextEditingController();
   var _txtExtensionTrabajo = TextEditingController();
   var _txtFaxTrabajo = TextEditingController();
+  var _txtCorreoTrabajo = TextEditingController();
   var _txtOcupacionTrabajo = TextEditingController();
   var _txtDepartamentoTrabajo = TextEditingController();
   var _txtSupervisorTrabajo = TextEditingController();
@@ -89,6 +114,8 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
       listaEstado = (parsed["estados"] != null) ? parsed["estados"].map<Estado>((json) => Estado.fromMap(json)).toList() : List<Estado>();
       _streamControllerCiudades.add(listaCiudad);
       _streamControllerEstados.add(listaEstado);
+      _streamControllerCiudadesTrabajo.add(listaCiudad);
+      _streamControllerEstadosTrabajo.add(listaEstado);
       setState(() => _cargando = false);
     } catch (e) {
       setState(() => _cargando = false);
@@ -98,18 +125,18 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
   _agregarReferencia() async {
     Referencia referencia = await showDialog(context: context, builder: (context){return DialogReferencia(context: context,);});
     if(referencia != null){
-      if(_cliente.referencias == null)
-         _cliente.referencias = List();
-      _cliente.referencias.add(referencia);
-      _streamBuilderReferencia.add(_cliente.referencias);
+      if(listaReferencia == null)
+         listaReferencia = List();
+      listaReferencia.add(referencia);
+      _streamBuilderReferencia.add(listaReferencia);
     }
     print("Referencia: ${referencia.toJson()}");
   }
 
   _removerReferencia(Referencia referencia){
     if(referencia != null){
-      _cliente.referencias.remove(referencia);
-      _streamBuilderReferencia.add(_cliente.referencias);
+      listaReferencia.remove(referencia);
+      _streamBuilderReferencia.add(listaReferencia);
     }
   }
 
@@ -152,34 +179,95 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
     _estadoPersonaChange(data){
       print("Estado change: ${data}");
       Estado estado = listaEstado.firstWhere((element) => element.nombre == data);
-      if(_cliente.direccion == null)
-        _cliente.direccion = Direccion();
+      if(_direccionCliente == null)
+        _direccionCliente = Direccion();
 
-      _cliente.direccion.idEstado = estado.id;
-      _cliente.direccion.estado = estado;
+      _direccionCliente.idEstado = estado.id;
+      _direccionCliente.estado = estado;
 
       if(listaCiudad != null)
         _streamControllerCiudades.add(listaCiudad.where((element) => element.idEstado == estado.id).toList());
     }
 
+   
+
     _ciudadPersonaChange(data){
       print("Estado change: ${data}");
       Ciudad ciudad = listaCiudad.firstWhere((element) => element.nombre == data);
-      if(_cliente.direccion == null)
-        _cliente.direccion = Direccion();
+      if(_direccionCliente == null)
+        _direccionCliente = Direccion();
 
-      _cliente.direccion.idCiudad = ciudad.id;
-      _cliente.direccion.ciudad = ciudad;
+      _direccionCliente.idCiudad = ciudad.id;
+      _direccionCliente.ciudad = ciudad;
+    }
+
+     _estadoTrabajoChange(data){
+      print("_estadoTrabajoChange: ${data}");
+      Estado estado = listaEstado.firstWhere((element) => element.nombre == data);
+      if(_direccionTrabajo == null)
+        _direccionTrabajo = Direccion();
+
+      _direccionTrabajo.idEstado = estado.id;
+      _direccionTrabajo.estado = estado;
+
+      if(listaCiudad != null)
+        _streamControllerCiudadesTrabajo.add(listaCiudad.where((element) => element.idEstado == estado.id).toList());
+    }
+
+    _ciudadTrabajoChange(data){
+      print("Estado change: ${data}");
+      Ciudad ciudad = listaCiudad.firstWhere((element) => element.nombre == data);
+      if(_direccionTrabajo == null)
+        _direccionTrabajo = Direccion();
+
+      _direccionTrabajo.idCiudad = ciudad.id;
+      _direccionTrabajo.ciudad = ciudad;
+    }
+
+     _estadoNegocioChange(data){
+      print("_estadoNegocioChange: ${data}");
+      Estado estado = listaEstado.firstWhere((element) => element.nombre == data);
+      if(_direccionNegocio == null)
+        _direccionNegocio = Direccion();
+
+      _direccionNegocio.idEstado = estado.id;
+      _direccionNegocio.estado = estado;
+
+      if(listaCiudad != null)
+        _streamControllerCiudadesNegocio.add(listaCiudad.where((element) => element.idEstado == estado.id).toList());
+    }
+
+    _ciudadNegocioChange(data){
+      print("Estado change: ${data}");
+      Ciudad ciudad = listaCiudad.firstWhere((element) => element.nombre == data);
+      if(_direccionNegocio == null)
+        _direccionNegocio = Direccion();
+
+      _direccionNegocio.idCiudad = ciudad.id;
+      _direccionNegocio.ciudad = ciudad;
     }
 
   @override
   void initState() {
     // TODO: implement initState
     _cliente = Cliente();
+    _documento = Documento();
+    _trabajo = Trabajo();
+    _negocio = Negocio();
+    _direccionCliente = Direccion();
+    _contactoCliente = Contacto();
+    _direccionTrabajo = Direccion();
+    _contactoTrabajo = Contacto();
+    _direccionNegocio = Direccion();
+    _contactoNegocio = Contacto();
     _streamBuilderReferencia = BehaviorSubject();
     _streamControllerFotoCliente = BehaviorSubject();
     _streamControllerCiudades = BehaviorSubject();
     _streamControllerEstados = BehaviorSubject();
+    _streamControllerCiudadesTrabajo = BehaviorSubject();
+    _streamControllerEstadosTrabajo = BehaviorSubject();
+    _streamControllerCiudadesNegocio = BehaviorSubject();
+    _streamControllerEstadosNegocio = BehaviorSubject();
     _tabController = TabController(length: 3, vsync: this);
     _scrollController = ScrollController();
     _scrollControllerTrabajo = ScrollController();
@@ -373,9 +461,46 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                     // _connect();
                                     if(_formKey.currentState.validate()){
                                       // _guardar();
+                                      //Set document data
+                                      _documento.id = 0;
+                                      _documento.descripcion = _txtDocumento.text;
+                                      _documento.idTipo = 1;
+                                      _cliente.documento = _documento;
+
+                                      //Set cliente data
                                       _cliente.nombres = _txtNombres.text;
                                       _cliente.apellidos = _txtApellidos.text;
                                       _cliente.apellidos = _txtApellidos.text;
+                                      _cliente.apodo = _txtApodo.text;
+                                      _cliente.fechaNacimiento = _fechaNacimiento;
+                                      _cliente.numeroDependientes = int.parse(_txtNumeroDependientes.text);
+                                      _cliente.sexo = _sexo;
+                                      _cliente.estadoCivil = _estadoCivil;
+                                      _cliente.nacionalidad = _nacionalidad;
+                                      _direccionCliente.direccion = _txtDireccion.text;
+                                      _direccionCliente.sector = _txtSector.text;
+                                      _cliente.direccion = _direccionCliente;
+                                      _contactoCliente.telefono = _txtTelefeno.text;
+                                      _contactoCliente.celular = _txtCelular.text;
+                                      _contactoCliente.correo = _txtCorreo.text;
+                                      _contactoCliente.facebook = _txtFacebook.text;
+                                      _contactoCliente.instagram = _txtInstagram.text;
+
+                                      //Set trabajo data
+                                      _trabajo.nombre = _txtNombreTrabajo.text;
+                                      _trabajo.ocupacion = _txtOcupacionTrabajo.text;
+                                      _trabajo.ingresos = Utils.toDouble(_txtIngresosTrabajo.text);
+                                      _trabajo.otrosIngresos = Utils.toDouble(_txtOtrosIngresosTrabajo.text);
+                                      _trabajo.fechaIngreso = _fechaIngresoTrabajo;
+                                      _contactoTrabajo.telefono = _txtTelefonoTrabajo.text;
+                                      _contactoTrabajo.extension = _txtExtensionTrabajo.text;
+                                      _contactoTrabajo.correo = _txtCorreoTrabajo.text;
+                                      _contactoTrabajo.fax = _txtFaxTrabajo.text;
+                                      _trabajo.contacto = _contactoTrabajo;
+                                      _direccionTrabajo.direccion = _txtDireccionTrabajo.text;
+                                      _direccionTrabajo.sector = _txtSectorTrabajo.text;
+                                      _direccionTrabajo.numero = _txtNumeroTrabajo.text;
+                                      _trabajo.direccion = _direccionTrabajo;
                                       await CustomerService.store(context: context, cliente: _cliente);
                                     }
                                   },
@@ -529,7 +654,7 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                           medium: 2, 
                                           title: "Sexo", 
                                           onChanged: (data){
-
+                                            setState(() => _sexo = data);
                                           }, 
                                           elements: ["Hombre", "Mujer", "Otro..."],
                                           xlarge: 6,
@@ -538,7 +663,7 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                           medium: 2, 
                                           title: "Estado civil", 
                                           onChanged: (data){
-
+                                            setState(() => _estadoCivil = data);
                                           }, 
                                           elements: ["Soltero", "Casado", "Union libre"],
                                           xlarge: 6,
@@ -547,7 +672,7 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                           medium: 2, 
                                           title: "Nacionalidad", 
                                           onChanged: (data){
-
+                                            setState(() => _nacionalidad = data);
                                           }, 
                                           elements: ["Dominicano", "Haitiano", "Americano", "Chino", "Japones"],
                                           xlarge: 6,
@@ -606,7 +731,9 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                         MySubtitle(title: "Contacto"),
                                         MyTextFormField(title: "Telefono", controller: _txtTelefeno, hint: "Telefono", medium: 2,),
                                         MyTextFormField(title: "Celular", controller: _txtCelular, hint: "Celular", medium: 2,),
-                                        MyTextFormField(title: "Fax", controller: _txtFax, hint: "Fax", medium: 2,),
+                                        MyTextFormField(title: "Correo", controller: _txtCorreo, hint: "Fax", medium: 2,),
+                                        MyTextFormField(title: "Facebook", controller: _txtFacebook, hint: "Fax", medium: 2,),
+                                        MyTextFormField(title: "Instagram", controller: _txtInstagram, hint: "Fax", medium: 2,),
                                         MySubtitle(title: "Datos vivienda"),
                                         MyDropdownButton(
                                           medium: 2, 
@@ -651,37 +778,124 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                       alignment: WrapAlignment.start,
                                       children: [
                                         MySubtitle(title: "Datos de trabajo"),
-                                        
-                                        MyDropdownButton(
-                                          medium: 2, 
-                                          title: "Lugar de trabajo", 
-                                          onChanged: (data){
-
-                                          }, 
-                                          elements: ["Hospital", "Taller", "Constructora", "Banco", ""],
-                                          xlarge: 4,
-                                        ),
-                                        
-                                        MyTextFormField(title: "Direccion", controller: _txtDireccionTrabajo, hint: "Direccion", medium: 2, xlarge: 2.9,),
-                                        MyTextFormField(title: "Numero", controller: _txtNumeroTrabajo, hint: "Numero", medium: 2, ),
-                                        MyTextFormField(title: "Sector", controller: _txtSectorTrabajo, hint: "Sector", medium: 2, ),
-                                        MyTextFormField(title: "Ciudad", controller: _txtCiudadTrabajo, hint: "Ciudad", medium: 2, xlarge: 4),
-                                        MyTextFormField(title: "Telefono", controller: _txtTelefonoTrabajo, hint: "Telefono", medium: 2, xlarge: 5),
-                                        MyTextFormField(title: "Extension", controller: _txtExtensionTrabajo, hint: "Extension", medium: 2, xlarge: 7),
-                                        MyTextFormField(title: "Fax", controller: _txtFaxTrabajo, hint: "Fax", medium: 2, xlarge: 5),
+                                        MyTextFormField(title: "Nombre", controller: _txtNombreTrabajo, hint: "Direccion", medium: 2, xlarge: 4,),
                                         MyTextFormField(title: "Puesto/Ocupacion", controller: _txtOcupacionTrabajo, hint: "Puesto/Ocupacion", medium: 2, xlarge: 5),
-                                        MyTextFormField(title: "Departamento", controller: _txtDepartamentoTrabajo, hint: "Departamento", medium: 2, xlarge: 4),
-                                        MyTextFormField(title: "Supervisor", controller: _txtSupervisorTrabajo, hint: "Supervisor", medium: 2, xlarge: 5),
-                                        MyTextFormField(title: "Ingresos", controller: _txtIngresosTrabajo, hint: "Ingresos", medium: 2, xlarge: 5),
+                                        MyTextFormField(title: "Ingresos", controller: _txtIngresosTrabajo, hint: "Ingresos", medium: 2, xlarge: 7),
                                         MyTextFormField(title: "Otros ingresos", controller: _txtOtrosIngresosTrabajo, hint: "Ingresos", medium: 2, xlarge: 7),
-                                        MyDatePicker(title: "Fecha ingreso", fecha: _fechaIngresoTrabajo, onDateTimeChanged: (newDate) => setState(() => _fechaNacimiento = newDate), medium: 2, xlarge: 5,),
+                                        MyDatePicker(title: "Fecha ingreso", fecha: _fechaIngresoTrabajo, onDateTimeChanged: (newDate) => setState(() => _fechaNacimiento = newDate), medium: 2, xlarge: 6.9,),
+
+                                        MyTextFormField(title: "Telefono", controller: _txtTelefonoTrabajo, hint: "Telefono", medium: 2, xlarge: 4),
+                                        MyTextFormField(title: "Extension", controller: _txtExtensionTrabajo, hint: "Extension", medium: 2, xlarge: 6.8),
+                                        MyTextFormField(title: "Correo", controller: _txtCorreoTrabajo, hint: "Correo", medium: 2, xlarge: 2.49),
+                                        MyTextFormField(title: "Fax", controller: _txtFaxTrabajo, hint: "Fax", medium: 2, xlarge: 5),
+                                        StreamBuilder<List<Estado>>(
+                                          stream: _streamControllerEstadosTrabajo.stream,
+                                          builder: (context, snapshot) {
+                                            if(snapshot.hasData){
+                                              List<String> lista = snapshot.data.map((e) => e.nombre).toList();
+                                              return MyDropdownButton(
+                                                medium: 2, 
+                                                title: "Provincia", 
+                                                onChanged: _estadoTrabajoChange, 
+                                                elements: lista,
+                                                xlarge: 4,
+                                              );
+                                            }
+                                            return MyDropdownButton(
+                                              medium: 2, 
+                                              title: "Estado", 
+                                              onChanged: (data){
+
+                                              }, 
+                                              elements: ["No hay datos"],
+                                              xlarge: 4,
+                                            );
+                                          }
+                                        ),
+                                        StreamBuilder<List<Ciudad>>(
+                                          stream: _streamControllerCiudadesTrabajo.stream,
+                                          builder: (context, snapshot) {
+                                            if(snapshot.hasData){
+                                              List<String> lista = snapshot.data.map((e) => e.nombre).toList();
+                                              return MyDropdownButton(
+                                                medium: 2, 
+                                                title: "Ciudad", 
+                                                onChanged: _ciudadTrabajoChange, 
+                                                elements: lista,
+                                                xlarge: 4,
+                                              );
+                                            }
+                                            return MyDropdownButton(
+                                              medium: 2, 
+                                              title: "Ciudad", 
+                                              onChanged: (data){
+
+                                              }, 
+                                              elements: ["No hay datos"],
+                                              xlarge: 4,
+                                            );
+                                          }
+                                        ),
+                                        MyTextFormField(title: "Direccion", controller: _txtDireccionTrabajo, hint: "Direccion", medium: 2, xlarge: 2.8,),
+                                        MyTextFormField(title: "Numero", controller: _txtNumeroTrabajo, hint: "Numero", medium: 2, xlarge: 7,),
+                                        MyTextFormField(title: "Sector", controller: _txtSectorTrabajo, hint: "Sector", medium: 2, ),
+                                        
+                                        
                                         
                                         MySubtitle(title: "Datos del negocio"),
                                         MyTextFormField(title: "Nombre", controller: _txtNombreNegocio, hint: "Nombre", medium: 2, xlarge: 3,),
                                         MyTextFormField(title: "Tipo", controller: _txtTipoNegocio, hint: "Tipo", medium: 2, xlarge: 3,),
                                         MyTextFormField(title: "Tiempo Existencia", controller: _txtTiempoExistenciaNegocio, hint: "Tiempo Existencia", medium: 2, xlarge: 3,),
-                                        MyTextFormField(title: "Direccion", controller: _txtDireccionNegocio, hint: "Direccion", medium: 2, xlarge: 2,),
-                                        MyTextFormField(title: "Rutas de venta", controller: _txtRutasdeventaNegocio, hint: "Rutas de venta", maxLines: null, medium: 2, xlarge: 2,),
+                                        StreamBuilder<List<Estado>>(
+                                          stream: _streamControllerEstadosNegocio.stream,
+                                          builder: (context, snapshot) {
+                                            if(snapshot.hasData){
+                                              List<String> lista = snapshot.data.map((e) => e.nombre).toList();
+                                              return MyDropdownButton(
+                                                medium: 2, 
+                                                title: "Provincia", 
+                                                onChanged: _estadoNegocioChange, 
+                                                elements: lista,
+                                                xlarge: 4,
+                                              );
+                                            }
+                                            return MyDropdownButton(
+                                              medium: 2, 
+                                              title: "Estado", 
+                                              onChanged: (data){
+
+                                              }, 
+                                              elements: ["No hay datos"],
+                                              xlarge: 4,
+                                            );
+                                          }
+                                        ),
+                                        StreamBuilder<List<Ciudad>>(
+                                          stream: _streamControllerCiudadesNegocio.stream,
+                                          builder: (context, snapshot) {
+                                            if(snapshot.hasData){
+                                              List<String> lista = snapshot.data.map((e) => e.nombre).toList();
+                                              return MyDropdownButton(
+                                                medium: 2, 
+                                                title: "Ciudad", 
+                                                onChanged: _ciudadNegocioChange, 
+                                                elements: lista,
+                                                xlarge: 4,
+                                              );
+                                            }
+                                            return MyDropdownButton(
+                                              medium: 2, 
+                                              title: "Ciudad", 
+                                              onChanged: (data){
+
+                                              }, 
+                                              elements: ["No hay datos"],
+                                              xlarge: 4,
+                                            );
+                                          }
+                                        ),
+                                        MyTextFormField(title: "Direccion", controller: _txtDireccionNegocio, hint: "Direccion", medium: 2, xlarge: 3,),
+                                        MyTextFormField(title: "Rutas de venta", controller: _txtRutasdeventaNegocio, hint: "Rutas de venta", maxLines: null, medium: 2, xlarge: 7,),
                                         
                                       ],
                                     )
