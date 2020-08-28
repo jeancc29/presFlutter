@@ -17,6 +17,9 @@ class Cliente {
   DateTime fechaNacimiento;
   String sexo;
   String estadoCivil;
+  String tipoVivienda;
+  String tiempoEnVivienda;
+  String referidoPor;
   int status;
   int idDireccion;
   Direccion direccion;
@@ -58,9 +61,10 @@ class Cliente {
 List referenciasToJson() {
 
     List jsonList = List();
-    referencias.map((u)=>
-      jsonList.add(u.toJson())
-    ).toList();
+    if(referencias != null)
+      referencias.map((u)=>
+        jsonList.add(u.toJson())
+      ).toList();
     return jsonList;
   }
 
@@ -91,6 +95,9 @@ List referenciasToJson() {
       "sexo": sexo,
       "estadoCivil": estadoCivil,
       "nacionalidad": nacionalidad,
+      "tipoVivienda": tipoVivienda,
+      "tiempoEnVivienda": tiempoEnVivienda,
+      "referidoPor": referidoPor,
       "idDireccion": idDireccion,
       "direccion": direccion,
       "idContacto": idContacto,
@@ -99,7 +106,7 @@ List referenciasToJson() {
       "documento": documento.toJson(),
       "trabajo": trabajo.toJson(),
       "negocio": negocio.toJson(),
-      "referencias": referenciasToJson,
+      "referencias": referenciasToJson(),
     };
   }
 }

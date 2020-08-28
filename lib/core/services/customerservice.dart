@@ -47,7 +47,7 @@ class CustomerService{
     map["data"] = cliente.toJson();
     Map<String, dynamic> map2 = Map<String, dynamic>();
     // map2["data"] = map;
-    print("map: ${map}");
+    // print("map: ${map}");
     // var jwt = await Utils.createJwt(map);
     var response = await http.post(Utils.URL + "/api/customers/store", body: json.encode(map), headers: Utils.header);
     int statusCode =response.statusCode;
@@ -57,7 +57,7 @@ class CustomerService{
     if(statusCode < 200 || statusCode > 400){
       // print("Servidor CustomerService all: ${response.body}");
       var parsed = await compute(Utils.parseDatos, response.body);
-      print("Error: ${parsed["message"]}");
+      print("Error: ${parsed}");
       if(context != null)
         Utils.showAlertDialog(content: "Error CustomerService guardar: ${parsed["message"]}", title: "Error", context: context);
       else

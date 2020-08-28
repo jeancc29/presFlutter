@@ -130,6 +130,14 @@ class  Utils {
     }
   }
 
+  static toInt(String caracter){
+    try {
+       return int.parse(caracter);
+    } catch (e) {
+      return 0;
+    }
+  }
+
   static Image getClienteFoto(Cliente cliente){
     if(cliente.foto != null){
        return Image.memory(base64Decode(cliente.foto));

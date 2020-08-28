@@ -54,6 +54,7 @@ class Negocio {
       "nombre": nombre,
       "tipo": tipo,
       "tiempoExistencia": tiempoExistencia,
+      "direccion": direccion.toJson(),
     };
   }
 }

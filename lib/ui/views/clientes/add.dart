@@ -47,6 +47,7 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
   List<Referencia> listaReferencia;
   String _sexo;
   String _estadoCivil;
+  String _tipoVivienda;
   String _nacionalidad;
   File _image;
   StreamController<List<Referencia>> _streamBuilderReferencia;
@@ -107,18 +108,36 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
   // var _controller = TabController(initialIndex: 0)
   
   _init() async {
-    try {
+    // try {
       setState(() => _cargando = true);
+      print("antes de cusomerservice index");
       var parsed = await CustomerService.index(context: context);
+      print("despues de cusomerservice index");
       listaCiudad = (parsed["ciudades"] != null) ? parsed["ciudades"].map<Ciudad>((json) => Ciudad.fromMap(json)).toList() : List<Ciudad>();
       listaEstado = (parsed["estados"] != null) ? parsed["estados"].map<Estado>((json) => Estado.fromMap(json)).toList() : List<Estado>();
       _streamControllerCiudades.add(listaCiudad);
       _streamControllerEstados.add(listaEstado);
       _streamControllerCiudadesTrabajo.add(listaCiudad);
       _streamControllerEstadosTrabajo.add(listaEstado);
+      _streamControllerCiudadesNegocio.add(listaCiudad);
+      _streamControllerEstadosNegocio.add(listaEstado);
+
+      _nuevo();      
       setState(() => _cargando = false);
-    } catch (e) {
-      setState(() => _cargando = false);
+    // } catch (e) {
+    //   print("errorrrrrrrr de cusomerservice index: ${e.toString()}");
+    //   setState(() => _cargando = false);
+    // }
+  }
+
+  _nuevo(){
+    _txtNombres.text = "";
+    _txtApellidos.text = "";
+    _txtApodo.text = "";
+    if(listaEstado != null){
+      _estadoPersonaChange(listaEstado[0].nombre);
+      _estadoTrabajoChange(listaEstado[0].nombre);
+      _estadoNegocioChange(listaEstado[0].nombre);
     }
   }
 
@@ -473,7 +492,7 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                       _cliente.apellidos = _txtApellidos.text;
                                       _cliente.apodo = _txtApodo.text;
                                       _cliente.fechaNacimiento = _fechaNacimiento;
-                                      _cliente.numeroDependientes = int.parse(_txtNumeroDependientes.text);
+                                      _cliente.numeroDependientes = Utils.toInt(_txtNumeroDependientes.text);
                                       _cliente.sexo = _sexo;
                                       _cliente.estadoCivil = _estadoCivil;
                                       _cliente.nacionalidad = _nacionalidad;
@@ -485,6 +504,10 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                       _contactoCliente.correo = _txtCorreo.text;
                                       _contactoCliente.facebook = _txtFacebook.text;
                                       _contactoCliente.instagram = _txtInstagram.text;
+                                      _cliente.contacto = _contactoCliente;
+                                      _cliente.tipoVivienda = _tipoVivienda;
+                                      _cliente.tiempoEnVivienda = _txtTiempoEnResidencia.text;
+                                      _cliente.referidoPor = _txtReferidoPor.text;
 
                                       //Set trabajo data
                                       _trabajo.nombre = _txtNombreTrabajo.text;
@@ -501,6 +524,18 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                       _direccionTrabajo.sector = _txtSectorTrabajo.text;
                                       _direccionTrabajo.numero = _txtNumeroTrabajo.text;
                                       _trabajo.direccion = _direccionTrabajo;
+
+                                      //Set data negocio
+                                      _negocio.nombre = _txtNombreNegocio.text;
+                                      _negocio.tipo = _txtTipoNegocio.text;
+                                      _negocio.tiempoExistencia = _txtTiempoExistenciaNegocio.text;
+                                      _direccionNegocio.direccion = _txtDireccionNegocio.text;
+                                      _negocio.direccion = _direccionNegocio;
+                                      
+                                      _cliente.trabajo = _trabajo;
+                                      _cliente.negocio = _negocio;
+                                      print("trabajo is null ${_cliente.toJson()}");
+                                      // return;
                                       await CustomerService.store(context: context, cliente: _cliente);
                                     }
                                   },
@@ -739,7 +774,7 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                           medium: 2, 
                                           title: "Vivienda", 
                                           onChanged: (data){
-
+                                            setState(() => _tipoVivienda = data);
                                           }, 
                                           elements: ["Propia", "Alquilada", "Pagando"],
                                           xlarge: 4,
