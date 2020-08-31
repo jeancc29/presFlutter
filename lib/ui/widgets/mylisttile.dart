@@ -23,9 +23,9 @@ class _MyListTileState extends State<MyListTile> {
           dense: true,
           leading: Padding(
             padding: const EdgeInsets.only(left: 30.0),
-            child: Icon(widget.icon, color: widget.selected ? Utils.colorPrimaryBlue : Colors.black,),
+            child: Icon(widget.icon, color: widget.selected ? Utils.colorPrimaryBlue : Colors.grey.shade700,),
           ),
-          title: Text(widget.title, style: TextStyle(fontSize: 13.3, color: widget.selected ? Utils.colorPrimaryBlue : Colors.black)),
+          title: Text(widget.title, style: TextStyle(fontWeight: FontWeight.w600,fontSize: 13.3, color: widget.selected ? Utils.colorPrimaryBlue : Colors.grey.shade700)),
         )
     );
   }

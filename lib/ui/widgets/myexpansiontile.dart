@@ -20,7 +20,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
           padding: const EdgeInsets.only(left: 15.0),
           child: Icon(Icons.file_download,),
         ),
-        title: Text(widget.title, style: TextStyle(fontSize: 13.3, )),
+        title: Text(widget.title, style: TextStyle(fontSize: 13.3, fontWeight: FontWeight.w600 )),
         children: widget.listaMylisttile,
       ),
     );

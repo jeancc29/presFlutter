@@ -1,5 +1,9 @@
 
 
+import 'dart:convert';
+import 'dart:html';
+import 'dart:typed_data';
+
 import 'package:prestamo/core/models/contacto.dart';
 import 'package:prestamo/core/models/direccion.dart';
 import 'package:prestamo/core/models/documento.dart';
@@ -9,7 +13,9 @@ import 'package:prestamo/core/models/trabajo.dart';
 
 class Cliente {
   int id;
-  String foto;
+  // String foto;
+  Uint8List foto;
+  String fotoEnlace;
   String nombres;
   String apellidos;
   String apodo;
@@ -33,11 +39,12 @@ class Cliente {
 
   String nacionalidad;
 
-  Cliente({this.id, this.foto, this.nombres, this.apellidos, this.apodo, this.numeroDependientes, this.fechaNacimiento, this.sexo, this.estadoCivil, this.status, this.nacionalidad, this.idDireccion, this.direccion, this.idContacto, this.contacto, this.idDocumento, this.documento, this.trabajo, this.negocio, this.referencias});
+  Cliente({this.id, this.foto, this.nombres, this.apellidos, this.apodo, this.numeroDependientes, this.fechaNacimiento, this.sexo, this.estadoCivil, this.status, this.nacionalidad, this.idDireccion, this.direccion, this.idContacto, this.contacto, this.idDocumento, this.documento, this.trabajo, this.negocio, this.referencias, this.fotoEnlace});
 
   Cliente.fromMap(Map snapshot) :
         id = snapshot['id'] ?? 0,
-        foto = snapshot['foto'] ?? '',
+        foto = (snapshot['foto'] != null) ? base64Decode(snapshot['foto']) : null,
+        // fotoEnlace = snapshot['foto'] ?? '',
         nombres = snapshot['nombres'] ?? '',
         apellidos = snapshot['apellidos'] ?? '',
         apodo = snapshot['apodo'] ?? '',
@@ -85,7 +92,7 @@ List referenciasToJson() {
   toJson() {
     return {
       "id": id,
-      "foto": foto,
+      "foto": (foto != null) ? base64Encode(foto) : null,
       "nombres": nombres,
       "apellidos": apellidos,
       "status": status,

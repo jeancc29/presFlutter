@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:html' as html;
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'dart:ui';
 
@@ -138,12 +140,49 @@ class  Utils {
     }
   }
 
-  static Image getClienteFoto(Cliente cliente){
-    if(cliente.foto != null){
-       return Image.memory(base64Decode(cliente.foto));
+  static Future<Uint8List> blobfileToUint(html.File file) async {
+      Uint8List image;
+      html.FileReader reader =  html.FileReader();
+        reader.readAsArrayBuffer(file);
+        await for(final a in reader.onLoadEnd){
+          image = reader.result;
+          return image;
+        }
+
+        return image;
     }
 
-    return  Image(image: AssetImage('images/user.png'), );
+  static Container getClienteFoto(Cliente cliente, {size: 130, radius: 10}) {
+    if(cliente.foto != null ){
+      return Container(
+          // color: Colors.blue,
+          width: size,
+          height: size,
+          child:  ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: Container(
+              // color: Colors.blue,
+              child: Image.memory(cliente.foto)
+            ),
+          ),
+        );
+      //  return Image.memory(await Utils.blobfileToUint(cliente.foto));
+    }else{
+      return Container(
+          // color: Colors.red,
+          width: size,
+          height: size,
+          child:  ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: Container(
+              child: Image(image: AssetImage('images/user.png'), )
+            ),
+          ),
+        );
+    }
+
+    
+    // return  Image(image: AssetImage('images/user.png'), );
   }
 
 }

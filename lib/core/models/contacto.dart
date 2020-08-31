@@ -16,7 +16,7 @@ class Contacto {
   Contacto.fromMap(Map snapshot) :
         id = snapshot['id'] ?? 0,
         telefono = snapshot['telefono'] ?? '',
-        extension = snapshot['extension'] ?? 0,
+        extension = snapshot['extension'] ?? '',
         celular = snapshot['celular'] ?? '',
         fax = snapshot['fax'] ?? '',
         correo = snapshot['correo'] ?? '',

@@ -12,7 +12,9 @@ class MyTextFormField extends StatefulWidget {
   final double large;
   final double xlarge;
   final double padding;
-  MyTextFormField({Key key, @required this.title, this.controller, this.hint, this.maxLines = 1, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8}) : super(key: key);
+
+  final bool isRequired;
+  MyTextFormField({Key key, @required this.title, this.controller, this.hint, this.maxLines = 1, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8, this.isRequired = false}) : super(key: key);
   @override
   _MyTextFormFieldState createState() => _MyTextFormFieldState();
 }
@@ -84,6 +86,11 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                           borderSide: new BorderSide(),
                         ),
                       ),
+                      validator: (data){
+                        if(data.isEmpty && widget.isRequired)
+                          return "Campo requerido";
+                        return null;
+                      },
                     ),
               ),
             ],

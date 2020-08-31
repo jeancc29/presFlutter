@@ -19,6 +19,7 @@ import 'package:prestamo/core/models/referencia.dart';
 import 'package:prestamo/core/models/trabajo.dart';
 import 'package:prestamo/core/services/customerservice.dart';
 import 'package:prestamo/ui/views/clientes/dialogreferencia.dart';
+import 'package:prestamo/ui/views/clientes/index.dart';
 import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
 import 'package:prestamo/ui/widgets/mydatepicker.dart';
 import 'package:prestamo/ui/widgets/mydropdownbutton.dart';
@@ -26,6 +27,7 @@ import 'package:prestamo/ui/widgets/myexpansiontile.dart';
 import 'package:prestamo/ui/widgets/mylisttile.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
+import 'package:prestamo/ui/widgets/mywebdrawer.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ClientesAdd extends StatefulWidget {
@@ -45,19 +47,21 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
   Direccion _direccionNegocio;
   Contacto _contactoNegocio;
   List<Referencia> listaReferencia;
-  String _sexo;
-  String _estadoCivil;
-  String _tipoVivienda;
-  String _nacionalidad;
-  File _image;
+  String _sexo = "Hombre";
+  String _estadoCivil = "Soltero";
+  String _tipoVivienda = "Propia";
+  String _nacionalidad = "Dominicano";
+  Uint8List _foto;
   StreamController<List<Referencia>> _streamBuilderReferencia;
-  StreamController<String> _streamControllerFotoCliente;
+  StreamController<Widget> _streamControllerFotoCliente;
+  // StreamController<File> _streamControllerFotoCliente;
   StreamController<List<Ciudad>> _streamControllerCiudades;
   StreamController<List<Estado>> _streamControllerEstados;
   StreamController<List<Ciudad>> _streamControllerCiudadesTrabajo;
   StreamController<List<Estado>> _streamControllerEstadosTrabajo;
   StreamController<List<Ciudad>> _streamControllerCiudadesNegocio;
   StreamController<List<Estado>> _streamControllerEstadosNegocio;
+  Future _futureFoto;
   ScrollController _scrollController;
   ScrollController _scrollControllerTrabajo;
   var _txtDocumento = TextEditingController();
@@ -109,6 +113,7 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
   
   _init() async {
     // try {
+      _streamControllerFotoCliente.add(await Utils.getClienteFoto(_cliente));
       setState(() => _cargando = true);
       print("antes de cusomerservice index");
       var parsed = await CustomerService.index(context: context);
@@ -170,30 +175,50 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
     InputElement uploadInput = FileUploadInputElement();
     uploadInput.click();
 
-    uploadInput.onChange.listen((e) {
+    uploadInput.onChange.listen((e) async {
       // read file content as dataURL
       final files = uploadInput.files;
       if (files.length == 1) {
         final file = files[0];
         FileReader reader =  FileReader();
+        // reader.onLoadEnd.toList();
+
+        
 
          reader.onLoadEnd.listen((e) {
-                    setState(() {
-                      uploadedImage = reader.result;
-                      _streamControllerFotoCliente.add(base64Encode(uploadedImage));
-                    });
+            setState(() {
+              uploadedImage = reader.result;
+              print("_startFilePicker.onLoadEndListen");
+              // _streamControllerFotoCliente.add(base64Encode(uploadedImage));
+              // _streamControllerFotoCliente.add(base64Encode(uploadedImage));
+            });
         });
-
+        print("_startFilePicker after onLoadEnd");
         reader.onError.listen((fileEvent) {
           setState(() {
             String option1Text = "Some Error occured while reading the file";
           });
         });
+        print("_startFilePicker after onError");
 
+// _streamControllerFotoCliente.add(file);
         reader.readAsArrayBuffer(file);
+
+        
+        
       }
     });
     }
+
+    _blobfileToUint(File file) async {
+      FileReader reader =  FileReader();
+        reader.readAsArrayBuffer(file);
+        List lista = await reader.onLoadEnd.toList();
+        Uint8List image = reader.result;
+        return image;
+    }
+
+    
 
     _estadoPersonaChange(data){
       print("Estado change: ${data}");
@@ -204,8 +229,12 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
       _direccionCliente.idEstado = estado.id;
       _direccionCliente.estado = estado;
 
-      if(listaCiudad != null)
+      if(listaCiudad != null){
         _streamControllerCiudades.add(listaCiudad.where((element) => element.idEstado == estado.id).toList());
+        Ciudad ciudad = listaCiudad[0];
+        _direccionCliente.idCiudad = ciudad.id;
+        _direccionCliente.ciudad = ciudad;
+      }
     }
 
    
@@ -229,8 +258,12 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
       _direccionTrabajo.idEstado = estado.id;
       _direccionTrabajo.estado = estado;
 
-      if(listaCiudad != null)
+      if(listaCiudad != null){
         _streamControllerCiudadesTrabajo.add(listaCiudad.where((element) => element.idEstado == estado.id).toList());
+        Ciudad ciudad = listaCiudad[0];
+        _direccionTrabajo.idCiudad = ciudad.id;
+        _direccionTrabajo.ciudad = ciudad;
+      }
     }
 
     _ciudadTrabajoChange(data){
@@ -252,8 +285,12 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
       _direccionNegocio.idEstado = estado.id;
       _direccionNegocio.estado = estado;
 
-      if(listaCiudad != null)
+      if(listaCiudad != null){
         _streamControllerCiudadesNegocio.add(listaCiudad.where((element) => element.idEstado == estado.id).toList());
+        Ciudad ciudad = listaCiudad[0];
+        _direccionNegocio.idCiudad = ciudad.id;
+        _direccionNegocio.ciudad = ciudad;
+      }
     }
 
     _ciudadNegocioChange(data){
@@ -264,6 +301,77 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
 
       _direccionNegocio.idCiudad = ciudad.id;
       _direccionNegocio.ciudad = ciudad;
+    }
+
+    _guardar() async {
+      if(_formKey.currentState.validate()){
+                      // _guardar();
+                      //Set document data
+                      _documento.id = 0;
+                      _documento.descripcion = _txtDocumento.text;
+                      _documento.idTipo = 1;
+                      _cliente.documento = _documento;
+
+                      //Set cliente data
+                      _cliente.nombres = _txtNombres.text;
+                      _cliente.apellidos = _txtApellidos.text;
+                      _cliente.apellidos = _txtApellidos.text;
+                      _cliente.apodo = _txtApodo.text;
+                      _cliente.fechaNacimiento = _fechaNacimiento;
+                      _cliente.numeroDependientes = Utils.toInt(_txtNumeroDependientes.text);
+                      _cliente.sexo = _sexo;
+                      _cliente.estadoCivil = _estadoCivil;
+                      _cliente.nacionalidad = _nacionalidad;
+                      _direccionCliente.direccion = _txtDireccion.text;
+                      _direccionCliente.sector = _txtSector.text;
+                      _cliente.direccion = _direccionCliente;
+                      _contactoCliente.telefono = _txtTelefeno.text;
+                      _contactoCliente.celular = _txtCelular.text;
+                      _contactoCliente.correo = _txtCorreo.text;
+                      _contactoCliente.facebook = _txtFacebook.text;
+                      _contactoCliente.instagram = _txtInstagram.text;
+                      _cliente.contacto = _contactoCliente;
+                      _cliente.tipoVivienda = _tipoVivienda;
+                      _cliente.tiempoEnVivienda = _txtTiempoEnResidencia.text;
+                      _cliente.referidoPor = _txtReferidoPor.text;
+
+                      //Set trabajo data
+                      _trabajo.nombre = _txtNombreTrabajo.text;
+                      _trabajo.ocupacion = _txtOcupacionTrabajo.text;
+                      _trabajo.ingresos = Utils.toDouble(_txtIngresosTrabajo.text);
+                      _trabajo.otrosIngresos = Utils.toDouble(_txtOtrosIngresosTrabajo.text);
+                      _trabajo.fechaIngreso = _fechaIngresoTrabajo;
+                      _contactoTrabajo.telefono = _txtTelefonoTrabajo.text;
+                      _contactoTrabajo.extension = _txtExtensionTrabajo.text;
+                      _contactoTrabajo.correo = _txtCorreoTrabajo.text;
+                      _contactoTrabajo.fax = _txtFaxTrabajo.text;
+                      _trabajo.contacto = _contactoTrabajo;
+                      _direccionTrabajo.direccion = _txtDireccionTrabajo.text;
+                      _direccionTrabajo.sector = _txtSectorTrabajo.text;
+                      _direccionTrabajo.numero = _txtNumeroTrabajo.text;
+                      _trabajo.direccion = _direccionTrabajo;
+
+                      //Set data negocio
+                      _negocio.nombre = _txtNombreNegocio.text;
+                      _negocio.tipo = _txtTipoNegocio.text;
+                      _negocio.tiempoExistencia = _txtTiempoExistenciaNegocio.text;
+                      _direccionNegocio.direccion = _txtDireccionNegocio.text;
+                      _negocio.direccion = _direccionNegocio;
+                      
+                      _cliente.trabajo = _trabajo;
+                      _cliente.negocio = _negocio;
+                      _cliente.referencias = listaReferencia;
+                      // print("trabajo is null ${_cliente.toJson()}");
+                      // return;
+                      try {
+                        setState(() => _cargando = true);
+                          await CustomerService.store(context: context, cliente: _cliente);
+                        setState(() => _cargando = false);
+                        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ClientesScreen()));
+                      } catch (e) {
+                        setState(() => _cargando = false);
+                      }
+                    }
     }
 
   @override
@@ -382,62 +490,28 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
         ],
       ),
       body: Row(children: [
-        Visibility(
-          visible: MediaQuery.of(context).size.width > ScreenSize.md,
-          child: Container(
-            // color: Colors.red,
-            width: 260,
-            height: MediaQuery.of(context).size.height,
-            child: ListView(children: [
-              SizedBox(height: 5,),
-              // Row(
-              //   children: [
-              //   Padding(
-              //     padding: const EdgeInsets.only(left: 28.0, right: 14, top: 2.0),
-              //     child: Icon(Icons.apps, color: Colors.black,),
-              //   ),
-              //   Text("Todas las apps", style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.8), ),),
-              // ],),
-              // Container(
-              //   color: Colors.transparent,
-              //   padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              //   child: Row(
-              //     children: [
-              //     Padding(
-              //       padding: const EdgeInsets.only(left: 28.0, right: 14, top: 2.0),
-              //       child: Icon(Icons.apps, color: Colors.black,),
-              //     ),
-              //     Text("Todas las apps", style: TextStyle(fontSize: 14, color: Colors.black.withOpacity(0.8), ),),
-              //   ],),
-              // ),
-              // Container(
-              //   padding: EdgeInsets.only(top: 8.0, bottom: 8.0),
-              //   decoration: BoxDecoration(
-              //     color: Colors.blue[50],
-              //     borderRadius: BorderRadius.only(topRight: Radius.circular(30), bottomRight: Radius.circular(30))
-              //   ),
-              //   child: Row(
-              //     children: [
-              //     Padding(
-              //       padding: const EdgeInsets.only(left: 28.0, right: 14, top: 2.0),
-              //       child: Icon(Icons.tablet_mac, color: Utils.fromHex("#1a73e8"),),
-              //     ),
-              //     Text("Recibidos", style: TextStyle(fontSize: 14, color: Utils.fromHex("#1a73e8"), fontWeight: FontWeight.bold ),),
-              //   ],),
-              // ),
-              MyListTile(title: "Inicio", icon: Icons.apps),
-              MyListTile(title: "Clientes", icon: Icons.people, selected: true),
-              // MyListTile(title: "CUlo", icon: Icons.recent_actors),
-              MyListTile(title: "Usuarios y permisos", icon: Icons.recent_actors),
-              MyListTile(title: "Pagos", icon: Icons.payment, selected: false,),
-              MyExpansionTile(
-                title: "Descargar informes", 
-                icon: Icons.file_download, 
-                listaMylisttile: [MyListTile(title: "Comentarios", icon: null), MyListTile(title: "Estadisticas", icon: null)]
-              )
-            ],),
-          ),
-        ),
+        // Visibility(
+        //   visible: MediaQuery.of(context).size.width > ScreenSize.md,
+        //   child: Container(
+        //     // color: Colors.red,
+        //     width: 260,
+        //     height: MediaQuery.of(context).size.height,
+        //     child: ListView(children: [
+        //       SizedBox(height: 5,),
+        //       MyListTile(title: "Inicio", icon: Icons.apps),
+        //       MyListTile(title: "Clientes", icon: Icons.people, selected: true),
+        //       MyListTile(title: "Usuarios y permisos", icon: Icons.recent_actors),
+        //       MyListTile(title: "Pagos", icon: Icons.payment, selected: false,),
+        //       MyExpansionTile(
+        //         title: "Descargar informes", 
+        //         icon: Icons.file_download, 
+        //         listaMylisttile: [MyListTile(title: "Comentarios", icon: null), MyListTile(title: "Estadisticas", icon: null)]
+        //       )
+        //     ],),
+        //   ),
+        // ),
+        MyWebDrawer(clientes: true, clientesBack: true,),
+        SizedBox(width: 40),
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -468,83 +542,108 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                   // )
                   Padding(
                     padding: const EdgeInsets.only(right: 25.0),
-                    child: SizedBox(
-                      width: 145,
-                      child: ClipRRect(
-                                borderRadius: BorderRadius.circular(5),
-                                child: RaisedButton(
-                                  elevation: 0,
-                                  color: Utils.colorPrimaryBlue,
-                                  child: Text('Guardar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                                  onPressed: () async {
-                                    // _connect();
-                                    if(_formKey.currentState.validate()){
-                                      // _guardar();
-                                      //Set document data
-                                      _documento.id = 0;
-                                      _documento.descripcion = _txtDocumento.text;
-                                      _documento.idTipo = 1;
-                                      _cliente.documento = _documento;
-
-                                      //Set cliente data
-                                      _cliente.nombres = _txtNombres.text;
-                                      _cliente.apellidos = _txtApellidos.text;
-                                      _cliente.apellidos = _txtApellidos.text;
-                                      _cliente.apodo = _txtApodo.text;
-                                      _cliente.fechaNacimiento = _fechaNacimiento;
-                                      _cliente.numeroDependientes = Utils.toInt(_txtNumeroDependientes.text);
-                                      _cliente.sexo = _sexo;
-                                      _cliente.estadoCivil = _estadoCivil;
-                                      _cliente.nacionalidad = _nacionalidad;
-                                      _direccionCliente.direccion = _txtDireccion.text;
-                                      _direccionCliente.sector = _txtSector.text;
-                                      _cliente.direccion = _direccionCliente;
-                                      _contactoCliente.telefono = _txtTelefeno.text;
-                                      _contactoCliente.celular = _txtCelular.text;
-                                      _contactoCliente.correo = _txtCorreo.text;
-                                      _contactoCliente.facebook = _txtFacebook.text;
-                                      _contactoCliente.instagram = _txtInstagram.text;
-                                      _cliente.contacto = _contactoCliente;
-                                      _cliente.tipoVivienda = _tipoVivienda;
-                                      _cliente.tiempoEnVivienda = _txtTiempoEnResidencia.text;
-                                      _cliente.referidoPor = _txtReferidoPor.text;
-
-                                      //Set trabajo data
-                                      _trabajo.nombre = _txtNombreTrabajo.text;
-                                      _trabajo.ocupacion = _txtOcupacionTrabajo.text;
-                                      _trabajo.ingresos = Utils.toDouble(_txtIngresosTrabajo.text);
-                                      _trabajo.otrosIngresos = Utils.toDouble(_txtOtrosIngresosTrabajo.text);
-                                      _trabajo.fechaIngreso = _fechaIngresoTrabajo;
-                                      _contactoTrabajo.telefono = _txtTelefonoTrabajo.text;
-                                      _contactoTrabajo.extension = _txtExtensionTrabajo.text;
-                                      _contactoTrabajo.correo = _txtCorreoTrabajo.text;
-                                      _contactoTrabajo.fax = _txtFaxTrabajo.text;
-                                      _trabajo.contacto = _contactoTrabajo;
-                                      _direccionTrabajo.direccion = _txtDireccionTrabajo.text;
-                                      _direccionTrabajo.sector = _txtSectorTrabajo.text;
-                                      _direccionTrabajo.numero = _txtNumeroTrabajo.text;
-                                      _trabajo.direccion = _direccionTrabajo;
-
-                                      //Set data negocio
-                                      _negocio.nombre = _txtNombreNegocio.text;
-                                      _negocio.tipo = _txtTipoNegocio.text;
-                                      _negocio.tiempoExistencia = _txtTiempoExistenciaNegocio.text;
-                                      _direccionNegocio.direccion = _txtDireccionNegocio.text;
-                                      _negocio.direccion = _direccionNegocio;
-                                      
-                                      _cliente.trabajo = _trabajo;
-                                      _cliente.negocio = _negocio;
-                                      print("trabajo is null ${_cliente.toJson()}");
-                                      // return;
-                                      await CustomerService.store(context: context, cliente: _cliente);
-                                    }
-                                  },
-                              ),
+                    child: 
+                    InkWell(
+                          onTap: _guardar,
+                          child: Container(
+                            padding: EdgeInsets.only(top: 10.0, bottom: 10.0, right: 15, left: 15.0),
+                            decoration: BoxDecoration(
+                              color: Utils.colorPrimaryBlue,
+                              borderRadius: BorderRadius.circular(5)
                             ),
-                    ),
+                            child: Text("Guardar", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),)
+                          )
+                        )
+                    // SizedBox(
+                    //   width: 145,
+                    //   child: ClipRRect(
+                    //             borderRadius: BorderRadius.circular(5),
+                    //             child: RaisedButton(
+                    //               // elevation: 0,
+                    //               color: Utils.colorPrimaryBlue,
+                    //               child: Text('Guardar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    //               onPressed: () async {
+                    //                 // _connect();
+                    //                 if(_formKey.currentState.validate()){
+                    //                   // _guardar();
+                    //                   //Set document data
+                    //                   _documento.id = 0;
+                    //                   _documento.descripcion = _txtDocumento.text;
+                    //                   _documento.idTipo = 1;
+                    //                   _cliente.documento = _documento;
+
+                    //                   //Set cliente data
+                    //                   _cliente.nombres = _txtNombres.text;
+                    //                   _cliente.apellidos = _txtApellidos.text;
+                    //                   _cliente.apellidos = _txtApellidos.text;
+                    //                   _cliente.apodo = _txtApodo.text;
+                    //                   _cliente.fechaNacimiento = _fechaNacimiento;
+                    //                   _cliente.numeroDependientes = Utils.toInt(_txtNumeroDependientes.text);
+                    //                   _cliente.sexo = _sexo;
+                    //                   _cliente.estadoCivil = _estadoCivil;
+                    //                   _cliente.nacionalidad = _nacionalidad;
+                    //                   _direccionCliente.direccion = _txtDireccion.text;
+                    //                   _direccionCliente.sector = _txtSector.text;
+                    //                   _cliente.direccion = _direccionCliente;
+                    //                   _contactoCliente.telefono = _txtTelefeno.text;
+                    //                   _contactoCliente.celular = _txtCelular.text;
+                    //                   _contactoCliente.correo = _txtCorreo.text;
+                    //                   _contactoCliente.facebook = _txtFacebook.text;
+                    //                   _contactoCliente.instagram = _txtInstagram.text;
+                    //                   _cliente.contacto = _contactoCliente;
+                    //                   _cliente.tipoVivienda = _tipoVivienda;
+                    //                   _cliente.tiempoEnVivienda = _txtTiempoEnResidencia.text;
+                    //                   _cliente.referidoPor = _txtReferidoPor.text;
+
+                    //                   //Set trabajo data
+                    //                   _trabajo.nombre = _txtNombreTrabajo.text;
+                    //                   _trabajo.ocupacion = _txtOcupacionTrabajo.text;
+                    //                   _trabajo.ingresos = Utils.toDouble(_txtIngresosTrabajo.text);
+                    //                   _trabajo.otrosIngresos = Utils.toDouble(_txtOtrosIngresosTrabajo.text);
+                    //                   _trabajo.fechaIngreso = _fechaIngresoTrabajo;
+                    //                   _contactoTrabajo.telefono = _txtTelefonoTrabajo.text;
+                    //                   _contactoTrabajo.extension = _txtExtensionTrabajo.text;
+                    //                   _contactoTrabajo.correo = _txtCorreoTrabajo.text;
+                    //                   _contactoTrabajo.fax = _txtFaxTrabajo.text;
+                    //                   _trabajo.contacto = _contactoTrabajo;
+                    //                   _direccionTrabajo.direccion = _txtDireccionTrabajo.text;
+                    //                   _direccionTrabajo.sector = _txtSectorTrabajo.text;
+                    //                   _direccionTrabajo.numero = _txtNumeroTrabajo.text;
+                    //                   _trabajo.direccion = _direccionTrabajo;
+
+                    //                   //Set data negocio
+                    //                   _negocio.nombre = _txtNombreNegocio.text;
+                    //                   _negocio.tipo = _txtTipoNegocio.text;
+                    //                   _negocio.tiempoExistencia = _txtTiempoExistenciaNegocio.text;
+                    //                   _direccionNegocio.direccion = _txtDireccionNegocio.text;
+                    //                   _negocio.direccion = _direccionNegocio;
+                                      
+                    //                   _cliente.trabajo = _trabajo;
+                    //                   _cliente.negocio = _negocio;
+                    //                   _cliente.referencias = listaReferencia;
+                    //                   // print("trabajo is null ${_cliente.toJson()}");
+                    //                   // return;
+                    //                   try {
+                    //                     setState(() => _cargando = true);
+                    //                      await CustomerService.store(context: context, cliente: _cliente);
+                    //                     setState(() => _cargando = false);
+                    //                     Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ClientesScreen()));
+                    //                   } catch (e) {
+                    //                     setState(() => _cargando = false);
+                    //                   }
+                    //                 }
+                    //               },
+                    //           ),
+                    //         ),
+                    // ),
                   ),
+                  
                 ],
               ),
+              Padding(
+                    padding: const EdgeInsets.only(right: 25.0),
+                    child: Divider(color: Colors.grey.shade300, thickness: 0.9, height: 1,),
+                  ),
               // Padding(
               //   padding: const EdgeInsets.only(right: 22, left: 10),
               //   child: Divider(height: 5, thickness: 0.3, color: Colors.black,),
@@ -626,35 +725,50 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                       children: [
                                         InkWell(
                                           onTap: () async {
-                                            // File file = await FilePicker.getFile();
+                                            File file = await FilePicker.getFile();
+                                            _cliente.foto = await Utils.blobfileToUint(file); 
+                                            _streamControllerFotoCliente.add(Utils.getClienteFoto(_cliente));
+                                            
+                                            // _futureFoto = Utils.getClienteFoto(_cliente);
+                                            // _streamControllerFotoCliente.add(file);
                                             // IO.File(file.relativePath);
                                             // // base64.decode(file);
                                             // setState(() {
                                             //   _image = file;
                                             // });
-                                            _startFilePicker();
+                                            // _startFilePicker();
                                             // print("Archivo: ${file.name}");
                                             // Blo
                                             // print("ArchivoType: ${file.}");
                                           },
-                                          child: StreamBuilder<String>(
+                                          child: 
+                                          StreamBuilder<Widget>(
                                             stream: _streamControllerFotoCliente.stream,
                                             builder: (context, snapshot) {
                                               if(snapshot.hasData)
-                                                _cliente.foto = snapshot.data; 
-                                              return Container(
-                                                // color: ,
-                                                width: 130,
-                                                height: 130,
-                                                child:  ClipRRect(
-                                                  borderRadius: BorderRadius.circular(10),
-                                                  child: Container(
-                                                    child: Utils.getClienteFoto(_cliente),
-                                                  ),
-                                                ),
-                                              );
+                                                return snapshot.data;
+                                              
+                                              return SizedBox();
                                             }
-                                          ),
+                                          )
+                                          // StreamBuilder<File>(
+                                          //   stream: _streamControllerFotoCliente.stream,
+                                          //   builder: (context, snapshot) {
+                                          //     if(snapshot.hasData)
+                                          //       _cliente.foto = snapshot.data; 
+                                          //     return Container(
+                                          //       // color: ,
+                                          //       width: 130,
+                                          //       height: 130,
+                                          //       child:  ClipRRect(
+                                          //         borderRadius: BorderRadius.circular(10),
+                                          //         child: Container(
+                                          //           child: Utils.getClienteFoto(_cliente),
+                                          //         ),
+                                          //       ),
+                                          //     );
+                                          //   }
+                                          // ),
                                         ),
                                         SizedBox(width: 20,),
                                         LayoutBuilder(
@@ -673,9 +787,9 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                           elements: ["Cedula de identidad", "RNC"],
                                           xlarge: 4,
                                         ),
-                                        new MyTextFormField(title: "Documento", controller: _txtDocumento, hint: "Documento", medium: 2,),
-                                        MyTextFormField(title: "Nombres", controller: _txtNombres, hint: "Nombres", medium: 2, xlarge: 3.7,),
-                                        MyTextFormField(title: "Apellidos", controller: _txtApellidos, hint: "Apellidos", medium: 2, xlarge: 3.7,),
+                                        new MyTextFormField(title: "Documento *", controller: _txtDocumento, hint: "Documento", isRequired: true, medium: 2,),
+                                        MyTextFormField(title: "Nombres *", controller: _txtNombres, hint: "Nombres", isRequired: true, medium: 2, xlarge: 3.7,),
+                                        MyTextFormField(title: "Apellidos *", controller: _txtApellidos, hint: "Apellidos", isRequired: true, medium: 2, xlarge: 3.7,),
                                                 ],
                                               ),
                                             );
@@ -761,11 +875,11 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                             );
                                           }
                                         ),
-                                        MyTextFormField(title: "Direccion", controller: _txtDireccion, hint: "Direccion", medium: 2, xlarge: 3.5),
-                                        MyTextFormField(title: "Sector", controller: _txtSector, hint: "Sector", medium: 2,),
+                                        MyTextFormField(title: "Direccion *", controller: _txtDireccion, hint: "Direccion", isRequired: true, medium: 2, xlarge: 3.5),
+                                        MyTextFormField(title: "Sector *", controller: _txtSector, hint: "Sector", isRequired: true, medium: 2,),
                                         MySubtitle(title: "Contacto"),
-                                        MyTextFormField(title: "Telefono", controller: _txtTelefeno, hint: "Telefono", medium: 2,),
-                                        MyTextFormField(title: "Celular", controller: _txtCelular, hint: "Celular", medium: 2,),
+                                        MyTextFormField(title: "Telefono *", controller: _txtTelefeno, hint: "Telefono", isRequired: true, medium: 2,),
+                                        MyTextFormField(title: "Celular *", controller: _txtCelular, hint: "Celular", isRequired: true, medium: 2,),
                                         MyTextFormField(title: "Correo", controller: _txtCorreo, hint: "Fax", medium: 2,),
                                         MyTextFormField(title: "Facebook", controller: _txtFacebook, hint: "Fax", medium: 2,),
                                         MyTextFormField(title: "Instagram", controller: _txtInstagram, hint: "Fax", medium: 2,),
@@ -813,13 +927,13 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                       alignment: WrapAlignment.start,
                                       children: [
                                         MySubtitle(title: "Datos de trabajo"),
-                                        MyTextFormField(title: "Nombre", controller: _txtNombreTrabajo, hint: "Direccion", medium: 2, xlarge: 4,),
+                                        MyTextFormField(title: "Nombre *", controller: _txtNombreTrabajo, hint: "Nombre empresa", isRequired: true, medium: 2, xlarge: 4,),
                                         MyTextFormField(title: "Puesto/Ocupacion", controller: _txtOcupacionTrabajo, hint: "Puesto/Ocupacion", medium: 2, xlarge: 5),
-                                        MyTextFormField(title: "Ingresos", controller: _txtIngresosTrabajo, hint: "Ingresos", medium: 2, xlarge: 7),
+                                        MyTextFormField(title: "Ingresos *", controller: _txtIngresosTrabajo, hint: "Ingresos", isRequired: true, medium: 2, xlarge: 7),
                                         MyTextFormField(title: "Otros ingresos", controller: _txtOtrosIngresosTrabajo, hint: "Ingresos", medium: 2, xlarge: 7),
                                         MyDatePicker(title: "Fecha ingreso", fecha: _fechaIngresoTrabajo, onDateTimeChanged: (newDate) => setState(() => _fechaNacimiento = newDate), medium: 2, xlarge: 6.9,),
 
-                                        MyTextFormField(title: "Telefono", controller: _txtTelefonoTrabajo, hint: "Telefono", medium: 2, xlarge: 4),
+                                        MyTextFormField(title: "Telefono *", controller: _txtTelefonoTrabajo, hint: "Telefono", isRequired: true, medium: 2, xlarge: 4),
                                         MyTextFormField(title: "Extension", controller: _txtExtensionTrabajo, hint: "Extension", medium: 2, xlarge: 6.8),
                                         MyTextFormField(title: "Correo", controller: _txtCorreoTrabajo, hint: "Correo", medium: 2, xlarge: 2.49),
                                         MyTextFormField(title: "Fax", controller: _txtFaxTrabajo, hint: "Fax", medium: 2, xlarge: 5),
@@ -871,9 +985,9 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                                             );
                                           }
                                         ),
-                                        MyTextFormField(title: "Direccion", controller: _txtDireccionTrabajo, hint: "Direccion", medium: 2, xlarge: 2.8,),
+                                        MyTextFormField(title: "Direccion *", controller: _txtDireccionTrabajo, hint: "Direccion", isRequired: true, medium: 2, xlarge: 2.8,),
                                         MyTextFormField(title: "Numero", controller: _txtNumeroTrabajo, hint: "Numero", medium: 2, xlarge: 7,),
-                                        MyTextFormField(title: "Sector", controller: _txtSectorTrabajo, hint: "Sector", medium: 2, ),
+                                        MyTextFormField(title: "Sector *", controller: _txtSectorTrabajo, hint: "Sector", isRequired: true, medium: 2, ),
                                         
                                         
                                         

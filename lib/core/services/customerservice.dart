@@ -76,7 +76,6 @@ class CustomerService{
       throw Exception("Error CustomerService all");
     }
 
-    print("Dentro bancas service all: ${parsed}");
 
     return (parsed["bancas"] != null) ? parsed["bancas"].map<Cliente>((json) => Cliente.fromMap(json)).toList() : List<Cliente>();
   }

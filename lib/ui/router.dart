@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:prestamo/ui/views/clientes/add.dart';
+import 'package:prestamo/ui/views/clientes/index.dart';
 
 
 
@@ -9,8 +10,11 @@ class Router {
     switch (settings.name) {
       case '/' :
         return  MaterialPageRoute(
-          builder: (_)=> ClientesAdd()
+          builder: (_)=> ClientesScreen()
         );
+        // return  MaterialPageRoute(
+        //   builder: (_)=> ClientesAdd()
+        // );
         // return  MaterialPageRoute(
         //   builder: (_)=> SplashScreen()
         // );
