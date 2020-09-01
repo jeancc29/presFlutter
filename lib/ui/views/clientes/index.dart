@@ -48,10 +48,9 @@ class _ClientesScreenState extends State<ClientesScreen> with TickerProviderStat
   // var _controller = TabController(initialIndex: 0)
   
   _init() async {
-    // try {
+    try {
       setState(() => _cargando = true);
       var parsed = await CustomerService.index(context: context);
-      print("_init() parsed: $parsed");
       listaCliente = (parsed["clientes"] != null) ? parsed["clientes"].map<Cliente>((json) => Cliente.fromMap(json)).toList() : List<Cliente>();
       // for(Cliente c in listaCliente){
       //   print("Nombre: ${c.nombres}");
@@ -59,10 +58,10 @@ class _ClientesScreenState extends State<ClientesScreen> with TickerProviderStat
       // }
      _streamControllerClientes.add(listaCliente);
       setState(() => _cargando = false);
-    // } catch (e) {
-    //   print("errorrrrrrrr de cusomerservice index: ${e.toString()}");
-    //   setState(() => _cargando = false);
-    // }
+    } catch (e) {
+      print("errorrrrrrrr de cusomerservice index: ${e.toString()}");
+      setState(() => _cargando = false);
+    }
   }
 
   
@@ -245,21 +244,25 @@ class _ClientesScreenState extends State<ClientesScreen> with TickerProviderStat
                   stream: _streamControllerClientes.stream,
                   builder: (context, snapshot) {
                     if(snapshot.hasData){
-                      return ListView(children: [
-                        _verTablaOContainers
-                        ?
-                        _buildDataTable(snapshot.data)
-                        :
-                        Wrap(
-                          // spacing: 20,
+                      if(snapshot.data.length > 0){
+                        return ListView(children: [
+                          _verTablaOContainers
+                          ?
+                          _buildDataTable(snapshot.data)
+                          :
+                          Wrap(
+                            // spacing: 20,
+                            
+                            children: snapshot.data.map((e) => _buildContainer(e)).toList(),
+                          ),
                           
-                          children: snapshot.data.map((e) => _buildContainer(e)).toList(),
-                        ),
-                        
-                      ],);
+                        ],);
+                      }else{
+                        return Center(child: Text("No hay clientes", style: TextStyle(fontSize: 23, fontFamily: "Roboto", fontWeight: FontWeight.w700 )));
+                      }
                     }
 
-                    return SizedBox();
+                    return Center(child: Text("No hay clientes", style: TextStyle(fontSize: 23, fontFamily: "Roboto", fontWeight: FontWeight.w700 )));
                   }
                 )
               ),
