@@ -24,6 +24,7 @@ import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
 import 'package:prestamo/ui/widgets/mydatepicker.dart';
 import 'package:prestamo/ui/widgets/mydropdownbutton.dart';
 import 'package:prestamo/ui/widgets/myexpansiontile.dart';
+import 'package:prestamo/ui/widgets/myheader.dart';
 import 'package:prestamo/ui/widgets/mylisttile.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
@@ -90,9 +91,7 @@ class _ClientesScreenState extends State<ClientesScreen> with TickerProviderStat
       //   )
       // ],),),
       appBar: AppBar(
-        
         title: Row(children: [
-         
           IconButton(icon: Icon(Icons.menu, color: Colors.black), onPressed: (){},),
           Text("Prestamo", style: TextStyle(color: Colors.black),),
           Padding(
@@ -166,65 +165,8 @@ class _ClientesScreenState extends State<ClientesScreen> with TickerProviderStat
               
               Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Padding(
-                      // padding: const EdgeInsets.all(8.0),
-                      // child: Text("Clientes", style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold)),
-                      // ),
-                      // Padding(
-                      // padding: const EdgeInsets.all(8.0),
-                      // child: Text("Clientes", style: TextStyle(fontFamily: 'OpenSans', fontSize: 27, fontWeight: FontWeight.w700)),
-                      // ),
-                      Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text("Clientes", style: TextStyle(fontFamily: 'Roboto', fontSize: 27, fontWeight: FontWeight.w600)),
-                      ),
-                      
-                      // SizedBox(
-                      //   child: RaisedButton(
-                      //     color: Utils.colorPrimaryBlue,
-                      //     child: Text("Guardar", style: TextStyle(color: Colors.white),),
-                      //     onPressed: (){},
-                      //   ),
-                      // )
-                      Padding(
-                        padding: const EdgeInsets.only(right: 25.0),
-                        child: 
-                        InkWell(
-                          onTap: (){Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ClientesAdd()));},
-                          child: Container(
-                            padding: EdgeInsets.only(top: 10.0, bottom: 10.0, right: 15, left: 15.0),
-                            decoration: BoxDecoration(
-                              color: Utils.colorPrimaryBlue,
-                              borderRadius: BorderRadius.circular(5)
-                            ),
-                            child: Text("Crear cliente", style: TextStyle(color: Colors.white, fontFamily: "Roboto", fontWeight: FontWeight.w600),)
-                          )
-                        )
-                        // SizedBox(
-                        //   width: 200,
-                        //   child: ClipRRect(
-                        //             borderRadius: BorderRadius.circular(13),
-                        //             child: RaisedButton(
-                        //               // elevation: 0,
-                        //               color: Utils.colorPrimaryBlue,
-                        //               child: Text('Agregar nuevo cliente', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                        //               onPressed: () async {
-                        //                 // _connect();
-                        //                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ClientesAdd()));
-                        //               },
-                        //           ),
-                        //         ),
-                        // ),
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 25.0),
-                    child: Divider(color: Colors.grey.shade300, thickness: 0.9, height: 1,),
-                  ),
+                  MyHeader(title: "Clientes", actionFuncion: "Crear cliente", function: (){Navigator.push(context, MaterialPageRoute(builder: (_) => ClientesAdd()));},),
+                  
                   Row(children: [
                     Padding(
                       padding: const EdgeInsets.all(8.0),

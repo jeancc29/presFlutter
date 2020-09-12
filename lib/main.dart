@@ -1,12 +1,14 @@
-import 'dart:async';
-import 'dart:io';
+// import 'dart:async';
+// import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:prestamo/ui/router.dart';
+import 'package:provider/provider.dart';
+// import 'package:prestamo/ui/router.dart';
 
 // import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
-import 'package:sembast/sembast_io.dart';
+// import 'package:provider/provider.dart' as provider;
+// import 'package:sembast/sembast_io.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
 
@@ -27,21 +29,14 @@ class MyApp extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        // ChangeNotifierProvider(builder: (_) => locator<CRUDModel>()),
-        // ChangeNotifierProvider(builder: (_) => locator<UnidadCRUD>()),
-        // ChangeNotifierProvider(builder: (_) => locator<CRUDArticulo>()),
-      ],
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        initialRoute: '/',
-        title: 'Product App',
-        theme: ThemeData(
-          fontFamily: 'OpenSans',
-        ),
-        onGenerateRoute: Router.generateRoute,
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      initialRoute: '/',
+      title: 'Product App',
+      theme: ThemeData(
+        fontFamily: 'OpenSans',
       ),
+      onGenerateRoute: Router.generateRoute,
     );
   }
 }

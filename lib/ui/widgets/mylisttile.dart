@@ -5,7 +5,8 @@ class MyListTile extends StatefulWidget {
   final String title;
   final IconData icon;
   final bool selected;
-  MyListTile({Key key, @required this.title, @required this.icon, this.selected = false}) : super(key: key);
+  final Function onTap;
+  MyListTile({Key key, @required this.title, @required this.icon, this.onTap, this.selected = false}) : super(key: key);
   @override
   _MyListTileState createState() => _MyListTileState();
 }
@@ -19,6 +20,7 @@ class _MyListTileState extends State<MyListTile> {
         borderRadius: BorderRadius.only(topRight: Radius.circular(30), bottomRight: Radius.circular(30))
       ),
       child: ListTile(
+          onTap: widget.onTap,
           contentPadding: EdgeInsets.symmetric(vertical: 0.0, horizontal: 0.0),
           dense: true,
           leading: Padding(

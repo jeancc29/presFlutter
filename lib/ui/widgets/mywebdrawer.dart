@@ -9,8 +9,9 @@ import 'package:prestamo/ui/widgets/mylisttile.dart';
 class MyWebDrawer extends StatefulWidget {
   final bool inicio;
   final bool clientes;
+  final bool rutas;
   final bool clientesBack;
-  MyWebDrawer({Key key, this.inicio = false, this.clientes = false, this.clientesBack = false}) : super(key: key);
+  MyWebDrawer({Key key, this.inicio = false, this.clientes = false, this.rutas = false, this.clientesBack = false}) : super(key: key);
   @override
   _MyWebDrawerState createState() => _MyWebDrawerState();
 }
@@ -27,12 +28,12 @@ class _MyWebDrawerState extends State<MyWebDrawer> {
             child: ListView(children: [
               SizedBox(height: 5,),
               Visibility(
-                visible: widget.clientesBack,
+                visible: ModalRoute.of(context)?.canPop == true,
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: InkWell(
                     onTap: (){
-                                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ClientesScreen()));
+                                    Navigator.pop(context);
 
                     },
                     child: Container(
@@ -45,15 +46,16 @@ class _MyWebDrawerState extends State<MyWebDrawer> {
                         Icon(Icons.arrow_back, size: 18,),
                         Padding(
                           padding: const EdgeInsets.only(left: 10.0),
-                          child: Text("Todos los clientes", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade800),),
+                          child: Text("Atras", style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.grey.shade800),),
                         )
                       ],),
                     ),
                   ),
                 ),
               ),
-              MyListTile(title: "Inicio", icon: Icons.apps, selected: widget.inicio,),
+              MyListTile(title: "Inicio", icon: Icons.apps, selected: widget.inicio, ),
               MyListTile(title: "Clientes", icon: Icons.people, selected: widget.clientes),
+              MyListTile(title: "Rutas", icon: Icons.people, selected: widget.rutas, onTap: (){Navigator.pushNamed(context, "/rutas");},),
               MyListTile(title: "Usuarios y permisos", icon: Icons.recent_actors),
               MyListTile(title: "Pagos", icon: Icons.payment, selected: false,),
               MyExpansionTile(
