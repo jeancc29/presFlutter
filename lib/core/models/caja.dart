@@ -1,10 +1,12 @@
 
 
+import 'package:prestamo/core/classes/utils.dart';
+
 class Caja {
   int id;
   String descripcion;
-  String balanceInicial;
-  String balance;
+  double balanceInicial;
+  double balance;
   String status;
   
 
@@ -13,8 +15,8 @@ class Caja {
   Caja.fromMap(Map snapshot) :
         id = snapshot['id'] ?? 0,
         descripcion = snapshot['descripcion'] ?? '',
-        balanceInicial = snapshot['balanceInicial'] ?? '',
-        balance = snapshot['balance'] ?? '',
+        balanceInicial = Utils.toDouble(snapshot['balanceInicial'].toString()) ?? 0,
+        balance = Utils.toDouble(snapshot['balance'].toString()) ?? 0,
         status = snapshot['status'] ?? ''
         ;
 

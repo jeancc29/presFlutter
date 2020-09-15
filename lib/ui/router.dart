@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:prestamo/ui/views/clientes/add.dart';
 import 'package:prestamo/ui/views/clientes/index.dart';
+import 'package:prestamo/ui/views/gastos/add.dart';
+import 'package:prestamo/ui/views/gastos/index.dart';
 import 'package:prestamo/ui/views/rutas/index.dart';
 
 
@@ -13,9 +15,21 @@ class Router {
         return  MaterialPageRoute(
           builder: (_)=> ClientesScreen()
         );
+      case '/clientes' :
+        return  MaterialPageRoute(
+          builder: (_)=> ClientesScreen()
+        );
       case '/rutas' :
         return  MaterialPageRoute(
           builder: (_)=> RutasScreen()
+        );
+      case '/gastos' :
+        return  MaterialPageRoute(
+          builder: (_)=> GastosScreen()
+        );
+      case '/AddGastos' :
+        return  MaterialPageRoute(
+          builder: (_)=> AddGastos(data: settings.arguments,)
         );
         // return  MaterialPageRoute(
         //   builder: (_)=> ClientesAdd()

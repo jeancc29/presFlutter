@@ -23,6 +23,7 @@ import 'package:prestamo/core/services/routeservice.dart';
 import 'package:prestamo/ui/views/clientes/add.dart';
 import 'package:prestamo/ui/views/clientes/dialogreferencia.dart';
 import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
+import 'package:prestamo/ui/widgets/myappbar.dart';
 import 'package:prestamo/ui/widgets/mydatepicker.dart';
 import 'package:prestamo/ui/widgets/mydropdownbutton.dart';
 import 'package:prestamo/ui/widgets/myexpansiontile.dart';
@@ -65,19 +66,47 @@ class _RutasScreenState extends State<RutasScreen> with TickerProviderStateMixin
     }
   }
 
-  _guardar() async {
-    try {
-      setState(() => _cargando = true);
+  _store() async {
+    // try {
+      // setState(() => _cargando = true);
       _ruta.descripcion = _txtDescripcion.text;
       var parsed = await RouteService.store(context: context, ruta: _ruta);
-      print("_guardar: $parsed");
-      (parsed["ruta"] != null) ? listaRuta.add(Ruta.fromMap(parsed["ruta"])) : null;
-     _streamControllerRutas.add(listaRuta);
-      setState(() => _cargando = false);
-    } catch (e) {
-      print("errorrrrrrrr de guardar index: ${e.toString()}");
-      setState(() => _cargando = false);
-    }
+      print("_store: $parsed");
+      _insertRutaToListaRutas(parsed);
+     
+      // setState(() => _cargando = false);
+    // } catch (e) {
+    //   print("errorrrrrrrr de guardar index: ${e.toString()}");
+    //   setState(() => _cargando = false);
+    // }
+  }
+
+  
+
+  _insertRutaToListaRutas(Map<String, dynamic> parsed){
+    if(parsed["ruta"] != null){
+        Ruta ruta = Ruta.fromMap(parsed["ruta"]);
+        
+        int index = listaRuta.indexWhere((element) => element.id == ruta.id);
+        if(index == -1){
+          print("_insertRutaToListaRutas: ${ruta.toJson()}");
+          listaRuta.add(ruta);
+          _streamControllerRutas.add(listaRuta);
+        }else{
+          print("_insertRutaToListaRutas2: ${ruta.toJson()}");
+          listaRuta[index].descripcion = ruta.descripcion;
+          _streamControllerRutas.add(listaRuta);
+        }
+      }
+  }
+
+  _deleteRutaFromListaRutas(Map<String, dynamic> parsed){
+    if(parsed["ruta"] != null){
+        Ruta ruta = Ruta.fromMap(parsed["ruta"]);
+        Ruta rutaAEliminar = listaRuta.firstWhere((element) => element.id == ruta.id);
+        if(rutaAEliminar != null)
+          listaRuta.remove(rutaAEliminar);
+      }
   }
 
   _closeDialog(){
@@ -91,59 +120,70 @@ class _RutasScreenState extends State<RutasScreen> with TickerProviderStateMixin
     showDialog(
       context: context,
       builder: (context){
-        return AlertDialog(
-          title:
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text("Guardar ruta"),
-               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: Visibility(
-                    visible: _cargando,
-                    child: Theme(
-                      data: Theme.of(context).copyWith(accentColor: Utils.colorPrimary),
-                      child: new CircularProgressIndicator(),
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title:
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Guardar ruta"),
+                   Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SizedBox(
+                      width: 30,
+                      height: 30,
+                      child: Visibility(
+                        visible: _cargando,
+                        child: Theme(
+                          data: Theme.of(context).copyWith(accentColor: Utils.colorPrimary),
+                          child: new CircularProgressIndicator(),
+                        ),
+                      ),
                     ),
                   ),
+                ],
+              ),
+              content: Container(
+                width: MediaQuery.of(context).size.width / 2,
+                child: Form(
+                key: _formKey,
+                child: TextFormField(
+                controller: _txtDescripcion,
+                decoration: InputDecoration(labelText: "Descripcion *"),
+              ))
+              ),
+              actions: [
+              FlatButton(child: Text("Cancelar", style: TextStyle(color: Colors.black45, fontWeight: FontWeight.bold)), onPressed: _closeDialog),
+            // FlatButton(child: Text("Agregar", style: TextStyle(color: Utils.colorPrimaryBlue)), onPressed: () => _retornarReferencia(referencia: Referencia(nombre: _txtNombre.text, telefono: _txtTelefono.text, tipo: _tipo, parentesco: _parentesco)),),
+            SizedBox(
+              width: 145,
+              child: ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: RaisedButton(
+                    elevation: 0,
+                    color: Utils.colorPrimaryBlue,
+                    child: Text('Agregar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                    onPressed: () async {
+                      // _connect();
+                      if(_formKey.currentState.validate()){
+                        // try {
+                            setState(() => _cargando = true);
+                              await _store();
+                              _back();
+                              setState(() => _cargando = false);
+                              
+                          // } catch (e) {
+                          //   setState(() => _cargando = false);
+                          // }
+                      }
+                    },
                 ),
               ),
-            ],
-          ),
-          content: Container(
-            width: MediaQuery.of(context).size.width / 2,
-            child: Form(
-            key: _formKey,
-            child: TextFormField(
-            controller: _txtDescripcion,
-            decoration: InputDecoration(labelText: "Descripcion *"),
-          ))
-          ),
-          actions: [
-          FlatButton(child: Text("Cancelar", style: TextStyle(color: Colors.black45, fontWeight: FontWeight.bold)), onPressed: _closeDialog),
-        // FlatButton(child: Text("Agregar", style: TextStyle(color: Utils.colorPrimaryBlue)), onPressed: () => _retornarReferencia(referencia: Referencia(nombre: _txtNombre.text, telefono: _txtTelefono.text, tipo: _tipo, parentesco: _parentesco)),),
-        SizedBox(
-          width: 145,
-          child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: RaisedButton(
-                elevation: 0,
-                color: Utils.colorPrimaryBlue,
-                child: Text('Agregar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                onPressed: () async {
-                  // _connect();
-                  if(_formKey.currentState.validate()){
-                    await _guardar();
-                    _closeDialog();
-                  }
-                },
             ),
-          ),
-        ),
-          ],
+              ],
+            );
+          }
         );
       }
     );
@@ -153,7 +193,7 @@ class _RutasScreenState extends State<RutasScreen> with TickerProviderStateMixin
     return SingleChildScrollView(
 
         child: DataTable(
-          
+          showCheckboxColumn: false,
         columns: [
           DataColumn(label: Text("#", style: TextStyle(fontWeight: FontWeight.w700),)), 
           DataColumn(label: Text("Ruta", style: TextStyle(fontWeight: FontWeight.w700),)), 
@@ -161,19 +201,13 @@ class _RutasScreenState extends State<RutasScreen> with TickerProviderStateMixin
         ], 
         rows: clientes.map((e) => 
           DataRow(
-
+            onSelectChanged: (selected){
+              _update(e);
+            },
           cells: [
-            DataCell(InkWell(
-              onTap: (){
-                _update(e);
-              },
-              child: Text(e.id.toString()))
+            DataCell(Text(e.id.toString())
             ), 
-            DataCell(InkWell(
-              onTap: (){
-                _update(e);
-              },
-              child: Text(e.descripcion))
+            DataCell(Text(e.descripcion)
             ), 
             DataCell(
               IconButton(icon: Icon(Icons.delete), onPressed: (){_showDialogConfirmarEliminacion(e);})
@@ -197,8 +231,18 @@ class _RutasScreenState extends State<RutasScreen> with TickerProviderStateMixin
      _showDialogFormulario();
    }
 
-   _delete(Ruta ruta){
-
+   _delete(Ruta ruta) async {
+    try {
+      
+      var parsed = await RouteService.delete(context: context, ruta: ruta);
+      print("_delete: $parsed");
+      _deleteRutaFromListaRutas(parsed);
+     _streamControllerRutas.add(listaRuta);
+      
+    } catch (e) {
+      print("errorrrrrrrr de _delete index: ${e.toString()}");
+      
+    }
    }
 
    _back(){
@@ -207,15 +251,45 @@ class _RutasScreenState extends State<RutasScreen> with TickerProviderStateMixin
 
    _showDialogConfirmarEliminacion(Ruta ruta){
      showDialog(context: context, builder: (context){
-       return AlertDialog(
-         title: Text("Eliminar"),
-         content: Text("Seguro desea eliminar la ruta ${ruta.descripcion}?"),
-         actions: [
-           FlatButton(onPressed: _back, child: Text("Cancelar")),
-           FlatButton(onPressed: () async {
-             await _delete(ruta);
-           }, child: Text("Ok")),
-         ],
+       return StatefulBuilder(
+         builder: (context, setState) {
+           return AlertDialog(
+             title: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("Eliminar ruta"),
+                       Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          width: 30,
+                          height: 30,
+                          child: Visibility(
+                            visible: _cargando,
+                            child: Theme(
+                              data: Theme.of(context).copyWith(accentColor: Utils.colorPrimary),
+                              child: new CircularProgressIndicator(),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+             content: Text("Seguro desea eliminar la ruta ${ruta.descripcion}?"),
+             actions: [
+               FlatButton(onPressed: _back, child: Text("Cancelar")),
+               FlatButton(onPressed: () async {
+                //  try {
+                   setState(() => _cargando = true);
+                    await _delete(ruta);
+                    setState(() => _cargando = false);
+                    _back();
+                //  } catch (e) {
+                //    setState(() => _cargando = false);
+                //  }
+               }, child: Text("Ok")),
+             ],
+           );
+         }
        );
      });
    }
@@ -238,70 +312,7 @@ class _RutasScreenState extends State<RutasScreen> with TickerProviderStateMixin
       //     title: Text("Inicio"),
       //   )
       // ],),),
-      appBar: AppBar(
-        title: Row(children: [
-          IconButton(icon: Icon(Icons.menu, color: Colors.black), onPressed: (){},),
-          Text("Prestamo", style: TextStyle(color: Colors.black),),
-          Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  child:  ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        widthFactor: 0.75,
-                        heightFactor: 0.75,
-                        child: Image(image: AssetImage('images/p7.jpeg'), ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-        ],),
-        // leading: Icon(
-        //   Icons.menu,
-        //   color: Colors.black
-        // ),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        actions: <Widget>[
-          Column(
-
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: Visibility(
-                    visible: _cargando,
-                    child: Theme(
-                      data: Theme.of(context).copyWith(accentColor: Utils.colorPrimary),
-                      child: new CircularProgressIndicator(),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          IconButton(
-            onPressed: (){},
-            icon: Icon(Icons.info_outline, color: Colors.black,),
-          ),
-          IconButton(
-            onPressed: (){},
-            icon: Icon(Icons.help_outline, color: Colors.black,),
-          ),
-          IconButton(
-            onPressed: (){},
-            icon: Icon(Icons.notifications_none, color: Colors.black,),
-          ),
-        ],
-      ),
+      appBar: myAppBar(context: context, cargando: _cargando),
       body: Row(children: [
         
         MyWebDrawer(rutas: true,),

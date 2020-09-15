@@ -21,6 +21,7 @@ import 'package:prestamo/core/services/customerservice.dart';
 import 'package:prestamo/ui/views/clientes/add.dart';
 import 'package:prestamo/ui/views/clientes/dialogreferencia.dart';
 import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
+import 'package:prestamo/ui/widgets/myappbar.dart';
 import 'package:prestamo/ui/widgets/mydatepicker.dart';
 import 'package:prestamo/ui/widgets/mydropdownbutton.dart';
 import 'package:prestamo/ui/widgets/myexpansiontile.dart';
@@ -90,70 +91,7 @@ class _ClientesScreenState extends State<ClientesScreen> with TickerProviderStat
       //     title: Text("Inicio"),
       //   )
       // ],),),
-      appBar: AppBar(
-        title: Row(children: [
-          IconButton(icon: Icon(Icons.menu, color: Colors.black), onPressed: (){},),
-          Text("Prestamo", style: TextStyle(color: Colors.black),),
-          Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  child:  ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: Container(
-                      child: Align(
-                        alignment: Alignment.topLeft,
-                        widthFactor: 0.75,
-                        heightFactor: 0.75,
-                        child: Image(image: AssetImage('images/p7.jpeg'), ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-        ],),
-        // leading: Icon(
-        //   Icons.menu,
-        //   color: Colors.black
-        // ),
-        elevation: 0,
-        backgroundColor: Colors.white,
-        actions: <Widget>[
-          Column(
-
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: Visibility(
-                    visible: _cargando,
-                    child: Theme(
-                      data: Theme.of(context).copyWith(accentColor: Utils.colorPrimary),
-                      child: new CircularProgressIndicator(),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          IconButton(
-            onPressed: (){},
-            icon: Icon(Icons.info_outline, color: Colors.black,),
-          ),
-          IconButton(
-            onPressed: (){},
-            icon: Icon(Icons.help_outline, color: Colors.black,),
-          ),
-          IconButton(
-            onPressed: (){},
-            icon: Icon(Icons.notifications_none, color: Colors.black,),
-          ),
-        ],
-      ),
+      appBar: myAppBar(context: context, cargando: _cargando),
       body: Row(children: [
         
         MyWebDrawer(clientes: true,),

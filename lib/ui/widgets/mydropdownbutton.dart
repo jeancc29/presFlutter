@@ -3,6 +3,7 @@ import 'package:prestamo/core/classes/screensize.dart';
 
 class MyDropdownButton extends StatefulWidget {
   final ValueChanged<String> onChanged;
+  final String initialValue;
   final String title;
   final String hint;
 
@@ -13,7 +14,7 @@ class MyDropdownButton extends StatefulWidget {
 
   final List<String> elements;
   final double padding;
-  MyDropdownButton({Key key, @required this.title, @required this.onChanged, this.hint, this.elements, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8}) : super(key: key);
+  MyDropdownButton({Key key, this.initialValue, @required this.title, @required this.onChanged, this.hint, this.elements, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8}) : super(key: key);
   @override
   _MyDropdownButtonState createState() => _MyDropdownButtonState();
 }
@@ -23,7 +24,18 @@ class _MyDropdownButtonState extends State<MyDropdownButton> {
   @override
   void initState() {
     // TODO: implement initState
+    _initialValue();
     super.initState();
+  }
+
+  _initialValue(){
+    if(widget.initialValue != null){
+      if(widget.elements.length > 0){
+        var idx = widget.elements.indexWhere((element) => element == widget.initialValue);
+        if(idx != -1)
+          _index = idx;
+      }
+    }
   }
 
   getWidth(double screenSize){

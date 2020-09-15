@@ -10,8 +10,9 @@ class MyWebDrawer extends StatefulWidget {
   final bool inicio;
   final bool clientes;
   final bool rutas;
+  final bool gastos;
   final bool clientesBack;
-  MyWebDrawer({Key key, this.inicio = false, this.clientes = false, this.rutas = false, this.clientesBack = false}) : super(key: key);
+  MyWebDrawer({Key key, this.inicio = false, this.clientes = false, this.rutas = false, this.gastos = false, this.clientesBack = false}) : super(key: key);
   @override
   _MyWebDrawerState createState() => _MyWebDrawerState();
 }
@@ -54,15 +55,17 @@ class _MyWebDrawerState extends State<MyWebDrawer> {
                 ),
               ),
               MyListTile(title: "Inicio", icon: Icons.apps, selected: widget.inicio, ),
-              MyListTile(title: "Clientes", icon: Icons.people, selected: widget.clientes),
-              MyListTile(title: "Rutas", icon: Icons.people, selected: widget.rutas, onTap: (){Navigator.pushNamed(context, "/rutas");},),
-              MyListTile(title: "Usuarios y permisos", icon: Icons.recent_actors),
+              MyListTile(title: "Clientes", icon: Icons.people, selected: widget.clientes, onTap: (){Navigator.pushNamed(context, "/clientes");},),
+              MyListTile(title: "Rutas", icon: Icons.location_on, selected: widget.rutas, onTap: (){Navigator.pushNamed(context, "/rutas");},),
+              MyListTile(title: "Gastos", icon: Icons.money_off, selected: widget.gastos, onTap: (){Navigator.pushNamed(context, "/gastos");},),
+              // MyListTile(title: "Usuarios y permisos", icon: Icons.recent_actors),
+              MyListTile(title: "Cajas", icon: Icons.attach_money, selected: false,),
               MyListTile(title: "Pagos", icon: Icons.payment, selected: false,),
-              MyExpansionTile(
-                title: "Descargar informes", 
-                icon: Icons.file_download, 
-                listaMylisttile: [MyListTile(title: "Comentarios", icon: null), MyListTile(title: "Estadisticas", icon: null)]
-              )
+              // MyExpansionTile(
+              //   title: "Descargar informes", 
+              //   icon: Icons.file_download, 
+              //   listaMylisttile: [MyListTile(title: "Comentarios", icon: null), MyListTile(title: "Estadisticas", icon: null)]
+              // )
             ],),
           ),
         );
