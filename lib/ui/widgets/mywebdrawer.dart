@@ -11,13 +11,18 @@ class MyWebDrawer extends StatefulWidget {
   final bool clientes;
   final bool rutas;
   final bool gastos;
+  final bool cajas;
   final bool clientesBack;
-  MyWebDrawer({Key key, this.inicio = false, this.clientes = false, this.rutas = false, this.gastos = false, this.clientesBack = false}) : super(key: key);
+  MyWebDrawer({Key key, this.inicio = false, this.clientes = false, this.rutas = false, this.gastos = false, this.cajas = false, this.clientesBack = false}) : super(key: key);
   @override
   _MyWebDrawerState createState() => _MyWebDrawerState();
 }
 
 class _MyWebDrawerState extends State<MyWebDrawer> {
+
+  _gotTo(String route){
+    Navigator.pushNamed(context, route);
+  }
   @override
   Widget build(BuildContext context) {
     return Visibility(
@@ -55,11 +60,11 @@ class _MyWebDrawerState extends State<MyWebDrawer> {
                 ),
               ),
               MyListTile(title: "Inicio", icon: Icons.apps, selected: widget.inicio, ),
-              MyListTile(title: "Clientes", icon: Icons.people, selected: widget.clientes, onTap: (){Navigator.pushNamed(context, "/clientes");},),
-              MyListTile(title: "Rutas", icon: Icons.location_on, selected: widget.rutas, onTap: (){Navigator.pushNamed(context, "/rutas");},),
-              MyListTile(title: "Gastos", icon: Icons.money_off, selected: widget.gastos, onTap: (){Navigator.pushNamed(context, "/gastos");},),
+              MyListTile(title: "Clientes", icon: Icons.people, selected: widget.clientes, onTap: (){_gotTo("/clientes");},),
+              MyListTile(title: "Rutas", icon: Icons.location_on, selected: widget.rutas, onTap: (){_gotTo("/rutas");},),
+              MyListTile(title: "Gastos", icon: Icons.money_off, selected: widget.gastos, onTap: (){_gotTo("/gastos");},),
               // MyListTile(title: "Usuarios y permisos", icon: Icons.recent_actors),
-              MyListTile(title: "Cajas", icon: Icons.attach_money, selected: false,),
+              MyListTile(title: "Cajas", icon: Icons.attach_money, selected: widget.cajas, onTap: (){_gotTo("/cajas");}),
               MyListTile(title: "Pagos", icon: Icons.payment, selected: false,),
               // MyExpansionTile(
               //   title: "Descargar informes", 

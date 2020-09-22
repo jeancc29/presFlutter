@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:prestamo/ui/views/cajas/index.dart';
 import 'package:prestamo/ui/views/clientes/add.dart';
 import 'package:prestamo/ui/views/clientes/index.dart';
 import 'package:prestamo/ui/views/gastos/add.dart';
@@ -11,9 +12,13 @@ import 'package:prestamo/ui/views/rutas/index.dart';
 class Router {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      // case '/' :
+      //   return  MaterialPageRoute(
+      //     builder: (_)=> ClientesScreen()
+      //   );
       case '/' :
         return  MaterialPageRoute(
-          builder: (_)=> ClientesScreen()
+          builder: (_)=> CajasScreen()
         );
       case '/clientes' :
         return  MaterialPageRoute(
