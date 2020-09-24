@@ -7,7 +7,7 @@ class MyHeader extends StatefulWidget {
   final String subtitle;
   final String actionFuncion;
   final Function function;
-  MyHeader({Key key, @required this.title, this.subtitle, this.actionFuncion, this.function}) : super(key: key);
+  MyHeader({Key key, @required this.title, this.subtitle = "", this.actionFuncion, this.function}) : super(key: key);
   @override
   _MyHeaderState createState() => _MyHeaderState();
 }
@@ -16,6 +16,7 @@ class _MyHeaderState extends State<MyHeader> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -30,7 +31,7 @@ class _MyHeaderState extends State<MyHeader> {
                   // ),
                   Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(widget.title, style: TextStyle(fontFamily: 'Roboto', fontSize: 27, fontWeight: FontWeight.w600)),
+                  child: Text(widget.title, style: TextStyle(color: Utils.fromHex("#202124"), fontFamily: 'Roboto', fontSize: 27, fontWeight: FontWeight.w600)),
                   ),
                   
                   // SizedBox(
@@ -48,7 +49,7 @@ class _MyHeaderState extends State<MyHeader> {
                       InkWell(
                         onTap: widget.function,
                         child: Container(
-                          padding: EdgeInsets.only(top: 10.0, bottom: 10.0, right: 15, left: 15.0),
+                          padding: EdgeInsets.only(top: 9.0, bottom: 9.0, right: 23, left: 23.0),
                           decoration: BoxDecoration(
                             color: Utils.colorPrimaryBlue,
                             borderRadius: BorderRadius.circular(5)
@@ -142,6 +143,13 @@ class _MyHeaderState extends State<MyHeader> {
                   ),
                   
                 ],
+              ),
+              Visibility(
+                visible: widget.subtitle != "",
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 8.0, bottom: 10),
+                  child: Text(widget.subtitle, style: TextStyle(color: Utils.fromHex("#5f6368"), fontSize: 13, fontFamily: "Roboto", fontWeight: FontWeight.w400, letterSpacing: 1),),
+                ),
               ),
               Padding(
                     padding: const EdgeInsets.only(right: 25.0),

@@ -66,11 +66,11 @@ class _MyWebDrawerState extends State<MyWebDrawer> {
               // MyListTile(title: "Usuarios y permisos", icon: Icons.recent_actors),
               MyListTile(title: "Cajas", icon: Icons.attach_money, selected: widget.cajas, onTap: (){_gotTo("/cajas");}),
               MyListTile(title: "Pagos", icon: Icons.payment, selected: false,),
-              // MyExpansionTile(
-              //   title: "Descargar informes", 
-              //   icon: Icons.file_download, 
-              //   listaMylisttile: [MyListTile(title: "Comentarios", icon: null), MyListTile(title: "Estadisticas", icon: null)]
-              // )
+              MyExpansionTile(
+                title: "Cajas", 
+                icon: Icons.attach_money, 
+                listaMylisttile: [MyListTile(title: "Editar", icon: null), MyListTile(title: "Cierres", icon: null,), MyListTile(title: "Aperturar caja", icon: null,)]
+              )
             ],),
           ),
         );
