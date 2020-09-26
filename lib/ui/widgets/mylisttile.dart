@@ -3,10 +3,11 @@ import 'package:prestamo/core/classes/utils.dart';
 
 class MyListTile extends StatefulWidget {
   final String title;
+  final bool cargando;
   final IconData icon;
   final bool selected;
   final Function onTap;
-  MyListTile({Key key, @required this.title, @required this.icon, this.onTap, this.selected = false}) : super(key: key);
+  MyListTile({Key key, @required this.title, @required this.icon, this.onTap, this.selected = false, this.cargando = false}) : super(key: key);
   @override
   _MyListTileState createState() => _MyListTileState();
 }
@@ -27,7 +28,25 @@ class _MyListTileState extends State<MyListTile> {
             padding: const EdgeInsets.only(left: 30.0),
             child: Icon(widget.icon, color: widget.selected ? Utils.colorPrimaryBlue : Colors.grey.shade700,),
           ),
-          title: Text(widget.title, style: TextStyle(fontWeight: FontWeight.w600,fontSize: 13.3, color: widget.selected ? Utils.colorPrimaryBlue : Colors.grey.shade700)),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+            Text(widget.title, style: TextStyle(fontWeight: FontWeight.w600,fontSize: 13.3, color: widget.selected ? Utils.colorPrimaryBlue : Colors.grey.shade700)),
+            Visibility(visible: widget.cargando, child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: Visibility(
+                        visible: widget.cargando,
+                        child: Theme(
+                          data: Theme.of(context).copyWith(accentColor: Utils.colorPrimary),
+                          child: new CircularProgressIndicator(),
+                        ),
+                      ),
+                    ),
+                  ),)
+          ],)
         )
     );
   }

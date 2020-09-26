@@ -14,7 +14,7 @@ class MyDropdownButton extends StatefulWidget {
 
   final List<String> elements;
   final double padding;
-  MyDropdownButton({Key key, this.initialValue, @required this.title, @required this.onChanged, this.hint, this.elements, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8}) : super(key: key);
+  MyDropdownButton({Key key, this.initialValue, this.title = "", @required this.onChanged, this.hint, this.elements, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8}) : super(key: key);
   @override
   _MyDropdownButtonState createState() => _MyDropdownButtonState();
 }
@@ -72,7 +72,10 @@ class _MyDropdownButtonState extends State<MyDropdownButton> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15),),
+              Visibility(
+                visible: widget.title != "",
+                child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15),)
+              ),
               Container(
                   width: getWidth(boxconstraints.maxWidth) - (widget.padding * 2),
                   child: DropdownButton(

@@ -3,6 +3,7 @@ import 'package:prestamo/core/classes/screensize.dart';
 
 class MyTextFormField extends StatefulWidget {
   final String title;
+  final String labelText;
   final TextEditingController controller;
   final String hint;
   final maxLines;
@@ -14,7 +15,7 @@ class MyTextFormField extends StatefulWidget {
   final double padding;
 
   final bool isRequired;
-  MyTextFormField({Key key, @required this.title, this.controller, this.hint, this.maxLines = 1, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8, this.isRequired = false}) : super(key: key);
+  MyTextFormField({Key key, this.title = "", this.labelText = "", this.controller, this.hint, this.maxLines = 1, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8, this.isRequired = false}) : super(key: key);
   @override
   _MyTextFormFieldState createState() => _MyTextFormFieldState();
 }
@@ -63,7 +64,7 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15),),
+              Visibility(visible: widget.title != "",child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15),)),
               Container(
                 // color: Colors.red,
                 // decoration: BoxDecoration(
@@ -72,7 +73,10 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                 // ),
                 width: getWidth(boxconstraints.maxWidth) - (widget.padding * 2), //El padding se multiplica por dos ya que el padding dado es el mismo para la izquiera y derecha
                 // height: 50,
-                child: TextFormField(
+                child:
+                (widget.labelText == "")
+                ?
+                 TextFormField(
                     controller: widget.controller,
                     maxLines: widget.maxLines,
                     keyboardType: (widget.maxLines != 1) ? TextInputType.multiline : null,
@@ -85,6 +89,21 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                           // borderRadius: new BorderRadius.circular(25.0),
                           borderSide: new BorderSide(),
                         ),
+                      ),
+                      validator: (data){
+                        if(data.isEmpty && widget.isRequired)
+                          return "Campo requerido";
+                        return null;
+                      },
+                    )
+                  :
+                  TextFormField(
+                    controller: widget.controller,
+                    maxLines: widget.maxLines,
+                    keyboardType: (widget.maxLines != 1) ? TextInputType.multiline : null,
+                    style: TextStyle(fontSize: 15),
+                      decoration: InputDecoration(
+                        labelText: widget.labelText
                       ),
                       validator: (data){
                         if(data.isEmpty && widget.isRequired)

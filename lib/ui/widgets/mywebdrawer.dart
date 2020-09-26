@@ -2,6 +2,10 @@ import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:prestamo/core/classes/screensize.dart';
+import 'package:prestamo/core/classes/utils.dart';
+import 'package:prestamo/core/models/caja.dart';
+import 'package:prestamo/core/services/boxservice.dart';
+import 'package:prestamo/ui/views/cajas/abrir.dart';
 import 'package:prestamo/ui/views/clientes/index.dart';
 import 'package:prestamo/ui/widgets/myexpansiontile.dart';
 import 'package:prestamo/ui/widgets/mylisttile.dart';
@@ -19,9 +23,25 @@ class MyWebDrawer extends StatefulWidget {
 }
 
 class _MyWebDrawerState extends State<MyWebDrawer> {
-
+  bool _cargandoAbrirCaja = false;
   _gotTo(String route){
     Navigator.pushNamed(context, route);
+  }
+
+  _abrirCaja() async {
+    try {
+      setState(() => _cargandoAbrirCaja = true);
+      var parsed = await BoxService.index(context: context);
+      setState(() => _cargandoAbrirCaja = false);
+      List<Caja> lista = parsed["cajas"].map<Caja>((value) => Caja.fromMap(value)).toList();
+      if(lista.length > 0)
+        abrirCaja(context: context, cajas: lista);
+      else
+        Utils.showAlertDialog(context: context, content: "No hay cajas registradas", title: "No hay cajas");
+    } catch (e) {
+      print("Errorrrr myWebDrawer _abrirCaja");
+      setState(() => _cargandoAbrirCaja = false);
+    }
   }
   @override
   Widget build(BuildContext context) {
@@ -69,8 +89,12 @@ class _MyWebDrawerState extends State<MyWebDrawer> {
               MyExpansionTile(
                 title: "Cajas", 
                 icon: Icons.attach_money, 
-                listaMylisttile: [MyListTile(title: "Editar", icon: null), MyListTile(title: "Cierres", icon: null,), MyListTile(title: "Aperturar caja", icon: null,)]
-              )
+                listaMylisttile: [
+                  MyListTile(title: "Editar", icon: null), 
+                  MyListTile(title: "Cierres", icon: null,), 
+                  MyListTile(title: "Aperturar caja", icon: null, onTap: _abrirCaja, cargando: _cargandoAbrirCaja,)
+                ]
+              ),
             ],),
           ),
         );

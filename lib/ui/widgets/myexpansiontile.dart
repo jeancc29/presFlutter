@@ -18,7 +18,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
       child: ExpansionTile(
         leading: Padding(
           padding: const EdgeInsets.only(left: 15.0),
-          child: Icon(Icons.file_download,),
+          child: Icon(widget.icon,),
         ),
         title: Text(widget.title, style: TextStyle(fontSize: 13.3, fontWeight: FontWeight.w600 )),
         children: widget.listaMylisttile,
