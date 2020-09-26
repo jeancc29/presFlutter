@@ -18,6 +18,7 @@ class _CajasScreenState extends State<CajasScreen> {
   var _formKey = GlobalKey<FormState>();
   StreamController<List<Caja>> _streamController;
   var _txtDescripcion = TextEditingController();
+
   List<Caja> lista = List();
   Caja _caja = new Caja();
   _back() async {
@@ -115,15 +116,35 @@ class _CajasScreenState extends State<CajasScreen> {
     Navigator.pop(context);
   }
 
+  
+
 
   _showDialogFormulario(){
     print("Holaa");
+
+    bool _ckbValidarDesgloseEfectivo = false;
+    bool _ckbValidarDesgloseCheques = false;
+    bool _ckbValidarDesgloseTarjetas = false;
+    bool _ckbValidarDesgloseTransferencias = false;
     // return;
     showDialog(
       context: context,
       builder: (context){
         return StatefulBuilder(
           builder: (context, setState) {
+            _ckbValidarDesgloseEfectivoChanged(bool data){
+              setState(() => _ckbValidarDesgloseEfectivo = data);
+            }
+            _ckbValidarDesgloseChequesChanged(bool data){
+              setState(() => _ckbValidarDesgloseCheques = data);
+            }
+            _ckbValidarDesgloseTarjetasChanged(bool data){
+              setState(() => _ckbValidarDesgloseTarjetas = data);
+            }
+            _ckbValidarDesgloseTransferenciasChanged(bool data){
+              setState(() => _ckbValidarDesgloseTransferencias = data);
+            }
+
             return AlertDialog(
               title:
               Row(
@@ -150,16 +171,94 @@ class _CajasScreenState extends State<CajasScreen> {
                 width: MediaQuery.of(context).size.width / 2,
                 child: Form(
                 key: _formKey,
-                child: TextFormField(
-                controller: _txtDescripcion,
-                decoration: InputDecoration(labelText: "Descripcion *"),
-                validator: (String data){
-                  if(data.isEmpty)
-                    return "Campo vacio";
+                child: Wrap(
+                  children: [
+                    TextFormField(
+                      controller: _txtDescripcion,
+                      decoration: InputDecoration(labelText: "Descripcion *"),
+                      validator: (String data){
+                        if(data.isEmpty)
+                          return "Campo vacio";
 
-                  return null;
-                },
-              ))
+                        return null;
+                      },
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 10,
+                              height: 8,
+                              child: Checkbox(
+                                // useTapTarget: false,
+                                value: _ckbValidarDesgloseEfectivo,
+                                onChanged: _ckbValidarDesgloseEfectivoChanged,
+                              ),
+                            ),
+                            SizedBox(width: 10,),
+                            Text("desglose de efectivo")
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 10,
+                              height: 8,
+                              child: Checkbox(
+                                // useTapTarget: false,
+                                value: _ckbValidarDesgloseCheques,
+                                onChanged: _ckbValidarDesgloseChequesChanged,
+                              ),
+                            ),
+                            SizedBox(width: 10,),
+                            Text("desglose de cheques")
+                          ],
+                        )
+                  
+                      ],
+                    ),
+                    
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 10,
+                              height: 8,
+                              child: Checkbox(
+                                // useTapTarget: false,
+                                value: _ckbValidarDesgloseTarjetas,
+                                onChanged: _ckbValidarDesgloseTarjetasChanged,
+                              ),
+                            ),
+                            SizedBox(width: 10,),
+                            Text("Desglose de tarjetas")
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            SizedBox(
+                              width: 10,
+                              height: 8,
+                              child: Checkbox(
+                                // useTapTarget: false,
+                                value: _ckbValidarDesgloseTransferencias,
+                                onChanged: _ckbValidarDesgloseTransferenciasChanged,
+                              ),
+                            ),
+                            SizedBox(width: 10,),
+                            Text("desglose de transferencias")
+                          ],
+                        )
+                  
+                      ],
+                    ),
+                    
+                  ],
+                ))
               ),
               actions: [
               FlatButton(child: Text("Cancelar", style: TextStyle(color: Colors.black45, fontWeight: FontWeight.bold)), onPressed: _closeDialog),
