@@ -28,6 +28,7 @@ class _MyListTileState extends State<MyListTile> {
             padding: const EdgeInsets.only(left: 30.0),
             child: Icon(widget.icon, color: widget.selected ? Utils.colorPrimaryBlue : Colors.grey.shade700,),
           ),
+          
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
