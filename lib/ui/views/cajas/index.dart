@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/caja.dart';
 import 'package:prestamo/core/services/boxservice.dart';
+import 'package:prestamo/ui/widgets/mycheckbox.dart';
 import 'package:prestamo/ui/widgets/myheader.dart';
 import 'package:prestamo/ui/widgets/myscaffold.dart';
 import 'package:rxdart/rxdart.dart';
@@ -18,6 +19,10 @@ class _CajasScreenState extends State<CajasScreen> {
   var _formKey = GlobalKey<FormState>();
   StreamController<List<Caja>> _streamController;
   var _txtDescripcion = TextEditingController();
+  bool _ckbValidarDesgloseEfectivo = false;
+    bool _ckbValidarDesgloseCheques = false;
+    bool _ckbValidarDesgloseTarjetas = false;
+    bool _ckbValidarDesgloseTransferencias = false;
 
   List<Caja> lista = List();
   Caja _caja = new Caja();
@@ -46,6 +51,10 @@ class _CajasScreenState extends State<CajasScreen> {
     // try {
       // setState(() => _cargando = true);
       _caja.descripcion = _txtDescripcion.text;
+      _caja.validarDesgloseEfectivo = _ckbValidarDesgloseEfectivo;
+      _caja.validarDesgloseCheques = _ckbValidarDesgloseCheques;
+      _caja.validarDesgloseTarjetas = _ckbValidarDesgloseTarjetas;
+      _caja.validarDesgloseTransferencias = _ckbValidarDesgloseTransferencias;
       var parsed = await BoxService.store(context: context, caja: _caja);
       print("_store: $parsed");
       _insertCajaTolistas(parsed);
@@ -60,12 +69,20 @@ class _CajasScreenState extends State<CajasScreen> {
   _create(){
     _caja = new Caja();
     _txtDescripcion.text = '';
+    _ckbValidarDesgloseEfectivo = false;
+    _ckbValidarDesgloseCheques = false;
+    _ckbValidarDesgloseTarjetas = false;
+    _ckbValidarDesgloseTransferencias = false;
      _showDialogFormulario();
   }
    
    _update(Caja caja){
      _caja = caja;
      _txtDescripcion.text = _caja.descripcion;
+     _ckbValidarDesgloseEfectivo = _caja.validarDesgloseEfectivo;
+     _ckbValidarDesgloseCheques = _caja.validarDesgloseCheques;
+     _ckbValidarDesgloseTarjetas = _caja.validarDesgloseTarjetas;
+     _ckbValidarDesgloseTransferencias = _caja.validarDesgloseTransferencias;
      _showDialogFormulario();
    }
 
@@ -122,10 +139,7 @@ class _CajasScreenState extends State<CajasScreen> {
   _showDialogFormulario(){
     print("Holaa");
 
-    bool _ckbValidarDesgloseEfectivo = false;
-    bool _ckbValidarDesgloseCheques = false;
-    bool _ckbValidarDesgloseTarjetas = false;
-    bool _ckbValidarDesgloseTransferencias = false;
+    
     // return;
     showDialog(
       context: context,
@@ -150,8 +164,8 @@ class _CajasScreenState extends State<CajasScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("Guardar caja"),
-                   Padding(
+                  Text("Guardar caja", style: TextStyle(fontSize: 24, fontFamily: "Roboto", fontWeight: FontWeight.w700)),
+                  Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: SizedBox(
                       width: 30,
@@ -183,79 +197,22 @@ class _CajasScreenState extends State<CajasScreen> {
                         return null;
                       },
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text("Validar", style: TextStyle(fontSize: 20, fontFamily: "Roboto", fontWeight: FontWeight.w700)),
+                      ),
+                    ),
+                    Wrap(
                       children: [
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 10,
-                              height: 8,
-                              child: Checkbox(
-                                // useTapTarget: false,
-                                value: _ckbValidarDesgloseEfectivo,
-                                onChanged: _ckbValidarDesgloseEfectivoChanged,
-                              ),
-                            ),
-                            SizedBox(width: 10,),
-                            Text("desglose de efectivo")
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 10,
-                              height: 8,
-                              child: Checkbox(
-                                // useTapTarget: false,
-                                value: _ckbValidarDesgloseCheques,
-                                onChanged: _ckbValidarDesgloseChequesChanged,
-                              ),
-                            ),
-                            SizedBox(width: 10,),
-                            Text("desglose de cheques")
-                          ],
-                        )
-                  
+                        MyCheckBox(title: "Desglose de efectivo", value: _ckbValidarDesgloseEfectivo, onChanged: _ckbValidarDesgloseEfectivoChanged, padding: 0,  medium: 2,),
+                        MyCheckBox(title: "Desglose de cheques", value: _ckbValidarDesgloseCheques, onChanged: _ckbValidarDesgloseChequesChanged, padding: 0,  medium: 2,),
+                        MyCheckBox(title: "Desglose de tarjetas", value: _ckbValidarDesgloseTarjetas, onChanged: _ckbValidarDesgloseTarjetasChanged, padding: 0,  medium: 2,),
+                        MyCheckBox(title: "Desglose de transferenci", value: _ckbValidarDesgloseTransferencias, onChanged: _ckbValidarDesgloseTransferenciasChanged, padding: 0,  medium: 2,),
                       ],
                     ),
                     
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 10,
-                              height: 8,
-                              child: Checkbox(
-                                // useTapTarget: false,
-                                value: _ckbValidarDesgloseTarjetas,
-                                onChanged: _ckbValidarDesgloseTarjetasChanged,
-                              ),
-                            ),
-                            SizedBox(width: 10,),
-                            Text("Desglose de tarjetas")
-                          ],
-                        ),
-                        Row(
-                          children: [
-                            SizedBox(
-                              width: 10,
-                              height: 8,
-                              child: Checkbox(
-                                // useTapTarget: false,
-                                value: _ckbValidarDesgloseTransferencias,
-                                onChanged: _ckbValidarDesgloseTransferenciasChanged,
-                              ),
-                            ),
-                            SizedBox(width: 10,),
-                            Text("desglose de transferencias")
-                          ],
-                        )
-                  
-                      ],
-                    ),
+                    
                     
                   ],
                 ))
