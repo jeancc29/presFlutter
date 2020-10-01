@@ -311,6 +311,7 @@ class _CajasScreenState extends State<CajasScreen> {
     return myScaffold(
       context: context,
       cargando: _cargando,
+      cajas: true,
       body: [
         MyHeader(title: "Cajas", subtitle: "Administre todas sus cajas", function: _create, actionFuncion: "Agregar",),
         Expanded(

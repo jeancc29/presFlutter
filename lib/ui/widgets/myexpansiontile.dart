@@ -5,7 +5,8 @@ class MyExpansionTile extends StatefulWidget {
   final String title;
   final IconData icon;
   final List<MyListTile> listaMylisttile;
-  MyExpansionTile({Key key, @required this.title, @required this.icon, @required this.listaMylisttile}) : super(key: key);
+  final bool initialExpanded;
+  MyExpansionTile({Key key, @required this.title, @required this.icon, @required this.listaMylisttile, this.initialExpanded = false}) : super(key: key);
   @override
   _MyExpansionTileState createState() => _MyExpansionTileState();
 }
@@ -16,6 +17,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
     return Container(
       color: Colors.transparent,
       child: ExpansionTile(
+        initiallyExpanded: widget.initialExpanded,
         leading: Padding(
           padding: const EdgeInsets.only(left: 15.0),
           child: Icon(widget.icon,),

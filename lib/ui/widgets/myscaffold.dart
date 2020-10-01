@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:prestamo/ui/widgets/myappbar.dart';
 import 'package:prestamo/ui/widgets/mywebdrawer.dart';
 
-myScaffold({@required BuildContext context, bool cargando, List<Widget> body}){
+myScaffold({@required BuildContext context, bool cargando, List<Widget> body, bool clientes = false, bool rutas = false, bool gastos = false, bool cajas = false}){
   return Scaffold(
       backgroundColor: Colors.white,
       // drawer: Drawer( child: ListView(children: [
@@ -13,7 +13,7 @@ myScaffold({@required BuildContext context, bool cargando, List<Widget> body}){
       // ],),),
       appBar: myAppBar(context: context, cargando: cargando),
       body: Row(children: [
-        MyWebDrawer(clientes: true,),
+        MyWebDrawer(clientes: clientes, cajas: cajas, rutas: rutas, gastos: gastos,),
         SizedBox(width: 40), 
         Expanded(
           child: Column(

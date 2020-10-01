@@ -12,11 +12,11 @@ import 'package:prestamo/ui/views/rutas/index.dart';
 class Router {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      // case '/' :
-      //   return  MaterialPageRoute(
-      //     builder: (_)=> ClientesScreen()
-      //   );
       case '/' :
+        return  MaterialPageRoute(
+          builder: (_)=> ClientesScreen()
+        );
+      case '/cajas' :
         return  MaterialPageRoute(
           builder: (_)=> CajasScreen()
         );

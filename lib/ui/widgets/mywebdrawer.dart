@@ -84,17 +84,19 @@ class _MyWebDrawerState extends State<MyWebDrawer> {
               MyListTile(title: "Rutas", icon: Icons.location_on, selected: widget.rutas, onTap: (){_gotTo("/rutas");},),
               MyListTile(title: "Gastos", icon: Icons.money_off, selected: widget.gastos, onTap: (){_gotTo("/gastos");},),
               // MyListTile(title: "Usuarios y permisos", icon: Icons.recent_actors),
-              MyListTile(title: "Cajas", icon: Icons.attach_money, selected: widget.cajas, onTap: (){_gotTo("/cajas");}),
-              MyListTile(title: "Pagos", icon: Icons.payment, selected: false,),
+              // MyListTile(title: "Cajas", icon: Icons.attach_money, selected: widget.cajas, onTap: (){_gotTo("/cajas");}),
               MyExpansionTile(
                 title: "Cajas", 
                 icon: Icons.attach_money, 
+                initialExpanded: widget.cajas,
                 listaMylisttile: [
-                  MyListTile(title: "Editar", icon: null), 
+                  MyListTile(title: "Editar", icon: null, onTap: (){_gotTo("/cajas");}, selected: widget.cajas,), 
+                  MyListTile(title: "Aperturar caja", icon: null, onTap: _abrirCaja, cargando: _cargandoAbrirCaja,),
                   MyListTile(title: "Cierres", icon: null,), 
-                  MyListTile(title: "Aperturar caja", icon: null, onTap: _abrirCaja, cargando: _cargandoAbrirCaja,)
                 ]
               ),
+              MyListTile(title: "Pagos", icon: Icons.payment, selected: false,),
+
             ],),
           ),
         );
