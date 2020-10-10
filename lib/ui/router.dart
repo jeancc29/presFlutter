@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:prestamo/ui/views/bancos/index.dart';
 import 'package:prestamo/ui/views/cajas/index.dart';
 import 'package:prestamo/ui/views/clientes/add.dart';
 import 'package:prestamo/ui/views/clientes/index.dart';
@@ -35,6 +36,10 @@ class Router {
       case '/AddGastos' :
         return  MaterialPageRoute(
           builder: (_)=> AddGastos(data: settings.arguments,)
+        );
+      case '/bancos' :
+        return  MaterialPageRoute(
+          builder: (_)=> BancosScreen()
         );
         // return  MaterialPageRoute(
         //   builder: (_)=> ClientesAdd()
