@@ -32,7 +32,7 @@ class _MyListTileState extends State<MyListTile> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-            Text(widget.title, style: TextStyle(fontWeight: FontWeight.w600,fontSize: 13.3, color: widget.selected ? Utils.colorPrimaryBlue : Colors.grey.shade700)),
+            Text(widget.title, style: TextStyle(fontWeight: FontWeight.w600,fontSize: 13.3, letterSpacing: 0.5, color: widget.selected ? Utils.colorPrimaryBlue : Colors.grey.shade700)),
             Visibility(visible: widget.cargando, child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: SizedBox(

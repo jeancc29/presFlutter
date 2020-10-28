@@ -17,8 +17,9 @@ class MyWebDrawer extends StatefulWidget {
   final bool gastos;
   final bool cajas;
   final bool bancos;
+  final bool prestamos;
   final bool clientesBack;
-  MyWebDrawer({Key key, this.inicio = false, this.clientes = false, this.rutas = false, this.gastos = false, this.cajas = false, this.bancos = false, this.clientesBack = false}) : super(key: key);
+  MyWebDrawer({Key key, this.inicio = false, this.clientes = false, this.rutas = false, this.gastos = false, this.cajas = false, this.bancos = false, this.prestamos =  false, this.clientesBack = false}) : super(key: key);
   @override
   _MyWebDrawerState createState() => _MyWebDrawerState();
 }
@@ -81,6 +82,7 @@ class _MyWebDrawerState extends State<MyWebDrawer> {
                 ),
               ),
               MyListTile(title: "Inicio", icon: Icons.apps, selected: widget.inicio, ),
+              MyListTile(title: "Prestamos", icon: Icons.request_quote, selected: widget.prestamos, onTap: (){_gotTo("/prestamos");},),
               MyListTile(title: "Clientes", icon: Icons.people, selected: widget.clientes, onTap: (){_gotTo("/clientes");},),
               MyListTile(title: "Rutas", icon: Icons.location_on, selected: widget.rutas, onTap: (){_gotTo("/rutas");},),
               MyListTile(title: "Gastos", icon: Icons.money_off, selected: widget.gastos, onTap: (){_gotTo("/gastos");},),

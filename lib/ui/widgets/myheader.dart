@@ -31,7 +31,7 @@ class _MyHeaderState extends State<MyHeader> {
                   // ),
                   Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(widget.title, style: TextStyle(color: Utils.fromHex("#202124"), fontFamily: 'Roboto', fontSize: 27, fontWeight: FontWeight.w600)),
+                  child: Text(widget.title, style: TextStyle(color: Utils.fromHex("#202124"), fontFamily: 'Roboto', fontSize: 30, fontWeight: FontWeight.w600, letterSpacing: 1.1)),
                   ),
                   
                   // SizedBox(

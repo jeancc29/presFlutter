@@ -12,7 +12,7 @@ import 'package:prestamo/core/models/referencia.dart';
 import 'package:prestamo/core/models/trabajo.dart';
 
 class Cliente {
-  int id;
+  BigInt id;
   // String foto;
   Uint8List foto;
   String fotoEnlace;
@@ -42,7 +42,7 @@ class Cliente {
   Cliente({this.id, this.foto, this.nombres, this.apellidos, this.apodo, this.numeroDependientes, this.fechaNacimiento, this.sexo, this.estadoCivil, this.status, this.nacionalidad, this.idDireccion, this.direccion, this.idContacto, this.contacto, this.idDocumento, this.documento, this.trabajo, this.negocio, this.referencias, this.fotoEnlace});
 
   Cliente.fromMap(Map snapshot) :
-        id = snapshot['id'] ?? 0,
+        id = (snapshot['id'] != null) ? BigInt.from(snapshot['id']) : BigInt.from(0),
         foto = (snapshot['foto'] != null) ? base64Decode(snapshot['foto']) : null,
         // fotoEnlace = snapshot['foto'] ?? '',
         nombres = snapshot['nombres'] ?? '',

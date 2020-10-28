@@ -6,16 +6,21 @@ import 'package:prestamo/ui/views/clientes/add.dart';
 import 'package:prestamo/ui/views/clientes/index.dart';
 import 'package:prestamo/ui/views/gastos/add.dart';
 import 'package:prestamo/ui/views/gastos/index.dart';
+import 'package:prestamo/ui/views/prestamos/add.dart';
 import 'package:prestamo/ui/views/rutas/index.dart';
 
 
 
-class Router {
+class MyRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case '/' :
+      case '/clientes' :
         return  MaterialPageRoute(
           builder: (_)=> ClientesScreen()
+        );
+      case '/' :
+        return  MaterialPageRoute(
+          builder: (_)=> PrestamoAddScreen()
         );
       case '/cajas' :
         return  MaterialPageRoute(

@@ -115,13 +115,13 @@ class _GastosScreenState extends State<GastosScreen> with TickerProviderStateMix
         child: DataTable(
           showCheckboxColumn: false,
         columns: [
-          DataColumn(label: Text("#", style: TextStyle(fontWeight: FontWeight.w700),)), 
-          DataColumn(label: Text("Fecha", style: TextStyle(fontWeight: FontWeight.w700),)), 
-          DataColumn(label: Text("Monto", style: TextStyle(fontWeight: FontWeight.w700),)), 
-          DataColumn(label: Text("Concepto", style: TextStyle(fontWeight: FontWeight.w700),)), 
-          DataColumn(label: Text("Categoria", style: TextStyle(fontWeight: FontWeight.w700),)), 
-          DataColumn(label: Text("Caja", style: TextStyle(fontWeight: FontWeight.w700),)), 
-          DataColumn(label: Text("Eliminar", style: TextStyle(fontWeight: FontWeight.w700),)), 
+          DataColumn(label: Text("#"),), 
+          DataColumn(label: Text("Fecha"),), 
+          DataColumn(label: Text("Monto"),), 
+          DataColumn(label: Text("Concepto"),), 
+          DataColumn(label: Text("Categoria"),), 
+          DataColumn(label: Text("Caja"),), 
+          DataColumn(label: Text("Eliminar"),), 
         ], 
         rows: clientes.map((e) => 
           DataRow(
