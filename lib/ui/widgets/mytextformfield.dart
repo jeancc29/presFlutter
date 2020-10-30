@@ -7,6 +7,7 @@ class MyTextFormField extends StatefulWidget {
   final TextEditingController controller;
   final String hint;
   final maxLines;
+  final bool enabled;
 
   final double small;
   final double medium;
@@ -15,7 +16,7 @@ class MyTextFormField extends StatefulWidget {
   final double padding;
 
   final bool isRequired;
-  MyTextFormField({Key key, this.title = "", this.labelText = "", this.controller, this.hint, this.maxLines = 1, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8, this.isRequired = false}) : super(key: key);
+  MyTextFormField({Key key, this.title = "", this.labelText = "", this.controller, this.hint, this.maxLines = 1, this.enabled = true, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8, this.isRequired = false}) : super(key: key);
   @override
   _MyTextFormFieldState createState() => _MyTextFormFieldState();
 }
@@ -77,6 +78,7 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                 (widget.labelText == "")
                 ?
                  TextFormField(
+                   enabled: widget.enabled,
                     controller: widget.controller,
                     maxLines: widget.maxLines,
                     keyboardType: (widget.maxLines != 1) ? TextInputType.multiline : null,

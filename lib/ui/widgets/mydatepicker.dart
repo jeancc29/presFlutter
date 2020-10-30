@@ -5,13 +5,15 @@ class MyDatePicker extends StatefulWidget {
   final DateTime fecha;
   final String title;
   final ValueChanged<DateTime> onDateTimeChanged;
+  final DatePickerEntryMode initialEntryMode;
 
   final double small;
   final double medium;
   final double large;
   final double xlarge;
   final double padding;
-  MyDatePicker({Key key,@required this.title, this.fecha, @required this.onDateTimeChanged, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8}) : super(key: key);
+
+  MyDatePicker({Key key,@required this.title, this.fecha, @required this.onDateTimeChanged, this.initialEntryMode = DatePickerEntryMode.input, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8}) : super(key: key);
 
   @override
   _MyDatePickerState createState() => _MyDatePickerState();
@@ -65,13 +67,14 @@ class _MyDatePickerState extends State<MyDatePicker> {
               Text(widget.title, textAlign: TextAlign.start,),
               SizedBox(
                 width: getWidth(boxconstraints.maxWidth) - (widget.padding * 2),
+                // height: 30,
                 child: RaisedButton(
                   elevation: 0, 
                   color: Colors.transparent, 
                   shape: RoundedRectangleBorder(side: BorderSide(color: Colors.grey, width: 1)),
                   child: Text("${fecha.year}-${fecha.month}-${fecha.day}", style: TextStyle(fontSize: 16)),
                   onPressed: () async {
-                    DateTime f = await showDatePicker(initialEntryMode: DatePickerEntryMode.input, context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2100));
+                    DateTime f = await showDatePicker(initialEntryMode: widget.initialEntryMode, context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2100));
                     widget.onDateTimeChanged((f != null) ? f : fecha);
                     setState(() => fecha = (f != null) ? f : fecha);
                   },

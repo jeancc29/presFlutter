@@ -170,7 +170,7 @@ class _ClientesScreenState extends State<ClientesScreen> with TickerProviderStat
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                Text("${cliente.nombres} ${cliente.apellidos}", style: TextStyle(fontSize: 23, fontFamily: "Roboto", fontWeight: FontWeight.w700)),
+                Flexible(flex: 1, child: Text("${cliente.nombres} ${cliente.apellidos}", style: TextStyle(fontSize: 23, fontFamily: "Roboto", fontWeight: FontWeight.w700), overflow: TextOverflow.ellipsis, softWrap: true,)),
                 Wrap(children: [
                   Padding(
                     padding: const EdgeInsets.all(8.0),

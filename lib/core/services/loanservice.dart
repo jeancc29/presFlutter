@@ -9,23 +9,23 @@ import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/cliente.dart';
 
 
-class CustomerService{
+class LoanService{
   static Future<Map<String, dynamic>> index({BuildContext context, scaffoldKey}) async {
     var map = Map<String, dynamic>();
     // map["servidor"] = await Db.servidor();
     // var jwt = await Utils.createJwt(map);
 
-    var response = await http.get(Utils.URL + "/api/customers", headers: Utils.header);
+    var response = await http.get(Utils.URL + "/api/loans", headers: Utils.header);
     int statusCode = response.statusCode;
 
     if(statusCode < 200 || statusCode > 400){
-      print("customerservice index: ${response.body}");
+      print("LoanService index: ${response.body}");
       var parsed = await compute(Utils.parseDatos, response.body);
       if(context != null)
-        Utils.showAlertDialog(context: context, content: "Error del servidor customerservice index ${parsed["message"]}", title: "Error");
+        Utils.showAlertDialog(context: context, content: "Error del servidor LoanService index ${parsed["message"]}", title: "Error");
       else
-        Utils.showSnackBar(content: "Error del servidor customerservice index ${parsed["message"]}", scaffoldKey: scaffoldKey);
-      throw Exception("Error del servidor customerservice index");
+        Utils.showSnackBar(content: "Error del servidor LoanService index ${parsed["message"]}", scaffoldKey: scaffoldKey);
+      throw Exception("Error del servidor LoanService index");
     }
 
     var parsed = await compute(Utils.parseDatos, response.body);
@@ -34,7 +34,7 @@ class CustomerService{
         Utils.showAlertDialog(context: context, content: parsed["mensaje"], title: "Error");
       else
         Utils.showSnackBar(content: parsed["mensaje"], scaffoldKey: scaffoldKey);
-      throw Exception("Error customerservice index: ${parsed["mensaje"]}");
+      throw Exception("Error LoanService index: ${parsed["mensaje"]}");
     }
 
     return parsed;
@@ -44,17 +44,17 @@ class CustomerService{
     // map["servidor"] = await Db.servidor();
     // var jwt = await Utils.createJwt(map);
 
-    var response = await http.get(Utils.URL + "/api/customers/search?datos=$data", headers: Utils.header);
+    var response = await http.get(Utils.URL + "/api/loans/search?datos=$data", headers: Utils.header);
     int statusCode = response.statusCode;
 
     if(statusCode < 200 || statusCode > 400){
-      print("customerservice search: ${response.body}");
+      print("LoanService search: ${response.body}");
       var parsed = await compute(Utils.parseDatos, response.body);
       if(context != null)
-        Utils.showAlertDialog(context: context, content: "Error del servidor customerservice search ${parsed["message"]}", title: "Error");
+        Utils.showAlertDialog(context: context, content: "Error del servidor LoanService search ${parsed["message"]}", title: "Error");
       else
-        Utils.showSnackBar(content: "Error del servidor customerservice search ${parsed["message"]}", scaffoldKey: scaffoldKey);
-      throw Exception("Error del servidor customerservice search ${parsed["message"]}");
+        Utils.showSnackBar(content: "Error del servidor LoanService search ${parsed["message"]}", scaffoldKey: scaffoldKey);
+      throw Exception("Error del servidor LoanService search ${parsed["message"]}");
     }
 
     var parsed = await compute(Utils.parseDatos, response.body);
@@ -63,7 +63,7 @@ class CustomerService{
         Utils.showAlertDialog(context: context, content: parsed["mensaje"], title: "Error");
       else
         Utils.showSnackBar(content: parsed["mensaje"], scaffoldKey: scaffoldKey);
-      throw Exception("Error customerservice search: ${parsed["mensaje"]}");
+      throw Exception("Error LoanService search: ${parsed["mensaje"]}");
     }
 
     return parsed;
@@ -78,31 +78,31 @@ class CustomerService{
     // map2["data"] = map;
     // print("map: ${map}");
     // var jwt = await Utils.createJwt(map);
-    var response = await http.post(Utils.URL + "/api/customers/store", body: json.encode(map), headers: Utils.header);
+    var response = await http.post(Utils.URL + "/api/loans/store", body: json.encode(map), headers: Utils.header);
     int statusCode =response.statusCode;
 
     
 
     if(statusCode < 200 || statusCode > 400){
-      // print("Servidor CustomerService all: ${response.body}");
+      // print("Servidor LoanService all: ${response.body}");
       var parsed = await compute(Utils.parseDatos, response.body);
       print("Error: ${parsed}");
       if(context != null)
-        Utils.showAlertDialog(content: "Error CustomerService guardar: ${parsed["message"]}", title: "Error", context: context);
+        Utils.showAlertDialog(content: "Error LoanService guardar: ${parsed["message"]}", title: "Error", context: context);
       else
-        Utils.showSnackBar(content: "Error CustomerService guardar: ${parsed["message"]}", scaffoldKey: scaffoldKey);
-      throw Exception("Error Servidor CustomerService guardar: ");
+        Utils.showSnackBar(content: "Error LoanService guardar: ${parsed["message"]}", scaffoldKey: scaffoldKey);
+      throw Exception("Error Servidor LoanService guardar: ");
     }
 
     var parsed = await compute(Utils.parseDatos, response.body);
 
     if(parsed["errores"] == 1){
-      print("CustomerService error all: ${parsed["mensaje"]}");
+      print("LoanService error all: ${parsed["mensaje"]}");
       if(context != null)
         Utils.showAlertDialog(content: parsed["mensaje"], title: "Error", context: context);
       else
         Utils.showSnackBar(content: parsed["mensaje"], scaffoldKey: scaffoldKey);
-      throw Exception("Error CustomerService all");
+      throw Exception("Error LoanService all");
     }
 
 
