@@ -5,6 +5,7 @@ import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/caja.dart';
 import 'package:prestamo/core/models/cliente.dart';
+import 'package:prestamo/core/models/garantia.dart';
 import 'package:prestamo/core/models/tipo.dart';
 import 'package:prestamo/core/services/loanservice.dart';
 import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
@@ -54,6 +55,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   bool _cargando = false;
   List<Tipo> listaTipo;
   List<Caja> listaCaja;
+  List<Garantia> listaGarantia = List();
   Cliente _cliente;
   Tipo _tipoAmortizacion;
   Tipo _tipoPlazo;
@@ -95,7 +97,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     }
   }
 
-  _showModalGarantia(){
+  _showModalGarantia({int indexGarantia}){
     String tipoGarantia = "Vehiculo";
     Tipo _tipoGarantia = Tipo(descripcion: "Vehiculo");
     Tipo _condicionGarantia;
@@ -108,11 +110,43 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     var _txtNumeroPuertas = TextEditingController();
     var _txtCilindros = TextEditingController();
     var _txtNumeroPasajeros = TextEditingController();
+    var _txtMotorOSerie = TextEditingController();
     var _txtFuerzaMotriz = TextEditingController();
     var _txtCapacidadCarga = TextEditingController();
+    var _txtPlaca = TextEditingController();
     var _txtPlacaAnterior = TextEditingController();
+    var _txtDescripcion = TextEditingController();
+    var _txtChasis = TextEditingController();
     var _anoFabricacion = DateTime.now();
     var _fechaExpedicion = DateTime.now();
+
+    if(indexGarantia != null){
+      if(listaGarantia[indexGarantia].tipoGarantia.descripcion == "Vehiculo"){
+      _tipoGarantia = listaGarantia[indexGarantia].tipo;
+     _condicionGarantia = listaGarantia[indexGarantia].condicion;
+     _tipoVehiculo = listaGarantia[indexGarantia].tipo;
+     _txtMatricula.text = listaGarantia[indexGarantia].matricula;
+     _txtMarca.text = listaGarantia[indexGarantia].marca;
+     _txtModelo.text = listaGarantia[indexGarantia].modelo;
+     _txtTasacion.text = listaGarantia[indexGarantia].tasacion.toString();
+     _txtColor.text = listaGarantia[indexGarantia].color;
+     _txtNumeroPuertas.text = listaGarantia[indexGarantia].numeroPuertas.toString();
+     _txtCilindros.text = listaGarantia[indexGarantia].cilindros.toString();
+     _txtNumeroPasajeros.text = listaGarantia[indexGarantia].numeroPasajeros.toString();
+     _txtMotorOSerie.text = listaGarantia[indexGarantia].motorOSerie;
+     _txtFuerzaMotriz.text = listaGarantia[indexGarantia].fuerzaMotriz.toString();
+     _txtCapacidadCarga.text = listaGarantia[indexGarantia].capacidadCarga.toString();
+     _txtPlaca.text = listaGarantia[indexGarantia].placa;
+     _txtPlacaAnterior.text = listaGarantia[indexGarantia].placaAnterior;
+     _txtDescripcion.text = listaGarantia[indexGarantia].descripcion;
+     _txtChasis.text = listaGarantia[indexGarantia].chasis;
+     _anoFabricacion = listaGarantia[indexGarantia].anoFabricacion;
+     _fechaExpedicion = listaGarantia[indexGarantia].fechaExpedicion;
+      }else{
+        _txtDescripcion.text = listaGarantia[indexGarantia].descripcion;
+        _txtTasacion.text = listaGarantia[indexGarantia].tasacion.toString();
+      }
+    }
     showDialog(
       context: context,
       builder: (context){
@@ -164,7 +198,16 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                 if(data != null)
                   setState(() => _condicionGarantia = listaTipo.firstWhere((element) => element.descripcion == data && element.renglon == "condicionGarantia"));
               },
-              medium: 4,
+              medium: 3.6,
+            ),
+            MyDropdownButton(
+              title: "Tipo",
+              elements: listaTipo.where((element) => element.renglon == "tipoVehiculo").map((e) => e.descripcion).toList(),
+              onChanged: (data){
+                if(data != null)
+                  setState(() => _tipoVehiculo = listaTipo.firstWhere((element) => element.descripcion == data && element.renglon == "tipoVehiculo"));
+              },
+              medium: 3.5,
             ),
             MySubtitle(title: "Avanzado",),
             MyTextFormField(
@@ -174,21 +217,24 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
               medium: 4.1,
             ),
             MyTextFormField(
+              controller: _txtChasis,
+              title: "Chasis",
+              hint: "Chasis",
+              medium: 4,
+            ),
+            MyTextFormField(
               controller: _txtNumeroPasajeros,
               title: "No. Pasajeros",
               hint: "No. Pasajeros",
               medium: 4.1,
             ),
             
-             MyDropdownButton(
-              title: "Tipo",
-              elements: listaTipo.where((element) => element.renglon == "tipoVehiculo").map((e) => e.descripcion).toList(),
-              onChanged: (data){
-                if(data != null)
-                  setState(() => _tipoVehiculo = listaTipo.firstWhere((element) => element.descripcion == data && element.renglon == "tipoVehiculo"));
-              },
+            MyTextFormField(
+              controller: _txtMotorOSerie,
+              title: "Motor o serie",
+              hint: "Motor o serie",
               medium: 4,
-            ),
+            ), 
             MyTextFormField(
               controller: _txtFuerzaMotriz,
               title: "Fuerza motriz (HP/CC)",
@@ -200,6 +246,12 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
               title: "Capacidad carga (Ton.)",
               hint: "Capacidad carga (Ton.)",
               medium: 3.4,
+            ),
+            MyTextFormField(
+              controller: _txtPlaca,
+              title: "Placa",
+              hint: "Placa",
+              medium: 5,
             ),
             MyTextFormField(
               controller: _txtPlacaAnterior,
@@ -215,8 +267,86 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
 
         _formGarantiaNormal(){
           return Wrap(children: [
-
+            MyTextFormField(
+              controller: _txtTasacion,
+              title: "Valor",
+              hint: "Valor",
+              medium: 2,
+              xlarge: 5,
+            ),
+            MyTextFormField(
+              controller: _txtDescripcion,
+              title: "Descripcion",
+              hint: "Descripcion",
+              medium: 1,
+              xlarge: 5,
+              maxLines: 5,
+            ),
           ],);
+        }
+
+        _agregarGarantia(){
+          if(_tipoGarantia.descripcion == "Vehiculo"){
+            _txtDescripcion.text = "UN VEHICULO MARCA ${_txtMarca.text}, MODELO ${_txtModelo.text}, TASADO EN ${_txtTasacion.text}, TIPO ${_tipoVehiculo.descripcion}, ANO DE FABRICACION ${_anoFabricacion.year}, COLOR ${_txtColor.text}, MOTOR O NO. DE SERIE ${_txtMotorOSerie.text}, CAPACIDAD PARA ${_txtNumeroPasajeros.text} PASAJEROS, FUERZA MOTRIZ ${_txtFuerzaMotriz.text}, CAPACIDAD DE CARGA ${_txtCapacidadCarga.text} (TON.), CILINDROS ${_txtCilindros.text}, NO. DE PUERTAS ${_txtNumeroPuertas.text}";
+            if(indexGarantia != null){
+              
+              listaGarantia[indexGarantia].descripcion = _txtDescripcion.text; 
+              listaGarantia[indexGarantia].tasacion = Utils.toDouble(_txtTasacion.text);
+              listaGarantia[indexGarantia].matricula = _txtMatricula.text;
+              listaGarantia[indexGarantia].marca = _txtMarca.text;
+              listaGarantia[indexGarantia].modelo = _txtModelo.text;
+              listaGarantia[indexGarantia].chasis = _txtChasis.text;
+              listaGarantia[indexGarantia].placa = _txtPlaca.text;
+              listaGarantia[indexGarantia].placaAnterior = _txtPlacaAnterior.text;
+              listaGarantia[indexGarantia].anoFabricacion = _anoFabricacion;
+              listaGarantia[indexGarantia].fechaExpedicion = _fechaExpedicion;
+              listaGarantia[indexGarantia].motorOSerie = _txtMotorOSerie.text;
+              listaGarantia[indexGarantia].cilindros = Utils.toInt(_txtCilindros.text);
+              listaGarantia[indexGarantia].color = _txtColor.text;
+              listaGarantia[indexGarantia].numeroPasajeros = Utils.toInt(_txtNumeroPasajeros.text);
+              listaGarantia[indexGarantia].tipo = _tipoVehiculo;
+              listaGarantia[indexGarantia].condicion = _condicionGarantia;
+              listaGarantia[indexGarantia].numeroPuertas = Utils.toInt(_txtNumeroPuertas.text);
+              listaGarantia[indexGarantia].fuerzaMotriz = Utils.toInt(_txtFuerzaMotriz.text);
+              listaGarantia[indexGarantia].capacidadCarga = Utils.toInt(_txtCapacidadCarga.text);
+            }else{
+              Garantia _garantia = Garantia(
+              descripcion: _txtDescripcion.text, 
+              tasacion: Utils.toDouble(_txtTasacion.text),
+              matricula: _txtMatricula.text,
+              marca: _txtMarca.text,
+              modelo: _txtModelo.text,
+              chasis: _txtChasis.text,
+              placa: _txtPlaca.text,
+              placaAnterior: _txtPlacaAnterior.text,
+              anoFabricacion: _anoFabricacion,
+              fechaExpedicion: _fechaExpedicion,
+              motorOSerie: _txtMotorOSerie.text,
+              cilindros: Utils.toInt(_txtCilindros.text),
+              color: _txtColor.text,
+              numeroPasajeros: Utils.toInt(_txtNumeroPasajeros.text),
+              tipo: _tipoVehiculo,
+              condicion: _condicionGarantia,
+              numeroPuertas: Utils.toInt(_txtNumeroPuertas.text),
+              fuerzaMotriz: Utils.toInt(_txtFuerzaMotriz.text),
+              capacidadCarga: Utils.toInt(_txtCapacidadCarga.text),
+            );
+            listaGarantia.add(_garantia);
+            }
+            
+            Navigator.pop(context);
+          }else{
+            if(_txtDescripcion.text.isNotEmpty){
+              int indexGarantia = listaGarantia.indexWhere((element) => element.descripcion == _txtDescripcion.text);
+              if(indexGarantia != null){
+                listaGarantia[indexGarantia].descripcion = _txtDescripcion.text; 
+                listaGarantia[indexGarantia].tasacion = Utils.toDouble(_txtTasacion.text); 
+              }else{
+                listaGarantia.add(Garantia(descripcion: _txtDescripcion.text, tasacion: Utils.toDouble(_txtTasacion.text)));
+              }
+              Navigator.pop(context);
+            }
+          }
         }
         return StatefulBuilder(
           builder: (context, setState) {
