@@ -31,6 +31,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   ScrollController _scrollControllerGarante;
   ScrollController _scrollControllerGastos;
   StreamController<List<Tipo>> _streamControllerTipo;
+  StreamController<List<Garantia>> _streamControllerGarantia;
   var _formKey = GlobalKey<FormState>();
   var _txtCliente = TextEditingController();
   var _focusNodeTxtCliente = FocusNode();
@@ -101,7 +102,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     String tipoGarantia = "Vehiculo";
     Tipo _tipoGarantia = Tipo(descripcion: "Vehiculo");
     Tipo _condicionGarantia;
-    Tipo _tipoVehiculo;
+    Tipo _tipoVehiculo = listaTipo.firstWhere((element) => element.renglon == "tipoVehiculo");
     var _txtMatricula = TextEditingController();
     var _txtMarca = TextEditingController();
     var _txtModelo = TextEditingController();
@@ -286,10 +287,11 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
         }
 
         _agregarGarantia(){
+          print("_agregarGarantia ${_tipoGarantia.toJson()}");
           if(_tipoGarantia.descripcion == "Vehiculo"){
             _txtDescripcion.text = "UN VEHICULO MARCA ${_txtMarca.text}, MODELO ${_txtModelo.text}, TASADO EN ${_txtTasacion.text}, TIPO ${_tipoVehiculo.descripcion}, ANO DE FABRICACION ${_anoFabricacion.year}, COLOR ${_txtColor.text}, MOTOR O NO. DE SERIE ${_txtMotorOSerie.text}, CAPACIDAD PARA ${_txtNumeroPasajeros.text} PASAJEROS, FUERZA MOTRIZ ${_txtFuerzaMotriz.text}, CAPACIDAD DE CARGA ${_txtCapacidadCarga.text} (TON.), CILINDROS ${_txtCilindros.text}, NO. DE PUERTAS ${_txtNumeroPuertas.text}";
             if(indexGarantia != null){
-              
+              print("Dentro garantiaaaaaa");
               listaGarantia[indexGarantia].descripcion = _txtDescripcion.text; 
               listaGarantia[indexGarantia].tasacion = Utils.toDouble(_txtTasacion.text);
               listaGarantia[indexGarantia].matricula = _txtMatricula.text;
@@ -379,7 +381,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                   onPressed: (){},
                 ),
                 SizedBox(width: 10),
-                myButton(function: (){}, text: "Agregar")
+                myButton(function: (){_agregarGarantia();}, text: "Agregar")
               ],
             );
           }
@@ -388,12 +390,53 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     );
   }
 
+  _eliminarGarantia(Garantia garantia){
+    listaGarantia.remove(garantia);
+  }
+
+  Widget _buildDataTable(List<Garantia> garantias){
+    if(garantias == null)
+      return SizedBox();
+    return SingleChildScrollView(
+
+        child: DataTable(
+          showCheckboxColumn: false,
+        columns: [
+          DataColumn(label: Text("#", style: TextStyle(fontWeight: FontWeight.w700),)), 
+          DataColumn(label: Text("Descripcion", style: TextStyle(fontWeight: FontWeight.w700),)), 
+          DataColumn(label: Text("Tasacion", style: TextStyle(fontWeight: FontWeight.w700),)), 
+          DataColumn(label: Text("Eliminar", style: TextStyle(fontWeight: FontWeight.w700),)), 
+        ], 
+        rows: garantias.map((e) => 
+          DataRow(
+            onSelectChanged: (selected){
+              // _update(e);
+            },
+          cells: [
+            DataCell(Text(e.id.toString())
+            ), 
+            DataCell(Text(e.descripcion)
+            ), 
+            DataCell(Text("${e.tasacion}")
+            ), 
+            DataCell(
+              IconButton(icon: Icon(Icons.delete), onPressed: (){_eliminarGarantia(e);})
+            )
+          ]
+        )
+        ).toList()
+      ),
+    );
+  }
+
+
   @override
   void initState() {
     // TODO: implement initState
     _tabController = TabController(length: 4, vsync: this);
     _scrollController = ScrollController();
     _streamControllerTipo = BehaviorSubject();
+    _streamControllerGarantia = BehaviorSubject();
     _init();
     super.initState();
   }
@@ -735,8 +778,16 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                                                 ),
                                                 // myButton(function: (){}, text: "Agregar garantia", color: Colors.green)
                                             ],
+                                            ),
+                                            StreamBuilder<List<Garantia>>(
+                                              stream: _streamControllerGarantia.stream,
+                                              builder: (context, snapshot){
+                                                // if(snapshot.hasData == false)
+                                                //   return Center(child: CircularProgressIndicator(),);
+
+                                                return _buildDataTable(snapshot.data);
+                                              },
                                             )
-                                            
                                         ],
                                       )
                                    
