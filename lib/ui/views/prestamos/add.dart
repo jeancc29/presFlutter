@@ -6,8 +6,10 @@ import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/caja.dart';
 import 'package:prestamo/core/models/cliente.dart';
 import 'package:prestamo/core/models/garantia.dart';
+import 'package:prestamo/core/models/loansetting.dart';
 import 'package:prestamo/core/models/tipo.dart';
 import 'package:prestamo/core/services/loanservice.dart';
+import 'package:prestamo/ui/views/configuraciones/configuracionPrestamo.dart';
 import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
 import 'package:prestamo/ui/widgets/mybutton.dart';
 import 'package:prestamo/ui/widgets/mycheckbox.dart';
@@ -27,6 +29,7 @@ class PrestamoAddScreen extends StatefulWidget {
 
 class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProviderStateMixin {
   var _tabController;
+  List<String> listaTab = ["Prestamo", "Garante y cobrador", "Gasto", "Garantia"];
   ScrollController _scrollController;
   ScrollController _scrollControllerGarante;
   ScrollController _scrollControllerGastos;
@@ -81,20 +84,22 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
 
   _init() async {
     try {
-      setState(() => _cargando = true);
+      // setState(() => _cargando = true);
       var parsed = await LoanService.index(context: context);
       print("_init: $parsed");
       listaTipo = (parsed["tipos"] != null) ? parsed["tipos"].map<Tipo>((json) => Tipo.fromMap(json)).toList() : List<Tipo>();
       listaCaja = (parsed["cajas"] != null) ? parsed["cajas"].map<Caja>((json) => Caja.fromMap(json)).toList() : List<Caja>();
+      _updateTab(ConfiguracionPrestamo.fromMap(parsed["configuracionPrestamo"]));
+      
       _streamControllerTipo.add(listaTipo);
       for(Tipo c in listaTipo){
         print("Nombre: ${c.descripcion}");
       }
     //  _streamController.add(lista);
-      setState(() => _cargando = false);
+      // setState(() => _cargando = false);
     } catch (e) {
       print("\prestamos\add _init: ${e.toString()}");
-      setState(() => _cargando = false);
+      // setState(() => _cargando = false);
     }
   }
 
@@ -335,7 +340,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
             );
             listaGarantia.add(_garantia);
             }
-            
+             _streamControllerGarantia.add(listaGarantia);
             Navigator.pop(context);
           }else{
             if(_txtDescripcion.text.isNotEmpty){
@@ -346,6 +351,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
               }else{
                 listaGarantia.add(Garantia(descripcion: _txtDescripcion.text, tasacion: Utils.toDouble(_txtTasacion.text)));
               }
+              _streamControllerGarantia.add(listaGarantia);
               Navigator.pop(context);
             }
           }
@@ -392,17 +398,20 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
 
   _eliminarGarantia(Garantia garantia){
     listaGarantia.remove(garantia);
+    _streamControllerGarantia.add(listaGarantia);
   }
 
   Widget _buildDataTable(List<Garantia> garantias){
     if(garantias == null)
+      return SizedBox();
+    if(garantias.length == 0)
       return SizedBox();
     return SingleChildScrollView(
 
         child: DataTable(
           showCheckboxColumn: false,
         columns: [
-          DataColumn(label: Text("#", style: TextStyle(fontWeight: FontWeight.w700),)), 
+          // DataColumn(label: Text("#", style: TextStyle(fontWeight: FontWeight.w700),)), 
           DataColumn(label: Text("Descripcion", style: TextStyle(fontWeight: FontWeight.w700),)), 
           DataColumn(label: Text("Tasacion", style: TextStyle(fontWeight: FontWeight.w700),)), 
           DataColumn(label: Text("Eliminar", style: TextStyle(fontWeight: FontWeight.w700),)), 
@@ -413,9 +422,9 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
               // _update(e);
             },
           cells: [
-            DataCell(Text(e.id.toString())
-            ), 
-            DataCell(Text(e.descripcion)
+            // DataCell(Text(e.id.toString())
+            // ), 
+            DataCell(Text("${e.descripcion.length > 30 ? e.descripcion.substring(0, 30) + '...' : e.descripcion}")
             ), 
             DataCell(Text("${e.tasacion}")
             ), 
@@ -440,6 +449,538 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     _init();
     super.initState();
   }
+
+  _getTabView(String tab){
+    if(tab == "Garante y cobrador")
+      return _garanteScreen();
+    else if(tab == "Gasto")
+      return _gastoScreen();
+    else if(tab == "Garantia")
+      return _garantiaScreen();
+    else
+      return _prestamoScreen();
+  }
+  _screen(){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(top: 10.0),
+          child: Container(
+            // decoration: new BoxDecoration(color: Theme.of(context).primaryColor),
+            child: new TabBar(
+              onTap: (index){
+                if(index == 1){
+                  setState(() => _tabController.index = _tabController.previousIndex);
+                }
+                print("TabBar onTap: $index");
+              },
+              controller: _tabController,
+              isScrollable: true,
+              labelStyle: TextStyle(color: Utils.colorPrimaryBlue, fontWeight: FontWeight.w700),
+              unselectedLabelStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+              labelColor: Colors.black,
+              // indicatorWeight: 4.0,
+              indicator: CircleTabIndicator(color: Utils.colorPrimaryBlue, radius: 5),
+              // UnderlineTabIndicator(
+              //   borderSide: BorderSide(color: Color(0xDD613896), width: 8.0),
+
+              //   insets: EdgeInsets.fromLTRB(50.0, 0.0, 50.0, 40.0),
+              // ),
+              
+              tabs: listaTab.map((e) => Tab(child: Text(e),)).toList()
+              // [
+              //   AbsorbPointer(
+              //     absorbing: false,
+              //     child: Tab(
+              //       // icon: const Icon(Icons.home),
+              //       // child: Text('Mensajes'),
+              //       child: Text('Prestamo',),
+
+                    
+              //     ),
+              //   ),
+              //   new Tab(
+              //     // icon: const Icon(Icons.my_location),
+              //     child: Text('Garante y Cobrador',),
+              //   ),
+              //   new Tab(
+              //     // icon: const Icon(Icons.my_location),
+              //     child: Text('Gastos',),
+              //   ),
+              //   new Tab(
+              //     // icon: const Icon(Icons.my_location),
+              //     child: Text('Garantias',),
+              //   ),
+              //   // new Tab(
+              //   //   // icon: const Icon(Icons.my_location),
+              //   //   child: Text('Referencias',),
+              //   // ),
+              // ],
+            ),
+          ),
+        ),
+        Expanded(
+                child: Form(
+                  key: _formKey,
+                  child: new TabBarView(
+                        controller: _tabController,
+                        children: listaTab.map<Widget>((e) => _getTabView(e)).toList()
+                        // <Widget>[
+                          
+                        //   _prestamoScreen(),
+                        //   _garanteScreen(),
+                        //   _gastoScreen(),
+                        //   _garantiaScreen()
+                          
+                          
+                        // ],
+                      ),
+                ),
+              ),
+      ],
+    );
+  }
+
+  _prestamoScreen(){
+    return DraggableScrollbar(
+            controller: _scrollController,
+            // alwaysVisibleScrollThumb: true,
+            // heightScrollThumb: 2,
+            heightScrollThumb: 80.0,
+            // backgroundColor: Utils.colorPrimaryBlue,
+            child: ListView(
+              controller: _scrollController,
+              children: [
+                Wrap(
+                  children: [
+                    MySearchField(
+                      // labelText: "Cliente",
+                      title: "Cliente *",
+                      controller: _txtCliente,
+                      focusNode: _focusNodeTxtCliente,
+                      hint: "Buscar cliente",
+                      onSelected: (cliente){
+                        if(cliente != null)
+                          _cliente = cliente;
+                      },
+                      xlarge: 3,
+                    ),
+                    MyDropdownButton(
+                      xlarge: 3,
+                      title: "Amortizacion *",
+                      elements: listaTipo.where((element) => element.renglon == "amortizacion").toList().map<String>((e) => e.descripcion).toList(),
+                      onChanged: (data){
+                        _tipoAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data);
+                      },
+                    ),
+                    MyDropdownButton(
+                      xlarge: 3,
+                      title: "Plazo *",
+                      elements: listaTipo.where((element) => element.renglon == "plazo").toList().map<String>((e) => e.descripcion).toList(),
+                      onChanged: (data){
+                        _tipoPlazo = listaTipo.firstWhere((element) => element.descripcion == data);
+                      },
+                    ),
+                    MyTextFormField(
+                      // labelText: "Cliente",
+                      title: "Monto a prestar *",
+                      controller: _txtMonto,
+                      hint: "Monto",
+                      isRequired: true,
+                      xlarge: 3,
+                    ),
+                    MyTextFormField(
+                      // labelText: "Cliente",
+                      title: "% interes *",
+                      controller: _txtInteres,
+                      hint: "% interes",
+                      isRequired: true,
+                      xlarge: 3,
+                    ),
+                    MyTextFormField(
+                      // labelText: "Cliente",
+                      title: "# Cuotas *",
+                      controller: _txtCuotas,
+                      hint: "Cuotas",
+                      isRequired: true,
+                      xlarge: 3,
+                    ),
+                    MyDatePicker(
+                      title: "Fecha",
+                      initialEntryMode: DatePickerEntryMode.calendar,
+                      onDateTimeChanged: (data){
+                        _fecha = data;
+                      },
+                      xlarge: 4,
+                    ),
+                    MyDatePicker(
+                      title: "Fecha primer pago",
+                      initialEntryMode: DatePickerEntryMode.calendar,
+                      onDateTimeChanged: (data){
+                        _fechaPrimerPago = data;
+                      },
+                      xlarge: 4,
+                    ),
+                    MyDropdownButton(
+                      xlarge: 4,
+                      title: "Caja *",
+                      elements: listaCaja.map<String>((e) => e.descripcion).toList(),
+                      onChanged: (data){
+                        _caja = listaCaja.firstWhere((element) => element.descripcion == data);
+                      },
+                    ),
+                    MyTextFormField(
+                      // labelText: "Cliente",
+                      title: "Codigo unico",
+                      controller: _txtCodigo,
+                      hint: "Codigo unico",
+                      xlarge: 4,
+                    ),
+
+                    MySubtitle(title: "Mora"),
+                    MyTextFormField(
+                      // labelText: "Cliente",
+                      title: "% mora",
+                      controller: _txtMora,
+                      hint: "% mora",
+                      enabled: !_aplicarTasaDelPrestamo,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 25.0),
+                      child: MyCheckBox(title: "Aplicar tasa del prestamo", value: _aplicarTasaDelPrestamo, onChanged: _aplicarTasaDelPrestamoChanged,),
+                    ),
+                    MyTextFormField(
+                      // labelText: "Cliente",
+                      title: "Dias de gracia",
+                      controller: _txtDiasGracia,
+                      hint: "Dias de gracia",
+                    ),
+                  ],
+                ),
+                
+              
+            ],),
+          );
+        
+    // return StreamBuilder<List<Tipo>>(
+    //   stream: _streamControllerTipo.stream,
+    //   builder: (context, snapshot) {
+    //     if(snapshot.hasData == false)
+    //       return Center(child: CircularProgressIndicator(),);
+
+    //     return Padding(
+    //       padding: const EdgeInsets.only(left: 18.0, top: 10.0),
+    //       child: DraggableScrollbar(
+    //         controller: _scrollController,
+    //         // alwaysVisibleScrollThumb: true,
+    //         // heightScrollThumb: 2,
+    //         heightScrollThumb: 80.0,
+    //         // backgroundColor: Utils.colorPrimaryBlue,
+    //         child: ListView(
+    //           controller: _scrollController,
+    //           children: [
+    //             Wrap(
+    //               children: [
+    //                 MySearchField(
+    //                   // labelText: "Cliente",
+    //                   title: "Cliente *",
+    //                   controller: _txtCliente,
+    //                   focusNode: _focusNodeTxtCliente,
+    //                   hint: "Buscar cliente",
+    //                   onSelected: (cliente){
+    //                     if(cliente != null)
+    //                       _cliente = cliente;
+    //                   },
+    //                   xlarge: 3,
+    //                 ),
+    //                 MyDropdownButton(
+    //                   xlarge: 3,
+    //                   title: "Amortizacion *",
+    //                   elements: listaTipo.where((element) => element.renglon == "amortizacion").toList().map<String>((e) => e.descripcion).toList(),
+    //                   onChanged: (data){
+    //                     _tipoAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data);
+    //                   },
+    //                 ),
+    //                 MyDropdownButton(
+    //                   xlarge: 3,
+    //                   title: "Plazo *",
+    //                   elements: listaTipo.where((element) => element.renglon == "plazo").toList().map<String>((e) => e.descripcion).toList(),
+    //                   onChanged: (data){
+    //                     _tipoPlazo = listaTipo.firstWhere((element) => element.descripcion == data);
+    //                   },
+    //                 ),
+    //                 MyTextFormField(
+    //                   // labelText: "Cliente",
+    //                   title: "Monto a prestar *",
+    //                   controller: _txtMonto,
+    //                   hint: "Monto",
+    //                   isRequired: true,
+    //                   xlarge: 3,
+    //                 ),
+    //                 MyTextFormField(
+    //                   // labelText: "Cliente",
+    //                   title: "% interes *",
+    //                   controller: _txtInteres,
+    //                   hint: "% interes",
+    //                   isRequired: true,
+    //                   xlarge: 3,
+    //                 ),
+    //                 MyTextFormField(
+    //                   // labelText: "Cliente",
+    //                   title: "# Cuotas *",
+    //                   controller: _txtCuotas,
+    //                   hint: "Cuotas",
+    //                   isRequired: true,
+    //                   xlarge: 3,
+    //                 ),
+    //                 MyDatePicker(
+    //                   title: "Fecha",
+    //                   initialEntryMode: DatePickerEntryMode.calendar,
+    //                   onDateTimeChanged: (data){
+    //                     _fecha = data;
+    //                   },
+    //                   xlarge: 4,
+    //                 ),
+    //                 MyDatePicker(
+    //                   title: "Fecha primer pago",
+    //                   initialEntryMode: DatePickerEntryMode.calendar,
+    //                   onDateTimeChanged: (data){
+    //                     _fechaPrimerPago = data;
+    //                   },
+    //                   xlarge: 4,
+    //                 ),
+    //                 MyDropdownButton(
+    //                   xlarge: 4,
+    //                   title: "Caja *",
+    //                   elements: listaCaja.map<String>((e) => e.descripcion).toList(),
+    //                   onChanged: (data){
+    //                     _caja = listaCaja.firstWhere((element) => element.descripcion == data);
+    //                   },
+    //                 ),
+    //                 MyTextFormField(
+    //                   // labelText: "Cliente",
+    //                   title: "Codigo unico",
+    //                   controller: _txtCodigo,
+    //                   hint: "Codigo unico",
+    //                   xlarge: 4,
+    //                 ),
+
+    //                 MySubtitle(title: "Mora"),
+    //                 MyTextFormField(
+    //                   // labelText: "Cliente",
+    //                   title: "% mora",
+    //                   controller: _txtMora,
+    //                   hint: "% mora",
+    //                   enabled: !_aplicarTasaDelPrestamo,
+    //                 ),
+    //                 Padding(
+    //                   padding: const EdgeInsets.only(top: 25.0),
+    //                   child: MyCheckBox(title: "Aplicar tasa del prestamo", value: _aplicarTasaDelPrestamo, onChanged: _aplicarTasaDelPrestamoChanged,),
+    //                 ),
+    //                 MyTextFormField(
+    //                   // labelText: "Cliente",
+    //                   title: "Dias de gracia",
+    //                   controller: _txtDiasGracia,
+    //                   hint: "Dias de gracia",
+    //                 ),
+    //               ],
+    //             ),
+                
+              
+    //         ],),
+    //       ),
+        
+    //     );
+    //   }
+    // );
+                          
+  }
+
+  _garanteScreen(){
+    return  Padding(
+      padding: const EdgeInsets.only(left: 18.0, top: 20.0),
+      child: DraggableScrollbar(
+        controller: _scrollController,
+        // alwaysVisibleScrollThumb: true,
+        // heightScrollThumb: 2,
+        heightScrollThumb: 80.0,
+        // backgroundColor: Utils.colorPrimaryBlue,
+        child: ListView(
+          controller: _scrollControllerGarante,
+          children: [
+            Wrap(
+              children: [
+                  MySubtitle(title: "Garante"),
+                  MyTextFormField(
+                    // labelText: "Cliente",
+                    title: "Nombres",
+                    controller: _txtNombresGarante,
+                    hint: "Nombres",
+                    xlarge: 4,
+                  ),
+                  MyTextFormField(
+                    // labelText: "Cliente",
+                    title: "Numero identificacion",
+                    controller: _txtNumeroIdentificacionGarante,
+                    hint: "Numero identificacion",
+                    xlarge: 5,
+                  ),
+                  MyTextFormField(
+                    // labelText: "Cliente",
+                    title: "Telefono",
+                    controller: _txtTelefonoGarante,
+                    hint: "Telefono",
+                    xlarge: 5,
+                  ),
+                  MyTextFormField(
+                    // labelText: "Cliente",
+                    title: "Direccion",
+                    controller: _txtDireccionGarante,
+                    hint: "Direccion",
+                    xlarge: 3,
+                  ),
+
+                  MySubtitle(title: "Cobrador"),
+                  MyDropdownButton(
+                      xlarge: 4,
+                      title: "Cobrador *",
+                      elements: ["Ninguno"],
+                      onChanged: (data){
+                        // _caja = listaCaja.firstWhere((element) => element.descripcion == data);
+                      },
+                    ),
+              ],
+            )
+          
+        ],),
+      ),
+    );
+                          
+  }
+  
+  _gastoScreen(){
+    return  StreamBuilder<List<Tipo>>(
+      stream: _streamControllerTipo.stream,
+      builder: (context, snapshot) {
+        if(snapshot.hasData == false)
+          return CircularProgressIndicator();
+
+        return Padding(
+          padding: const EdgeInsets.only(left: 18.0, top: 20.0),
+          child: DraggableScrollbar(
+            controller: _scrollControllerGastos,
+            // alwaysVisibleScrollThumb: true,
+            // heightScrollThumb: 2,
+            heightScrollThumb: 80.0,
+            // backgroundColor: Utils.colorPrimaryBlue,
+            child: ListView(
+              controller: _scrollController,
+              children: [
+                Wrap(
+                  children: [
+                      // MySubtitle(title: "Garante"),
+                      // MyDropdownButton(onChanged: null, elements: ["Jean"], title: "Culo",)
+                      MyDropdownButton(
+                          xlarge: 3,
+                          title: "Tipo de gasto",
+                          elements: listaTipo.where((element) => element.renglon == "gastoPrestamo").toList().map<String>((e) => e.descripcion).toList(),
+                          onChanged: (data){
+                            _tipoGasto = listaTipo.firstWhere((element) => element.descripcion == data);
+                          },
+                        ),
+                      MyTextFormField(
+                        // labelText: "Cliente",
+                        title: "Porcentaje",
+                        controller: _txtPorcentajeGasto,
+                        hint: "Porcentaje",
+                        xlarge: 4,
+                      ),
+                      MyTextFormField(
+                        // labelText: "Cliente",
+                        title: "Importe",
+                        controller: _txtImporteGasto,
+                        hint: "Importe",
+                        xlarge: 4,
+                      ),
+                      
+                      Padding(
+                        padding: const EdgeInsets.only(top: 25.0),
+                        child: MyCheckBox(title: "Incluir en el financiamiento", value: _incluirEnElFinanciamiento, onChanged: _incluirEnElFinanciamientoChanged,),
+                      )
+                      
+                  ],
+                )
+              
+            ],),
+          ),
+        );
+      }
+    );
+  }
+
+  _garantiaScreen(){
+    return StreamBuilder<List<Tipo>>(
+      stream: _streamControllerTipo.stream,
+      builder: (context, snapshot) {
+        if(snapshot.hasData == false)
+          return CircularProgressIndicator();
+
+        return Padding(
+          padding: const EdgeInsets.only(left: 18.0, top: 20.0),
+          child: DraggableScrollbar(
+            controller: _scrollControllerGastos,
+            // alwaysVisibleScrollThumb: true,
+            // heightScrollThumb: 2,
+            heightScrollThumb: 80.0,
+            // backgroundColor: Utils.colorPrimaryBlue,
+            child: ListView(
+              controller: _scrollController,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 28.0),
+                      child: FlatButton(child: Text("Agregar garantia a este prestamo", style: TextStyle(letterSpacing: 0.3, color: Utils.fromHex("#2579e8"), fontWeight: FontWeight.w600, fontFamily: "Roboto" )), onPressed: (){_showModalGarantia();}),
+                    ),
+                    // myButton(function: (){}, text: "Agregar garantia", color: Colors.green)
+                ],
+                ),
+                StreamBuilder<List<Garantia>>(
+                  stream: _streamControllerGarantia.stream,
+                  builder: (context, snapshot){
+                    // if(snapshot.hasData == false)
+                    //   return Center(child: CircularProgressIndicator(),);
+
+                    return _buildDataTable(snapshot.data);
+                  },
+                )
+              
+            ],),
+          ),
+        );
+      }
+    );
+                          
+  }
+
+  // _addToListMenu(){
+  //  setState((){
+  //     listaTab.add("Nuevo");
+  //   _tabController = TabController(length: listaTab.length, vsync: this);
+  //  });
+  // }
+
+  _updateTab(ConfiguracionPrestamo configuracionPrestamo){
+    if(configuracionPrestamo.garantia == false)
+      listaTab.removeWhere((element) => element == "Garantia");
+    if(configuracionPrestamo.gasto == false)
+      listaTab.removeWhere((element) => element == "Gasto");
+
+      setState(() => _tabController = TabController(length: listaTab.length, vsync: this));
+  }
+
   @override
   Widget build(BuildContext context) {
     return myScaffold(
@@ -447,361 +988,28 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       cargando: _cargando,
       prestamos: true,
       body: [
-        MyHeader(title: "Prestamo", subtitle: "Agregue todos los prestamos con sus respectivas garantias, garantes y cobradores.", function: _create, actionFuncion: "Agregar",),
-        Padding(
-                padding: const EdgeInsets.only(top: 10.0),
-                child: Container(
-                  // decoration: new BoxDecoration(color: Theme.of(context).primaryColor),
-                  child: new TabBar(
-                    controller: _tabController,
-                    isScrollable: true,
-                    labelStyle: TextStyle(color: Utils.colorPrimaryBlue, fontWeight: FontWeight.w700),
-                    unselectedLabelStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
-                    labelColor: Colors.black,
-                    // indicatorWeight: 4.0,
-                    indicator: CircleTabIndicator(color: Utils.colorPrimaryBlue, radius: 5),
-                    // UnderlineTabIndicator(
-                    //   borderSide: BorderSide(color: Color(0xDD613896), width: 8.0),
-
-                    //   insets: EdgeInsets.fromLTRB(50.0, 0.0, 50.0, 40.0),
-                    // ),
-                    
-                    tabs: [
-                      new Tab(
-                        // icon: const Icon(Icons.home),
-                        // child: Text('Mensajes'),
-                        child: Text('Prestamo',),
-
-                        
-                      ),
-                      new Tab(
-                        // icon: const Icon(Icons.my_location),
-                        child: Text('Garante y Cobrador',),
-                      ),
-                      new Tab(
-                        // icon: const Icon(Icons.my_location),
-                        child: Text('Gastos',),
-                      ),
-                      new Tab(
-                        // icon: const Icon(Icons.my_location),
-                        child: Text('Garantias',),
-                      ),
-                      // new Tab(
-                      //   // icon: const Icon(Icons.my_location),
-                      //   child: Text('Referencias',),
-                      // ),
-                    ],
+        MyHeader(title: "Prestamo", subtitle: "Agregue todos los prestamos con sus respectivas garantias, garantes y cobradores.", function: _create, actionFuncion: "en proceso...",),
+         
+        Expanded(
+          child: StreamBuilder(
+            stream: _streamControllerTipo.stream,
+            builder: (context, snapshot){
+              if(snapshot.hasData)
+                return _screen();
+              else 
+                return Center(
+                  child: SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: Theme(
+                      data: Theme.of(context).copyWith(accentColor: Utils.colorPrimaryBlue),
+                      child: new CircularProgressIndicator(),
+                    ),
                   ),
-                ),
-              ),
-              Expanded(
-                child: Form(
-                  key: _formKey,
-                  child: new TabBarView(
-                        controller: _tabController,
-                        children: <Widget>[
-                          
-                          StreamBuilder<List<Tipo>>(
-                            stream: _streamControllerTipo.stream,
-                            builder: (context, snapshot) {
-                              if(snapshot.hasData == false)
-                                return Center(child: CircularProgressIndicator(),);
-
-                              return Padding(
-                                padding: const EdgeInsets.only(left: 18.0, top: 10.0),
-                                child: DraggableScrollbar(
-                                  controller: _scrollController,
-                                  // alwaysVisibleScrollThumb: true,
-                                  // heightScrollThumb: 2,
-                                  heightScrollThumb: 80.0,
-                                  // backgroundColor: Utils.colorPrimaryBlue,
-                                  child: ListView(
-                                    controller: _scrollController,
-                                    children: [
-                                      Wrap(
-                                        children: [
-                                          MySearchField(
-                                            // labelText: "Cliente",
-                                            title: "Cliente *",
-                                            controller: _txtCliente,
-                                            focusNode: _focusNodeTxtCliente,
-                                            hint: "Buscar cliente",
-                                            onSelected: (cliente){
-                                              if(cliente != null)
-                                                _cliente = cliente;
-                                            },
-                                            xlarge: 3,
-                                          ),
-                                          MyDropdownButton(
-                                            xlarge: 3,
-                                            title: "Amortizacion *",
-                                            elements: listaTipo.where((element) => element.renglon == "amortizacion").toList().map<String>((e) => e.descripcion).toList(),
-                                            onChanged: (data){
-                                              _tipoAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data);
-                                            },
-                                          ),
-                                          MyDropdownButton(
-                                            xlarge: 3,
-                                            title: "Plazo *",
-                                            elements: listaTipo.where((element) => element.renglon == "plazo").toList().map<String>((e) => e.descripcion).toList(),
-                                            onChanged: (data){
-                                              _tipoPlazo = listaTipo.firstWhere((element) => element.descripcion == data);
-                                            },
-                                          ),
-                                          MyTextFormField(
-                                            // labelText: "Cliente",
-                                            title: "Monto a prestar *",
-                                            controller: _txtMonto,
-                                            hint: "Monto",
-                                            isRequired: true,
-                                            xlarge: 3,
-                                          ),
-                                          MyTextFormField(
-                                            // labelText: "Cliente",
-                                            title: "% interes *",
-                                            controller: _txtInteres,
-                                            hint: "% interes",
-                                            isRequired: true,
-                                            xlarge: 3,
-                                          ),
-                                          MyTextFormField(
-                                            // labelText: "Cliente",
-                                            title: "# Cuotas *",
-                                            controller: _txtCuotas,
-                                            hint: "Cuotas",
-                                            isRequired: true,
-                                            xlarge: 3,
-                                          ),
-                                          MyDatePicker(
-                                            title: "Fecha",
-                                            initialEntryMode: DatePickerEntryMode.calendar,
-                                            onDateTimeChanged: (data){
-                                              _fecha = data;
-                                            },
-                                            xlarge: 4,
-                                          ),
-                                          MyDatePicker(
-                                            title: "Fecha primer pago",
-                                            initialEntryMode: DatePickerEntryMode.calendar,
-                                            onDateTimeChanged: (data){
-                                              _fechaPrimerPago = data;
-                                            },
-                                            xlarge: 4,
-                                          ),
-                                          MyDropdownButton(
-                                            xlarge: 4,
-                                            title: "Caja *",
-                                            elements: listaCaja.map<String>((e) => e.descripcion).toList(),
-                                            onChanged: (data){
-                                              _caja = listaCaja.firstWhere((element) => element.descripcion == data);
-                                            },
-                                          ),
-                                          MyTextFormField(
-                                            // labelText: "Cliente",
-                                            title: "Codigo unico",
-                                            controller: _txtCodigo,
-                                            hint: "Codigo unico",
-                                            xlarge: 4,
-                                          ),
-
-                                          MySubtitle(title: "Mora"),
-                                          MyTextFormField(
-                                            // labelText: "Cliente",
-                                            title: "% mora",
-                                            controller: _txtMora,
-                                            hint: "% mora",
-                                            enabled: !_aplicarTasaDelPrestamo,
-                                          ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(top: 25.0),
-                                            child: MyCheckBox(title: "Aplicar tasa del prestamo", value: _aplicarTasaDelPrestamo, onChanged: _aplicarTasaDelPrestamoChanged,),
-                                          ),
-                                          MyTextFormField(
-                                            // labelText: "Cliente",
-                                            title: "Dias de gracia",
-                                            controller: _txtDiasGracia,
-                                            hint: "Dias de gracia",
-                                          ),
-                                        ],
-                                      ),
-                                      
-                                   
-                                  ],),
-                                ),
-                              );
-                            }
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 18.0, top: 20.0),
-                            child: DraggableScrollbar(
-                              controller: _scrollController,
-                              // alwaysVisibleScrollThumb: true,
-                              // heightScrollThumb: 2,
-                              heightScrollThumb: 80.0,
-                              // backgroundColor: Utils.colorPrimaryBlue,
-                              child: ListView(
-                                controller: _scrollControllerGarante,
-                                children: [
-                                  Wrap(
-                                    children: [
-                                        MySubtitle(title: "Garante"),
-                                        MyTextFormField(
-                                          // labelText: "Cliente",
-                                          title: "Nombres",
-                                          controller: _txtNombresGarante,
-                                          hint: "Nombres",
-                                          xlarge: 4,
-                                        ),
-                                        MyTextFormField(
-                                          // labelText: "Cliente",
-                                          title: "Numero identificacion",
-                                          controller: _txtNumeroIdentificacionGarante,
-                                          hint: "Numero identificacion",
-                                          xlarge: 5,
-                                        ),
-                                        MyTextFormField(
-                                          // labelText: "Cliente",
-                                          title: "Telefono",
-                                          controller: _txtTelefonoGarante,
-                                          hint: "Telefono",
-                                          xlarge: 5,
-                                        ),
-                                        MyTextFormField(
-                                          // labelText: "Cliente",
-                                          title: "Direccion",
-                                          controller: _txtDireccionGarante,
-                                          hint: "Direccion",
-                                          xlarge: 3,
-                                        ),
-
-                                        MySubtitle(title: "Cobrador"),
-                                        MyDropdownButton(
-                                            xlarge: 4,
-                                            title: "Cobrador *",
-                                            elements: ["Ninguno"],
-                                            onChanged: (data){
-                                              // _caja = listaCaja.firstWhere((element) => element.descripcion == data);
-                                            },
-                                          ),
-                                    ],
-                                  )
-                               
-                              ],),
-                            ),
-                          ),
-                          
-                          StreamBuilder<List<Tipo>>(
-                            stream: _streamControllerTipo.stream,
-                            builder: (context, snapshot) {
-                              if(snapshot.hasData == false)
-                                return CircularProgressIndicator();
-
-                              return Padding(
-                                padding: const EdgeInsets.only(left: 18.0, top: 20.0),
-                                child: DraggableScrollbar(
-                                  controller: _scrollControllerGastos,
-                                  // alwaysVisibleScrollThumb: true,
-                                  // heightScrollThumb: 2,
-                                  heightScrollThumb: 80.0,
-                                  // backgroundColor: Utils.colorPrimaryBlue,
-                                  child: ListView(
-                                    controller: _scrollController,
-                                    children: [
-                                      Wrap(
-                                        children: [
-                                            // MySubtitle(title: "Garante"),
-                                            // MyDropdownButton(onChanged: null, elements: ["Jean"], title: "Culo",)
-                                            MyDropdownButton(
-                                                xlarge: 3,
-                                                title: "Tipo de gasto",
-                                                elements: listaTipo.where((element) => element.renglon == "gastoPrestamo").toList().map<String>((e) => e.descripcion).toList(),
-                                                onChanged: (data){
-                                                  _tipoGasto = listaTipo.firstWhere((element) => element.descripcion == data);
-                                                },
-                                              ),
-                                            MyTextFormField(
-                                              // labelText: "Cliente",
-                                              title: "Porcentaje",
-                                              controller: _txtPorcentajeGasto,
-                                              hint: "Porcentaje",
-                                              xlarge: 4,
-                                            ),
-                                            MyTextFormField(
-                                              // labelText: "Cliente",
-                                              title: "Importe",
-                                              controller: _txtImporteGasto,
-                                              hint: "Importe",
-                                              xlarge: 4,
-                                            ),
-                                            
-                                            Padding(
-                                              padding: const EdgeInsets.only(top: 25.0),
-                                              child: MyCheckBox(title: "Incluir en el financiamiento", value: _incluirEnElFinanciamiento, onChanged: _incluirEnElFinanciamientoChanged,),
-                                            )
-                                            
-                                        ],
-                                      )
-                                   
-                                  ],),
-                                ),
-                              );
-                            }
-                          ),
-                          
-                          StreamBuilder<List<Tipo>>(
-                            stream: _streamControllerTipo.stream,
-                            builder: (context, snapshot) {
-                              if(snapshot.hasData == false)
-                                return CircularProgressIndicator();
-
-                              return Padding(
-                                padding: const EdgeInsets.only(left: 18.0, top: 20.0),
-                                child: DraggableScrollbar(
-                                  controller: _scrollControllerGastos,
-                                  // alwaysVisibleScrollThumb: true,
-                                  // heightScrollThumb: 2,
-                                  heightScrollThumb: 80.0,
-                                  // backgroundColor: Utils.colorPrimaryBlue,
-                                  child: ListView(
-                                    controller: _scrollController,
-                                    children: [
-                                      Wrap(
-                                        children: [
-                                            // MySubtitle(title: "Garante"),
-                                            // MyDropdownButton(onChanged: null, elements: ["Jean"], title: "Culo",)
-                                            Row(
-                                              mainAxisAlignment: MainAxisAlignment.end,
-                                              children: [
-                                                Padding(
-                                                  padding: const EdgeInsets.only(right: 28.0),
-                                                  child: FlatButton(child: Text("Agregar garantia a este prestamo", style: TextStyle(letterSpacing: 0.3, color: Utils.fromHex("#2579e8"), fontWeight: FontWeight.w600, fontFamily: "Roboto" )), onPressed: (){_showModalGarantia();}),
-                                                ),
-                                                // myButton(function: (){}, text: "Agregar garantia", color: Colors.green)
-                                            ],
-                                            ),
-                                            StreamBuilder<List<Garantia>>(
-                                              stream: _streamControllerGarantia.stream,
-                                              builder: (context, snapshot){
-                                                // if(snapshot.hasData == false)
-                                                //   return Center(child: CircularProgressIndicator(),);
-
-                                                return _buildDataTable(snapshot.data);
-                                              },
-                                            )
-                                        ],
-                                      )
-                                   
-                                  ],),
-                                ),
-                              );
-                            }
-                          ),
-                          
-                        ],
-                      ),
-                ),
-              ),
-             
+                );
+            }
+          ),
+        )
       ] 
     );
   }

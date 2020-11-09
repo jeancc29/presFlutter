@@ -59,7 +59,7 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, boxconstraints) {
-        print("mytextformfield boxconstrants: ${boxconstraints.maxWidth}");
+        // print("mytextformfield boxconstrants: ${boxconstraints.maxWidth}");
         return Padding(
           padding: EdgeInsets.all(widget.padding),
           child: Column(

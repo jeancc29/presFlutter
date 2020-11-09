@@ -4,6 +4,7 @@ import 'package:prestamo/ui/views/bancos/index.dart';
 import 'package:prestamo/ui/views/cajas/index.dart';
 import 'package:prestamo/ui/views/clientes/add.dart';
 import 'package:prestamo/ui/views/clientes/index.dart';
+import 'package:prestamo/ui/views/configuraciones/configuracionPrestamo.dart';
 import 'package:prestamo/ui/views/gastos/add.dart';
 import 'package:prestamo/ui/views/gastos/index.dart';
 import 'package:prestamo/ui/views/prestamos/add.dart';
@@ -14,11 +15,11 @@ import 'package:prestamo/ui/views/rutas/index.dart';
 class MyRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case '/clientes' :
+      case '/' :
         return  MaterialPageRoute(
           builder: (_)=> ClientesScreen()
         );
-      case '/' :
+      case '/prestamos' :
         return  MaterialPageRoute(
           builder: (_)=> PrestamoAddScreen()
         );
@@ -45,6 +46,10 @@ class MyRouter {
       case '/bancos' :
         return  MaterialPageRoute(
           builder: (_)=> BancosScreen()
+        );
+      case '/configuracionPrestamo' :
+        return  MaterialPageRoute(
+          builder: (_)=> ConfiguracionPrestamoScreen()
         );
         // return  MaterialPageRoute(
         //   builder: (_)=> ClientesAdd()

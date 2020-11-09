@@ -31,7 +31,7 @@ class _MyHeaderState extends State<MyHeader> {
                   // ),
                   Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(widget.title, style: TextStyle(color: Utils.fromHex("#202124"), fontFamily: 'Roboto', fontSize: 30, fontWeight: FontWeight.w600, letterSpacing: 1.1)),
+                  child: Text(widget.title, style: TextStyle(color: Utils.fromHex("#202124"), fontFamily: 'Roboto',  fontSize: 32, fontWeight: FontWeight.w600, letterSpacing: 0.1)),
                   ),
                   
                   // SizedBox(
@@ -54,7 +54,7 @@ class _MyHeaderState extends State<MyHeader> {
                             color: Utils.colorPrimaryBlue,
                             borderRadius: BorderRadius.circular(5)
                           ),
-                          child: Text(widget.actionFuncion, style: TextStyle(color: Colors.white, fontFamily: "Roboto", fontWeight: FontWeight.w600),)
+                          child: Text(widget.actionFuncion, style: TextStyle(color: Colors.white, fontFamily: "Roboto", fontWeight: FontWeight.w500),)
                         )
                       )
                       // SizedBox(
@@ -147,12 +147,12 @@ class _MyHeaderState extends State<MyHeader> {
               Visibility(
                 visible: widget.subtitle != "",
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 8.0, bottom: 10),
-                  child: Text(widget.subtitle, style: TextStyle(color: Utils.fromHex("#5f6368"), fontSize: 13, fontFamily: "Roboto", fontWeight: FontWeight.w400, letterSpacing: 1),),
+                  padding: const EdgeInsets.only(left: 8.0),
+                  child: Text(widget.subtitle, style: TextStyle(color: Utils.fromHex("#5f6368"), fontSize: 13, letterSpacing: 0.2),),
                 ),
               ),
               Padding(
-                    padding: const EdgeInsets.only(right: 25.0),
+                    padding: const EdgeInsets.only(right: 25.0, top: 20),
                     child: Divider(color: Colors.grey.shade300, thickness: 0.9, height: 1,),
                   ),
       ],
