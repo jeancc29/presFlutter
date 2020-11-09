@@ -185,4 +185,28 @@ class  Utils {
     // return  Image(image: AssetImage('images/user.png'), );
   }
 
+  static Future<bool> showDialogConfirmarEliminacion({@required BuildContext context, @required String title, @required descripcion}){
+     
+     return showDialog(context: context, builder: (context){
+       _back({bool value = false}){
+         Navigator.pop(context, value);
+       }
+       return StatefulBuilder(
+         builder: (context, setState) {
+           return AlertDialog(
+             title: Text("$title"),
+             content: Text("$descripcion"),
+             actions: [
+               FlatButton(onPressed: _back, child: Text("Cancelar")),
+               FlatButton(onPressed: () async {
+                _back(value: true);
+               }, child: Text("Ok")),
+             ],
+           );
+         }
+       );
+     });
+   }
+
+
 }

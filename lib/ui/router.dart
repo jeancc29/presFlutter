@@ -5,6 +5,7 @@ import 'package:prestamo/ui/views/cajas/index.dart';
 import 'package:prestamo/ui/views/clientes/add.dart';
 import 'package:prestamo/ui/views/clientes/index.dart';
 import 'package:prestamo/ui/views/configuraciones/configuracionPrestamo.dart';
+import 'package:prestamo/ui/views/cuentas/index.dart';
 import 'package:prestamo/ui/views/gastos/add.dart';
 import 'package:prestamo/ui/views/gastos/index.dart';
 import 'package:prestamo/ui/views/prestamos/add.dart';
@@ -46,6 +47,10 @@ class MyRouter {
       case '/bancos' :
         return  MaterialPageRoute(
           builder: (_)=> BancosScreen()
+        );
+      case '/cuentas' :
+        return  MaterialPageRoute(
+          builder: (_)=> CuentasScreen()
         );
       case '/configuracionPrestamo' :
         return  MaterialPageRoute(
