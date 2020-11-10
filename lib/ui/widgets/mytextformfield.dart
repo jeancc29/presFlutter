@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 
+
 class MyTextFormField extends StatefulWidget {
   final String title;
   final String sideTitle;
@@ -56,52 +57,9 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
       return widget.xlarge;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, boxconstraints) {
-        // print("mytextformfield boxconstrants: ${boxconstraints.maxWidth}");
-        return Padding(
-          padding: EdgeInsets.all(widget.padding),
-          child: 
-          (widget.sideTitle.isNotEmpty)
-          ?
-          Container(
-            // color: Colors.red,
-            width: getWidth(boxconstraints.maxWidth) - (widget.padding * 2), //El padding se multiplica por dos ya que el padding dado es el mismo para la izquiera y derecha
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-              Flexible(flex: 2, child: Visibility(visible: widget.sideTitle != "",child: Text(widget.sideTitle, textAlign: TextAlign.start, style: TextStyle(fontSize: 15),))),
-              Flexible(
-                flex: 4,
-                child: TextFormField(
-                       enabled: widget.enabled,
-                        controller: widget.controller,
-                        maxLines: widget.maxLines,
-                        keyboardType: (widget.maxLines != 1) ? TextInputType.multiline : null,
-                        style: TextStyle(fontSize: 15),
-                          decoration: InputDecoration(
-                            hintText: widget.hint,
-                            contentPadding: EdgeInsets.all(10),
-                            isDense: true,
-                            border: new OutlineInputBorder(
-                              // borderRadius: new BorderRadius.circular(25.0),
-                              borderSide: new BorderSide(),
-                            ),
-                          ),
-                          validator: (data){
-                            if(data.isEmpty && widget.isRequired)
-                              return "Campo requerido";
-                            return null;
-                          },
-                        ),
-              )
-            ],
-            ),
-          )
-          :
-          Column(
+ 
+  _screen(double width){
+    return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Visibility(visible: widget.title != "",child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15),)),
@@ -111,7 +69,7 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                 //   borderRadius: BorderRadius.circular(10),
                 //   border: Border.all(color: Colors.black, width: 1, style: BorderStyle.solid)
                 // ),
-                width: getWidth(boxconstraints.maxWidth) - (widget.padding * 2), //El padding se multiplica por dos ya que el padding dado es el mismo para la izquiera y derecha
+                width: getWidth(width) - (widget.padding * 2), //El padding se multiplica por dos ya que el padding dado es el mismo para la izquiera y derecha
                 // height: 50,
                 child:
                 (widget.labelText == "")
@@ -154,7 +112,19 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                     ),
               ),
             ],
-          ),
+          );
+          
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, boxconstraints) {
+        // print("mytextformfield boxconstrants: ${boxconstraints.maxWidth}");
+        return Padding(
+          padding: EdgeInsets.all(widget.padding),
+          child: 
+          _screen(boxconstraints.maxWidth)
         );
       }
     );

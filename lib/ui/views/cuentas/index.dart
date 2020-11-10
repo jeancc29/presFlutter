@@ -69,36 +69,64 @@ class _CuentasScreenState extends State<CuentasScreen> {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title:
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text("Guardar cuenta"),
-                   Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: SizedBox(
-                      width: 30,
-                      height: 30,
-                      child: Visibility(
-                        visible: _cargando,
-                        child: Theme(
-                          data: Theme.of(context).copyWith(accentColor: Utils.colorPrimary),
-                          child: new CircularProgressIndicator(),
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                  
+              // title:
+              // Row(
+              //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              //   children: [
+              //     Column(
+              //       crossAxisAlignment: CrossAxisAlignment.start,
+              //       children: [
+              //         Text("Guardar cuenta", style: TextStyle(fontSize: 18, color: Colors.black,fontWeight: FontWeight.w600)),
+              //         Padding(
+              //         padding: const EdgeInsets.only(top: 10.0),
+              //         child: Text("Las cuentas se usaran para hacer depositos, cheques, etc. El cual se reflejaran en la caja", style: TextStyle(fontSize: 14, color: Colors.black, letterSpacing: 0.4),),
+              //       ),
+              //       ],
+              //     ),
+              //     Align(
+              //       alignment: Alignment.topRight,
+              //       child: IconButton(
+              //         icon: Icon(Icons.clear),
+              //         onPressed: _back,
+              //       ),
+              //     )
+              //   ],
+              // )
+              // ,
               content: Container(
-                width: MediaQuery.of(context).size.width / 2,
+                // padding: EdgeInsets.only(bottom: 20),
+                width: MediaQuery.of(context).size.width / 2.5,
                 child: Form(
                 key: _formKey,
                 child: Wrap(
                   children: [
+                    
+                    Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Guardar cuenta", style: TextStyle(fontSize: 18, color: Colors.black,fontWeight: FontWeight.w600)),
+                 
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: IconButton(
+                      icon: Icon(Icons.clear),
+                      onPressed: _back,
+                    ),
+                  )
+                ],
+                    ),
+                    //  Padding(
+                    //   padding: const EdgeInsets.only(top: 3.0, bottom: 14),
+                    //   child: Text("Las cuentas se usaran para hacer depositos, cheques, etc. El cual se reflejaran en la caja", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black.withOpacity(0.65),),),
+                    // ),
+                     Padding(
+                      padding: const EdgeInsets.only(top: 3.0, bottom: 14),
+                      child: Text("Las cuentas se usaran para hacer depositos, cheques, etc. El cual se reflejaran en la caja.", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black.withOpacity(0.65),),),
+                    ),
                     MyTextFormField(
                       medium: 1.3,
-                      
+                      padding: 0,
                       controller: _txtDescripcion,
                       sideTitle: "Descripcion *",
                       // decoration: InputDecoration(labelText: "Descripcion *"),
@@ -107,13 +135,22 @@ class _CuentasScreenState extends State<CuentasScreen> {
                 ))
               ),
               actions: [
-              FlatButton(child: Text("Cancelar", style: TextStyle(color: Colors.black45, fontWeight: FontWeight.bold)), onPressed: _back),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10.0),
+                child: FlatButton(child: Text("Cancelar", style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold)), onPressed: _back),
+              ),
             // FlatButton(child: Text("Agregar", style: TextStyle(color: Utils.colorPrimaryBlue)), onPressed: () => _retornarReferencia(referencia: Referencia(nombre: _txtNombre.text, telefono: _txtTelefono.text, tipo: _tipo, parentesco: _parentesco)),),
-            myButton(function: () async{
-              if(_formKey.currentState.validate()){
+              Padding(
+                padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
+                child: myButton(
+                  text: "Guardar",
+                  function: () async{
+                    if(_formKey.currentState.validate()){
 
-              }
-            }, text: "Guardar"),
+                    }
+                  }, 
+                ),
+              ),
             
               ],
             );
