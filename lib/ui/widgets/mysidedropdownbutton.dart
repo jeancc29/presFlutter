@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:prestamo/core/classes/screensize.dart';
+import 'package:prestamo/ui/widgets/mydropdownbutton.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
 
 
-class MySideTextFormField extends StatefulWidget {
+class MySideDropdownButton extends StatefulWidget {
+  final ValueChanged<String> onChanged;
+  final List<String> elements;
   final String title;
   final ScreenSizeType whenBeSmall;
-  final String labelText;
-  final TextEditingController controller;
-  final String hint;
-  final maxLines;
   final bool enabled;
+  final String initialValue;
+
 
   final double small;
   final double medium;
@@ -18,15 +19,26 @@ class MySideTextFormField extends StatefulWidget {
   final double xlarge;
   final double padding;
 
-  final bool isRequired;
-  MySideTextFormField({Key key, this.title = "", this.whenBeSmall, this.labelText = "", this.controller, this.hint, this.maxLines = 1, this.enabled = true, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8, this.isRequired = false}) : super(key: key);
+  MySideDropdownButton({Key key, @required this.title, @required this.onChanged, @required this.elements, this.initialValue, this.whenBeSmall, this.enabled = true, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8,}) : super(key: key);
   @override
-  _MySideTextFormFieldState createState() => _MySideTextFormFieldState();
+  _MySideDropdownButtonState createState() => _MySideDropdownButtonState();
 }
 
-class _MySideTextFormFieldState extends State<MySideTextFormField> {
+class _MySideDropdownButtonState extends State<MySideDropdownButton> {
   double _width;
   ScreenSizeType whenBeSmall;
+  int _index = 0;
+ 
+
+  _initialValue(){
+    if(widget.initialValue != null){
+      if(widget.elements.length > 0){
+        var idx = widget.elements.indexWhere((element) => element == widget.initialValue);
+        if(idx != -1)
+          _index = idx;
+      }
+    }
+  }
   @override
   void initState() {
     // TODO: implement initState
@@ -35,6 +47,8 @@ class _MySideTextFormFieldState extends State<MySideTextFormField> {
       whenBeSmall = widget.whenBeSmall;
     else
       whenBeSmall = ScreenSizeType.sm;
+    _initialValue();
+
 
     super.initState();
   }
@@ -74,27 +88,16 @@ class _MySideTextFormFieldState extends State<MySideTextFormField> {
         Flexible(flex: 2, child: Visibility(visible: widget.title != "",child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15),))),
         Flexible(
           flex: 4,
-          child: TextFormField(
-            enabled: widget.enabled,
-            controller: widget.controller,
-            maxLines: widget.maxLines,
-            keyboardType: (widget.maxLines != 1) ? TextInputType.multiline : null,
-            style: TextStyle(fontSize: 15),
-              decoration: InputDecoration(
-                hintText: widget.hint,
-                contentPadding: EdgeInsets.all(10),
-                isDense: true,
-                border: new OutlineInputBorder(
-                  // borderRadius: new BorderRadius.circular(25.0),
-                  borderSide: new BorderSide(),
-                ),
-              ),
-              validator: (data){
-                if(data.isEmpty && widget.isRequired)
-                  return "Campo requerido";
-                return null;
-              },
-            ),
+          child: DropdownButton(
+              isExpanded: true, 
+              items: widget.elements.map<DropdownMenuItem>((e) => DropdownMenuItem(child: Text(e), value: e,)).toList(), 
+              onChanged: (data){
+                widget.onChanged(data);
+                int idx = widget.elements.indexWhere((element) => element == data);
+                setState(() => _index = idx);
+              }, 
+              value: widget.elements[_index],
+            )
           )
       ],
       ),
@@ -113,7 +116,7 @@ class _MySideTextFormFieldState extends State<MySideTextFormField> {
           child: 
           (whenBeSmall.toString() == ScreenSize.isType(boxconstraints.maxWidth).toString())
           ?
-          MyTextFormField(title: widget.title, controller: widget.controller, small: widget.small, medium: widget.medium, large: widget.large, xlarge: widget.xlarge, isRequired: widget.isRequired,)
+          MyDropdownButton(title: widget.title, onChanged: widget.onChanged, elements: widget.elements, small: widget.small, medium: widget.medium, large: widget.large, xlarge: widget.xlarge,)
           :
           _screen(boxconstraints.maxWidth)
         );

@@ -17,7 +17,7 @@ class ScreenSize{
   }
 
   static isXLarge(double size){
-    return  size > lg && size <= xlg;
+    return  size > lg;
   }
 
   static ScreenSizeType isType(double size){

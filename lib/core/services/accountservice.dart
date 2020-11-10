@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/cliente.dart';
+import 'package:prestamo/core/models/cuenta.dart';
 
 
 class AccountService{
@@ -69,11 +70,11 @@ class AccountService{
     return parsed;
   }
 
-  static Future<List<Cliente>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Cliente cliente}) async {
+  static Future<Map<String, dynamic>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Cuenta cuenta}) async {
     var map = Map<String, dynamic>();
-    // cliente.toJson();
+    // cuenta.toJson();
     // map["servidor"] = await Db.servidor();
-    map["data"] = cliente.toJson();
+    map["data"] = cuenta.toJson();
     Map<String, dynamic> map2 = Map<String, dynamic>();
     // map2["data"] = map;
     // print("map: ${map}");
@@ -106,6 +107,45 @@ class AccountService{
     }
 
 
-    return (parsed["bancas"] != null) ? parsed["bancas"].map<Cliente>((json) => Cliente.fromMap(json)).toList() : List<Cliente>();
+    return parsed;
   }
+
+  static Future<Map<String, dynamic>> delete({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Cuenta cuenta}) async {
+    var map = Map<String, dynamic>();
+    // cliente.toJson();
+    // map["servidor"] = await Db.servidor();
+    map["data"] = cuenta.toJson();
+    Map<String, dynamic> map2 = Map<String, dynamic>();
+    // map2["data"] = map;
+    // print("map: ${map}");
+    // var jwt = await Utils.createJwt(map);
+    var response = await http.post(Utils.URL + "/api/accounts/delete", body: json.encode(map), headers: Utils.header);
+    int statusCode =response.statusCode;
+
+    if(statusCode < 200 || statusCode > 400){
+      // print("Servidor AccountService all: ${response.body}");
+      var parsed = await compute(Utils.parseDatos, response.body);
+      print("Error: ${parsed}");
+      if(context != null)
+        Utils.showAlertDialog(content: "Error AccountService delete: ${parsed["message"]}", title: "Error", context: context);
+      else
+        Utils.showSnackBar(content: "Error AccountService delete: ${parsed["message"]}", scaffoldKey: scaffoldKey);
+      throw Exception("Error Servidor AccountService delete: ");
+    }
+
+    var parsed = await compute(Utils.parseDatos, response.body);
+
+    if(parsed["errores"] == 1){
+      print("AccountService error all: ${parsed["mensaje"]}");
+      if(context != null)
+        Utils.showAlertDialog(content: parsed["mensaje"], title: "Error", context: context);
+      else
+        Utils.showSnackBar(content: parsed["mensaje"], scaffoldKey: scaffoldKey);
+      throw Exception("Error AccountService delete");
+    }
+
+
+    return parsed;
+  }
+
 }
