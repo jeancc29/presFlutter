@@ -7,6 +7,7 @@ import 'package:prestamo/core/models/banco.dart';
 import 'package:prestamo/core/models/caja.dart';
 import 'package:prestamo/core/models/cliente.dart';
 import 'package:prestamo/core/models/configuracionprestamo.dart';
+import 'package:prestamo/core/models/cuenta.dart';
 import 'package:prestamo/core/models/garantia.dart';
 import 'package:prestamo/core/models/tipo.dart';
 import 'package:prestamo/core/services/loanservice.dart';
@@ -20,6 +21,7 @@ import 'package:prestamo/ui/widgets/myresizedcontainer.dart';
 import 'package:prestamo/ui/widgets/myscaffold.dart';
 import 'package:prestamo/ui/widgets/mysearch.dart';
 import 'package:prestamo/ui/widgets/mysidedropdownbutton.dart';
+import 'package:prestamo/ui/widgets/mysidetextformfield.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
 import 'package:rxdart/rxdart.dart';
@@ -38,6 +40,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   ScrollController _scrollControllerDesembolso;
   StreamController<List<Tipo>> _streamControllerTipo;
   StreamController<List<Garantia>> _streamControllerGarantia;
+  StreamController<List<Cuenta>> _streamControllerCuenta;
   var _formKey = GlobalKey<FormState>();
   var _txtCliente = TextEditingController();
   var _focusNodeTxtCliente = FocusNode();
@@ -59,10 +62,16 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   var _txtImporteGasto = TextEditingController();
   bool _incluirEnElFinanciamiento = false;
 
+  var _txtNumeroCheque = TextEditingController();
+  var _txtCuentaDestino = TextEditingController();
+
   bool _cargando = false;
   List<Tipo> listaTipo;
   List<Caja> listaCaja;
   List<Garantia> listaGarantia = List();
+  List<Banco> listaBanco = List();
+  List<Cuenta> listaCuenta = List();
+  List<Cuenta> listaCuentaFiltrada = List();
   Cliente _cliente;
   Tipo _tipoAmortizacion;
   Tipo _tipoPlazo;
@@ -72,6 +81,9 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   Tipo _tipoCondicionGarantia;
   Tipo _tipoTipoVehiculoGarantia;
   Caja _caja;
+  Cuenta _cuenta;
+  Banco _banco;
+  Banco _bancoDestino;
   var _fecha = DateTime.now();
   var _fechaPrimerPago = DateTime.now();
   
@@ -97,9 +109,11 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       listaTipo = (parsed["tipos"] != null) ? parsed["tipos"].map<Tipo>((json) => Tipo.fromMap(json)).toList() : List<Tipo>();
       listaCaja = (parsed["cajas"] != null) ? parsed["cajas"].map<Caja>((json) => Caja.fromMap(json)).toList() : List<Caja>();
       listaBanco = (parsed["bancos"] != null) ? parsed["bancos"].map<Banco>((json) => Banco.fromMap(json)).toList() : List<Banco>();
+      listaCuenta = (parsed["cuentas"] != null) ? parsed["cuentas"].map<Cuenta>((json) => Cuenta.fromMap(json)).toList() : List<Cuenta>();
       _updateTab(ConfiguracionPrestamo.fromMap(parsed["configuracionPrestamo"]));
       _selectComboFirstValue();
       _streamControllerTipo.add(listaTipo);
+      _streamControllerCuenta.add(listaCuenta);
       for(Tipo c in listaTipo){
         print("Nombre: ${c.descripcion}");
       }
@@ -141,6 +155,73 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     }
     if(listaAmortizacion.length > 0){
       _tipoAmortizacion = listaAmortizacion[0];
+    }
+    _cbxBancoOnChanged();
+    _cbxBancoDestinoOnChanged();
+    // if(listaBanco.length > 0){
+    //   _banco = listaBanco[0];
+    // }
+    // if(listaBanco.length > 0){
+    //   var _listaCuenta = listaCuenta.where((element) => element.idBanco == _banco.id).toList();
+    //   if(_listaCuenta.length > 0)
+    //     _cuenta = _listaCuenta[0];
+    // }
+  }
+
+  _cbxBancoOnChanged([String data]){
+    if(listaBanco.length > 0){
+      if(data == null){
+        setState(() {
+          _banco = listaBanco[0];
+          _filtrarListaCuenta();
+        });
+      }
+      else{
+        int idx = listaBanco.indexWhere((element) => element.descripcion == data);
+        if(idx != -1){
+          setState(() {
+            _banco = listaBanco[idx];
+            _filtrarListaCuenta();
+          });
+        }
+      }
+    }
+  }
+  _cbxBancoDestinoOnChanged([String data]){
+    if(listaBanco.length > 0){
+      if(data == null){
+        setState(() {
+          _bancoDestino = listaBanco[0];
+        });
+      }
+      else{
+        int idx = listaBanco.indexWhere((element) => element.descripcion == data);
+        if(idx != -1){
+          setState(() {
+            _bancoDestino = listaBanco[idx];
+          });
+        }
+      }
+    }
+  }
+
+  _cbxCuentaOnChanged([String data]){
+    if(listaCuenta.length > 0){
+      if(data == null)
+        _cuenta = listaCuenta[0];
+      else{
+        int idx = listaCuenta.indexWhere((element) => element.descripcion == data);
+        if(idx != -1){
+          _cuenta = listaCuenta[idx];
+        }
+      }
+    }
+  }
+
+  _filtrarListaCuenta(){
+    if(listaCuenta.length > 0 && _banco != null){
+      _streamControllerCuenta.add(listaCuenta.where((element) => element.idBanco == _banco.id).toList());
+
     }
   }
 
@@ -487,6 +568,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     _scrollController = ScrollController();
     _streamControllerTipo = BehaviorSubject();
     _streamControllerGarantia = BehaviorSubject();
+    _streamControllerCuenta = BehaviorSubject();
     _init();
     super.initState();
   }
@@ -514,7 +596,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
             child: new TabBar(
               onTap: (index){
                 if(index == 1){
-                  setState(() => _tabController.index = _tabController.previousIndex);
+                  // setState(() => _tabController.index = _tabController.previousIndex);
                 }
                 print("TabBar onTap: $index");
               },
@@ -1026,51 +1108,71 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
             child: SingleChildScrollView(
               controller: _scrollController,
               child: 
-                MyResizedContainer(
-                  xlarge: 1.4,
-                  child: Column(
-                    children: [
-                        // MySubtitle(title: "Garante"),
-                        // MyDropdownButton(onChanged: null, elements: ["Jean"], title: "Culo",)
-                        MySubtitle(title: "Origen empresa"),
-                        MySideDropdownButton(
-                          large: 1,
-                            title: "Tipo desembolso",
-                            elements: listaTipo.where((element) => element.renglon == "desembolso").toList().map<String>((e) => e.descripcion).toList(),
-                            onChanged: (data){
-                              _tipoDesembolso = listaTipo.firstWhere((element) => element.descripcion == data && element.renglon == "desembolso");
-                            },
-                          ),
-                        MySideDropdownButton(
-                          large: 1,
-                            title: "Banco",
-                            elements: listaBanco.where((element) => element.renglon == "desembolso").toList().map<String>((e) => e.descripcion).toList(),
-                            onChanged: (data){
-                              _banco = listaBanco.firstWhere((element) => element.descripcion == data && element.renglon == "desembolso");
-                            },
-                          ),
-                        MyTextFormField(
-                          // labelText: "Cliente",
-                          title: "Porcentaje",
-                          controller: _txtPorcentajeGasto,
-                          hint: "Porcentaje",
-                          xlarge: 4,
+                Wrap(
+                  children: [
+                      // MySubtitle(title: "Garante"),
+                      // MyDropdownButton(onChanged: null, elements: ["Jean"], title: "Culo",)
+                      MySubtitle(title: "Origen empresa", fontSize: 15, padding: EdgeInsets.only(bottom: 15.0, top: 8)),
+                      MyDropdownButton(
+                        xlarge: 4,
+                          title: "Tipo desembolso",
+                          elements: listaTipo.where((element) => element.renglon == "desembolso").toList().map<String>((e) => e.descripcion).toList(),
+                          onChanged: (listaTipo.where((element) => element.renglon == "desembolso").toList().length == 0) ? null : (data){
+                            setState(() => _tipoDesembolso = listaTipo.firstWhere((element) => element.descripcion == data && element.renglon == "desembolso"));
+                          },
                         ),
-                        MyTextFormField(
-                          // labelText: "Cliente",
-                          title: "Importe",
-                          controller: _txtImporteGasto,
-                          hint: "Importe",
-                          xlarge: 4,
+                      MyDropdownButton(
+                        enabled: _tipoDesembolso.descripcion == "Cheque" || _tipoDesembolso.descripcion == "Transferencia",
+                        xlarge: 4,
+                          title: "Banco",
+                          elements: (listaBanco.length > 0) ? listaBanco.map<String>((e) => e.descripcion).toList() : ["No hay bancos"],
+                          onChanged: (listaBanco.length == 0) ? null : _cbxBancoOnChanged,
                         ),
-                        
-                        Padding(
-                          padding: const EdgeInsets.only(top: 25.0),
-                          child: MyCheckBox(title: "Incluir en el financiamiento", value: _incluirEnElFinanciamiento, onChanged: _incluirEnElFinanciamientoChanged,),
-                        )
-                        
-                    ],
-                  ),
+                      StreamBuilder<List<Cuenta>>(
+                        stream: _streamControllerCuenta.stream,
+                        builder: (context, snapshot) {
+                          if(snapshot.hasData)
+                            return MyDropdownButton(
+                              enabled: _tipoDesembolso.descripcion == "Cheque" || _tipoDesembolso.descripcion == "Transferencia",
+                              xlarge: 4,
+                                title: "Cuenta de banco",
+                                elements: (snapshot.data.length > 0) ? snapshot.data.map<String>((e) => e.descripcion).toList() : ["No hay cuentas"],
+                                onChanged: (snapshot.data.length == 0) ? null : _cbxCuentaOnChanged,
+                              );
+
+                            return MyDropdownButton(
+                              enabled: _tipoDesembolso.descripcion == "Cheque",
+                              xlarge: 4,
+                                title: "Cuenta de banco",
+                                elements: ["No hay cuentas"],
+                                onChanged: (data){},
+                              );
+                        }
+                      ),
+                      MyTextFormField(
+                        // labelText: "Cliente",
+                        title: "Numero de cheque",
+                        controller: _txtNumeroCheque,
+                        xlarge: 4,
+                      ),
+                      MySubtitle(title: "Cuenta destino cliente", fontSize: 15, padding: EdgeInsets.only(top: 15, bottom: 12),),
+                      MyDropdownButton(
+                        enabled: _tipoDesembolso.descripcion == "Cheque" || _tipoDesembolso.descripcion == "Transferencia",
+                        xlarge: 2,
+                          title: "Banco destino",
+                          elements: (listaBanco.length > 0) ? listaBanco.map<String>((e) => e.descripcion).toList() : ["No hay bancos"],
+                          onChanged: (listaBanco.length == 0) ? null : _cbxBancoDestinoOnChanged,
+                        ),
+                      MyTextFormField(
+                        // labelText: "Cliente",
+                        title: "Cuenta destino",
+                        controller: _txtCuentaDestino,
+                        xlarge: 2,
+                      ),
+                     
+                      
+                      
+                  ],
                 )
               
             ,),

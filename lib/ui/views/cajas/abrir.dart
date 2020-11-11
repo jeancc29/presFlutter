@@ -62,7 +62,7 @@ abrirCaja({BuildContext context, List<Caja> cajas}){
                 ?
                 Center(
                   child: MyDropdownButton(
-                    padding: 0,
+                    // padding: 0,
                     onChanged: (data){
                       int idx = cajas.indexWhere((element) => element.descripcion == data);
                       if(idx != -1)
@@ -78,7 +78,7 @@ abrirCaja({BuildContext context, List<Caja> cajas}){
                 :
                 Center(
                   child: MyDropdownButton(
-                    padding: 0,
+                    // padding: 0,
                     onChanged: null,
                     elements: ["No hay cajas registradas"],
                     large: 1.2,
@@ -91,7 +91,7 @@ abrirCaja({BuildContext context, List<Caja> cajas}){
                   key: _formKey,
                   child: Center(
                     child: MyTextFormField(
-                      padding: 0,
+                      // padding: 0,
                       labelText: "BalanceInicial",
                       controller: _txtMontoInicial,
                       isRequired: true,

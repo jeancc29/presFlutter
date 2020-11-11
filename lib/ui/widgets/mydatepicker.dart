@@ -70,6 +70,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
                 // height: 30,
                 child: RaisedButton(
                   elevation: 0, 
+                  padding: EdgeInsets.only(top: 15, bottom: 15),
                   color: Colors.transparent, 
                   shape: RoundedRectangleBorder(side: BorderSide(color: Colors.grey, width: 1)),
                   child: Text("${fecha.year}-${fecha.month}-${fecha.day}", style: TextStyle(fontSize: 16)),

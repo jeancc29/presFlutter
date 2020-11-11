@@ -319,7 +319,7 @@ class _MySearchFieldState extends State<MySearchField> {
                                   decoration: InputDecoration(
                                     hintText: widget.hint,
                                     hintStyle: TextStyle(color: Utils.fromHex("#72777c"), fontWeight: FontWeight.w500),
-                                    contentPadding: EdgeInsets.all(10),
+                                    contentPadding: EdgeInsets.only(top: 15, bottom: 15),
                                     isDense: true,
                                     border: InputBorder.none,
                                     focusedBorder: InputBorder.none,

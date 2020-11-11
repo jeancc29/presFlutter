@@ -15,10 +15,10 @@ class MyTextFormField extends StatefulWidget {
   final double medium;
   final double large;
   final double xlarge;
-  final double padding;
+  final EdgeInsets padding;
 
   final bool isRequired;
-  MyTextFormField({Key key, this.title = "", this.sideTitle, this.labelText = "", this.controller, this.hint, this.maxLines = 1, this.enabled = true, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8, this.isRequired = false}) : super(key: key);
+  MyTextFormField({Key key, this.title = "", this.sideTitle, this.labelText = "", this.controller, this.hint, this.maxLines = 1, this.enabled = true, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = const EdgeInsets.only(left: 8.0, right: 8.0), this.isRequired = false}) : super(key: key);
   @override
   _MyTextFormFieldState createState() => _MyTextFormFieldState();
 }
@@ -69,7 +69,7 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                 //   borderRadius: BorderRadius.circular(10),
                 //   border: Border.all(color: Colors.black, width: 1, style: BorderStyle.solid)
                 // ),
-                width: getWidth(width) - (widget.padding * 2), //El padding se multiplica por dos ya que el padding dado es el mismo para la izquiera y derecha
+                width: getWidth(width) - (widget.padding.left + widget.padding.right), //El padding se multiplica por dos ya que el padding dado es el mismo para la izquiera y derecha
                 // height: 50,
                 child:
                 (widget.labelText == "")
@@ -82,7 +82,7 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                     style: TextStyle(fontSize: 15),
                       decoration: InputDecoration(
                         hintText: widget.hint,
-                        contentPadding: EdgeInsets.all(10),
+                        // contentPadding: EdgeInsets.all(10),
                         isDense: true,
                         border: new OutlineInputBorder(
                           // borderRadius: new BorderRadius.circular(25.0),
@@ -122,7 +122,7 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
       builder: (context, boxconstraints) {
         // print("mytextformfield boxconstrants: ${boxconstraints.maxWidth}");
         return Padding(
-          padding: EdgeInsets.all(widget.padding),
+          padding: widget.padding,
           child: 
           _screen(boxconstraints.maxWidth)
         );

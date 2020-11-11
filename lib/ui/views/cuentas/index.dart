@@ -181,9 +181,9 @@ class _CuentasScreenState extends State<CuentasScreen> {
                   MySideDropdownButton(
                     initialValue: (_initialValueBanco != null) ? _initialValueBanco : null,
                     medium: 1.3,
-                    padding: 0,
+                    // padding: 0,
                     title: "Banco *",
-                    elements: listaBanco.map((banco) => banco.descripcion).toList(),
+                    elements: (listaBanco.length > 0) ? listaBanco.map((banco) => banco.descripcion).toList() : ["No hay bancos"],
                     onChanged: (data){
                       int idx = listaBanco.indexWhere((element) => element.descripcion == data);
                       if(idx != -1)
@@ -195,7 +195,7 @@ class _CuentasScreenState extends State<CuentasScreen> {
                     key: _formKey,
                     child: MySideTextFormField(
                       medium: 1.3,
-                      padding: 0,
+                      // padding: 0,
                       controller: _txtDescripcion,
                       title: "Descripcion *",
                       isRequired: true,

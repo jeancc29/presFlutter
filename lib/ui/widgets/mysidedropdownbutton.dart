@@ -17,9 +17,9 @@ class MySideDropdownButton extends StatefulWidget {
   final double medium;
   final double large;
   final double xlarge;
-  final double padding;
+  final EdgeInsets padding;
 
-  MySideDropdownButton({Key key, @required this.title, @required this.onChanged, @required this.elements, this.initialValue, this.whenBeSmall, this.enabled = true, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8,}) : super(key: key);
+  MySideDropdownButton({Key key, @required this.title, @required this.onChanged, @required this.elements, this.initialValue, this.whenBeSmall, this.enabled = true, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = const EdgeInsets.only(left: 8.0, right: 8.0),}) : super(key: key);
   @override
   _MySideDropdownButtonState createState() => _MySideDropdownButtonState();
 }
@@ -81,7 +81,7 @@ class _MySideDropdownButtonState extends State<MySideDropdownButton> {
   _screen(double width){
     return Container(
       // color: Colors.red,
-      width: getWidth(width) - (widget.padding * 2), //El padding se multiplica por dos ya que el padding dado es el mismo para la izquiera y derecha
+      width: getWidth(width) - (widget.padding.left + widget.padding.right), //El padding se multiplica por dos ya que el padding dado es el mismo para la izquiera y derecha
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -89,10 +89,12 @@ class _MySideDropdownButtonState extends State<MySideDropdownButton> {
         Flexible(
           flex: 4,
           child: DropdownButton(
+            disabledHint: Text(""),
               isExpanded: true, 
               items: widget.elements.map<DropdownMenuItem>((e) => DropdownMenuItem(child: Text(e), value: e,)).toList(), 
-              onChanged: (data){
-                widget.onChanged(data);
+              onChanged:(!widget.enabled) ? null : (data){
+                if(widget.onChanged != null)
+                  widget.onChanged(data);
                 int idx = widget.elements.indexWhere((element) => element == data);
                 setState(() => _index = idx);
               }, 
@@ -112,7 +114,7 @@ class _MySideDropdownButtonState extends State<MySideDropdownButton> {
       builder: (context, boxconstraints) {
         // print("mytextformfield boxconstrants: ${boxconstraints.maxWidth}");
         return Padding(
-          padding: EdgeInsets.all(widget.padding),
+          padding: widget.padding,
           child: 
           (whenBeSmall.toString() == ScreenSize.isType(boxconstraints.maxWidth).toString())
           ?
