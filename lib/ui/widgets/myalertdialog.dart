@@ -10,6 +10,8 @@ class MyAlertDialog extends StatefulWidget {
   final String okDescription;
   final Function okFunction;
   final bool cargando;
+  final bool isDeleteDialog;
+  final String deleteDescripcion;
 
   final double small;
   final double medium;
@@ -17,7 +19,7 @@ class MyAlertDialog extends StatefulWidget {
   final double xlarge;
   // final double padding;
 
-  MyAlertDialog({Key key, @required this.title, @required this.content, this.description, this.okDescription = "Ok", @required this.okFunction, this.cargando = false, this.small = 1, this.medium = 1.6, this.large = 2.5, this.xlarge = 2.5,}) : super(key: key);
+  MyAlertDialog({Key key, @required this.title, @required this.content, this.description, this.okDescription = "Ok", @required this.okFunction, this.isDeleteDialog = false, this.deleteDescripcion = "Eliminar", this.cargando = false, this.small = 1, this.medium = 1.6, this.large = 2.5, this.xlarge = 2.5,}) : super(key: key);
   @override
   _MyAlertDialogState createState() => _MyAlertDialogState();
 }
@@ -97,9 +99,9 @@ class _MyAlertDialogState extends State<MyAlertDialog> {
                  
                        Padding(
                         padding: const EdgeInsets.only(top: 3.0, bottom: 14, right: 3.0),
-                        child: Text(widget.description, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black.withOpacity(0.65),),),
+                        child: Text((widget.description != null) ? widget.description : "", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black.withOpacity(0.65),),),
                       ),
-                      widget.content,
+                      (widget.content != null) ? widget.content : SizedBox(),
                       
                       Padding(
                         padding: const EdgeInsets.only(top: 18.0),
@@ -118,22 +120,39 @@ class _MyAlertDialogState extends State<MyAlertDialog> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Padding(
-                              padding: const EdgeInsets.only(bottom: 10.0),
-                              child: FlatButton(child: Text("Cancelar", style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold)), onPressed: (){Navigator.pop(context);}),
-                            ),
-                          // FlatButton(child: Text("Agregar", style: TextStyle(color: Utils.colorPrimaryBlue)), onPressed: () => _retornarReferencia(referencia: Referencia(nombre: _txtNombre.text, telefono: _txtTelefono.text, tipo: _tipo, parentesco: _parentesco)),),
-                            Padding(
-                              padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
-                              child: AbsorbPointer(
-                                absorbing: widget.cargando,
-                                child:  myButton(
-                                text: "Ok",
-                                function: widget.okFunction, 
-                                color: (widget.cargando) ? Colors.grey[300] : null,
-                                letterColor: (widget.cargando) ? Colors.grey : null,
-                              ),
-                              )
-                            ),
+                                    padding: const EdgeInsets.only(bottom: 10.0),
+                                    child: FlatButton(child: Text("Cancelar", style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold)), onPressed: (){Navigator.pop(context);}),
+                                  ),
+                                // FlatButton(child: Text("Agregar", style: TextStyle(color: Utils.colorPrimaryBlue)), onPressed: () => _retornarReferencia(referencia: Referencia(nombre: _txtNombre.text, telefono: _txtTelefono.text, tipo: _tipo, parentesco: _parentesco)),),
+                                  Visibility(
+                                    visible: !widget.isDeleteDialog,
+                                    child: Padding(
+                                      padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
+                                      child: AbsorbPointer(
+                                        absorbing: widget.cargando,
+                                        child:  myButton(
+                                        text: "Ok",
+                                        function: widget.okFunction, 
+                                        color: (widget.cargando) ? Colors.grey[300] : null,
+                                        letterColor: (widget.cargando) ? Colors.grey : null,
+                                      ),
+                                      )
+                                    ),
+                                  ),
+                                  Visibility(
+                                    visible: widget.isDeleteDialog,
+                                    child: Padding(
+                                      padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
+                                      child: AbsorbPointer(
+                                        absorbing: widget.cargando,
+                                        child:  FlatButton(
+                                        child: Text(widget.deleteDescripcion, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: (widget.cargando) ? Colors.grey : Colors.red)),
+                                        onPressed: widget.okFunction, 
+                                        // color: (widget.cargando) ? Colors.grey[300] : null,
+                                      ),
+                                      )
+                                    ),
+                                  ),
                                 ],
                               )
                             )

@@ -113,10 +113,49 @@ class _CuentasScreenState extends State<CuentasScreen> {
   }
 
   _delete(Cuenta cuenta) async {
-    bool acepta = await Utils.showDialogConfirmarEliminacion(context: context, title: "Eliminar cuenta", descripcion: "Seguro desea eliminar la cuenta ${cuenta.descripcion}");
-    if(acepta){
-      //Eliminar
-    }
+    showDialog(
+      context: context,
+      builder: (context){
+        return StatefulBuilder(
+          builder: (context, setState) {
+            _back(){
+              Navigator.pop(context);
+            }
+            return MyAlertDialog(
+              title: "Eliminar", 
+              cargando: _cargando,
+              content: Wrap(children: [
+                RichText(
+                  
+                  text: TextSpan(
+                    style: TextStyle(color: Colors.black, fontSize: 16, letterSpacing: 0.1),
+                    children: [
+                      TextSpan(text: "Seguro desea eliminar la cuenta "),
+                      TextSpan(text: "${cuenta.descripcion}", style: TextStyle(fontWeight: FontWeight.w700),),
+                      TextSpan(text: "?"),
+                    ],
+                  ), 
+                )
+              ]),
+              isDeleteDialog: true,
+              okFunction: () async {
+                try {
+                  setState(() => _cargando = true);
+                  var parsed = await AccountService.delete(context: context, cuenta: cuenta);
+                  listaCuenta.removeWhere((element) => element.id == cuenta.id);
+                  _streamController.add(listaCuenta);
+                  setState(() => _cargando = false);
+                  _back();
+                } catch (e) {
+                  print("CuentaScreen _eliminar _error: ${e.toString()}");
+                  setState(() => _cargando = false);
+                }
+              }
+            );
+          }
+        );
+      }
+    );
   }
 
   
@@ -275,33 +314,39 @@ class _CuentasScreenState extends State<CuentasScreen> {
   Widget _buildDataTable(List<Cuenta> lista){
     return SingleChildScrollView(
 
-        child: DataTable(
-          showCheckboxColumn: false,
-        columns: [
-          DataColumn(label: Text("#", style: TextStyle(fontWeight: FontWeight.w700),)), 
-          DataColumn(label: Text("Cuenta", style: TextStyle(fontWeight: FontWeight.w700),)), 
-          DataColumn(label: Text("Banco", style: TextStyle(fontWeight: FontWeight.w700),)), 
-          DataColumn(label: Text("Eliminar", style: TextStyle(fontWeight: FontWeight.w700),)), 
-        ], 
-        rows: lista.map((e) => 
-          DataRow(
-            onSelectChanged: (selected){
-              _update(e);
-            },
-          cells: [
-            DataCell(Text(e.id.toString())
-            ), 
-            DataCell(Text(e.descripcion)
-            ), 
-            DataCell(Text(e.banco.descripcion)
-            ), 
-            DataCell(
-              IconButton(icon: Icon(Icons.delete), onPressed: (){_delete(e);})
-            )
-          ]
-        )
-        ).toList()
+        child: Row(
+          children: [
+            Expanded(
+              child: DataTable(
+                showCheckboxColumn: false,
+                columns: [
+                  DataColumn(label: Text("#", style: TextStyle(fontWeight: FontWeight.w700),)), 
+                  DataColumn(label: Text("Cuenta", style: TextStyle(fontWeight: FontWeight.w700),)), 
+                  DataColumn(label: Text("Banco", style: TextStyle(fontWeight: FontWeight.w700),)), 
+                  DataColumn(label: Text("Eliminar", style: TextStyle(fontWeight: FontWeight.w700),)), 
+                ], 
+                rows: lista.map((e) => 
+                  DataRow(
+                    onSelectChanged: (selected){
+                      _update(e);
+                    },
+                  cells: [
+                    DataCell(Text(e.id.toString())
+                    ), 
+                    DataCell(Text(e.descripcion)
+                    ), 
+                    DataCell(Text(e.banco.descripcion)
+                    ), 
+                    DataCell(
+                      IconButton(icon: Icon(Icons.delete), onPressed: (){_delete(e);})
+                    )
+                  ]
+                )
+              ).toList()
       ),
+            ),
+          ],
+        ),
     );
   }
 
@@ -321,7 +366,7 @@ class _CuentasScreenState extends State<CuentasScreen> {
               if(snapshot.hasData)
                 return _buildDataTable(snapshot.data);
               
-              return Center(
+              return Expanded(
                 child: Center(
                 child: SizedBox(
                   width: 30,

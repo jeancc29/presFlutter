@@ -4,7 +4,7 @@ import 'package:prestamo/ui/views/bancos/index.dart';
 import 'package:prestamo/ui/views/cajas/index.dart';
 import 'package:prestamo/ui/views/clientes/add.dart';
 import 'package:prestamo/ui/views/clientes/index.dart';
-import 'package:prestamo/ui/views/configuraciones/configuracionPrestamo.dart';
+import 'package:prestamo/ui/views/configuraciones/configuracionPrestamoscreen.dart';
 import 'package:prestamo/ui/views/cuentas/index.dart';
 import 'package:prestamo/ui/views/gastos/add.dart';
 import 'package:prestamo/ui/views/gastos/index.dart';

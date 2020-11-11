@@ -3,21 +3,23 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
+import 'package:prestamo/core/models/banco.dart';
 import 'package:prestamo/core/models/caja.dart';
 import 'package:prestamo/core/models/cliente.dart';
+import 'package:prestamo/core/models/configuracionprestamo.dart';
 import 'package:prestamo/core/models/garantia.dart';
-import 'package:prestamo/core/models/loansetting.dart';
 import 'package:prestamo/core/models/tipo.dart';
 import 'package:prestamo/core/services/loanservice.dart';
-import 'package:prestamo/ui/views/configuraciones/configuracionPrestamo.dart';
 import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
 import 'package:prestamo/ui/widgets/mybutton.dart';
 import 'package:prestamo/ui/widgets/mycheckbox.dart';
 import 'package:prestamo/ui/widgets/mydatepicker.dart';
 import 'package:prestamo/ui/widgets/mydropdownbutton.dart';
 import 'package:prestamo/ui/widgets/myheader.dart';
+import 'package:prestamo/ui/widgets/myresizedcontainer.dart';
 import 'package:prestamo/ui/widgets/myscaffold.dart';
 import 'package:prestamo/ui/widgets/mysearch.dart';
+import 'package:prestamo/ui/widgets/mysidedropdownbutton.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
 import 'package:rxdart/rxdart.dart';
@@ -29,10 +31,11 @@ class PrestamoAddScreen extends StatefulWidget {
 
 class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProviderStateMixin {
   var _tabController;
-  List<String> listaTab = ["Prestamo", "Garante y cobrador", "Gasto", "Garantia"];
+  List<String> listaTab = ["Prestamo", "Garante y cobrador", "Gasto", "Garantia", "Desembolso"];
   ScrollController _scrollController;
   ScrollController _scrollControllerGarante;
   ScrollController _scrollControllerGastos;
+  ScrollController _scrollControllerDesembolso;
   StreamController<List<Tipo>> _streamControllerTipo;
   StreamController<List<Garantia>> _streamControllerGarantia;
   var _formKey = GlobalKey<FormState>();
@@ -64,6 +67,10 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   Tipo _tipoAmortizacion;
   Tipo _tipoPlazo;
   Tipo _tipoGasto;
+  Tipo _tipoDesembolso;
+  Tipo _tipoGarantia;
+  Tipo _tipoCondicionGarantia;
+  Tipo _tipoTipoVehiculoGarantia;
   Caja _caja;
   var _fecha = DateTime.now();
   var _fechaPrimerPago = DateTime.now();
@@ -89,8 +96,9 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       print("_init: $parsed");
       listaTipo = (parsed["tipos"] != null) ? parsed["tipos"].map<Tipo>((json) => Tipo.fromMap(json)).toList() : List<Tipo>();
       listaCaja = (parsed["cajas"] != null) ? parsed["cajas"].map<Caja>((json) => Caja.fromMap(json)).toList() : List<Caja>();
+      listaBanco = (parsed["bancos"] != null) ? parsed["bancos"].map<Banco>((json) => Banco.fromMap(json)).toList() : List<Banco>();
       _updateTab(ConfiguracionPrestamo.fromMap(parsed["configuracionPrestamo"]));
-      
+      _selectComboFirstValue();
       _streamControllerTipo.add(listaTipo);
       for(Tipo c in listaTipo){
         print("Nombre: ${c.descripcion}");
@@ -100,6 +108,39 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     } catch (e) {
       print("\prestamos\add _init: ${e.toString()}");
       // setState(() => _cargando = false);
+    }
+  }
+
+  _selectComboFirstValue(){
+    String _initialValueDesembolso;
+    var listaDesembolso = listaTipo.where((element) => element.renglon == "desembolso").toList();
+    var listaGastoPrestamo = listaTipo.where((element) => element.renglon == "gastoPrestamo").toList();
+    var listaGarantia = listaTipo.where((element) => element.renglon == "garantia").toList();
+    var listaCondicionGarantia = listaTipo.where((element) => element.renglon == "condicionGarantia").toList();
+    var listaTipoVehiculoGarantia = listaTipo.where((element) => element.renglon == "tipoVehiculo").toList();
+    var listaPlazo = listaTipo.where((element) => element.renglon == "plazo").toList();
+    var listaAmortizacion = listaTipo.where((element) => element.renglon == "amortizacion").toList();
+    if(listaDesembolso.length > 0){
+      _tipoDesembolso = listaDesembolso.firstWhere((element) => element.descripcion == "Efectivo");
+      _initialValueDesembolso = _tipoDesembolso.descripcion;
+    }
+    if(listaGastoPrestamo.length > 0){
+      _tipoGasto = listaGastoPrestamo[0];
+    }
+    if(listaGarantia.length > 0){
+      _tipoGarantia = listaGarantia[0];
+    }
+    if(listaCondicionGarantia.length > 0){
+      _tipoCondicionGarantia = listaCondicionGarantia[0];
+    }
+    if(listaTipoVehiculoGarantia.length > 0){
+      _tipoTipoVehiculoGarantia = listaTipoVehiculoGarantia[0];
+    }
+    if(listaPlazo.length > 0){
+      _tipoPlazo = listaPlazo[0];
+    }
+    if(listaAmortizacion.length > 0){
+      _tipoAmortizacion = listaAmortizacion[0];
     }
   }
 
@@ -457,6 +498,8 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       return _gastoScreen();
     else if(tab == "Garantia")
       return _garantiaScreen();
+    else if(tab == "Desembolso")
+      return _desembolsoScreen();
     else
       return _prestamoScreen();
   }
@@ -965,6 +1008,78 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                           
   }
 
+  _desembolsoScreen(){
+    return  StreamBuilder<List<Tipo>>(
+      stream: _streamControllerTipo.stream,
+      builder: (context, snapshot) {
+        if(snapshot.hasData == false)
+          return CircularProgressIndicator();
+
+        return Padding(
+          padding: const EdgeInsets.only(left: 18.0, top: 20.0),
+          child: DraggableScrollbar(
+            controller: _scrollControllerDesembolso,
+            // alwaysVisibleScrollThumb: true,
+            // heightScrollThumb: 2,
+            heightScrollThumb: 80.0,
+            // backgroundColor: Utils.colorPrimaryBlue,
+            child: SingleChildScrollView(
+              controller: _scrollController,
+              child: 
+                MyResizedContainer(
+                  xlarge: 1.4,
+                  child: Column(
+                    children: [
+                        // MySubtitle(title: "Garante"),
+                        // MyDropdownButton(onChanged: null, elements: ["Jean"], title: "Culo",)
+                        MySubtitle(title: "Origen empresa"),
+                        MySideDropdownButton(
+                          large: 1,
+                            title: "Tipo desembolso",
+                            elements: listaTipo.where((element) => element.renglon == "desembolso").toList().map<String>((e) => e.descripcion).toList(),
+                            onChanged: (data){
+                              _tipoDesembolso = listaTipo.firstWhere((element) => element.descripcion == data && element.renglon == "desembolso");
+                            },
+                          ),
+                        MySideDropdownButton(
+                          large: 1,
+                            title: "Banco",
+                            elements: listaBanco.where((element) => element.renglon == "desembolso").toList().map<String>((e) => e.descripcion).toList(),
+                            onChanged: (data){
+                              _banco = listaBanco.firstWhere((element) => element.descripcion == data && element.renglon == "desembolso");
+                            },
+                          ),
+                        MyTextFormField(
+                          // labelText: "Cliente",
+                          title: "Porcentaje",
+                          controller: _txtPorcentajeGasto,
+                          hint: "Porcentaje",
+                          xlarge: 4,
+                        ),
+                        MyTextFormField(
+                          // labelText: "Cliente",
+                          title: "Importe",
+                          controller: _txtImporteGasto,
+                          hint: "Importe",
+                          xlarge: 4,
+                        ),
+                        
+                        Padding(
+                          padding: const EdgeInsets.only(top: 25.0),
+                          child: MyCheckBox(title: "Incluir en el financiamiento", value: _incluirEnElFinanciamiento, onChanged: _incluirEnElFinanciamientoChanged,),
+                        )
+                        
+                    ],
+                  ),
+                )
+              
+            ,),
+          ),
+        );
+      }
+    );
+  }
+
   // _addToListMenu(){
   //  setState((){
   //     listaTab.add("Nuevo");
@@ -977,6 +1092,8 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       listaTab.removeWhere((element) => element == "Garantia");
     if(configuracionPrestamo.gasto == false)
       listaTab.removeWhere((element) => element == "Gasto");
+    if(configuracionPrestamo.desembolso == false)
+      listaTab.removeWhere((element) => element == "Desembolso");
 
       setState(() => _tabController = TabController(length: listaTab.length, vsync: this));
   }

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:prestamo/core/classes/utils.dart';
-import 'package:prestamo/core/models/loansetting.dart';
+import 'package:prestamo/core/models/configuracionprestamo.dart';
 import 'package:prestamo/core/services/loansettingservice.dart';
 import 'package:prestamo/ui/widgets/myheader.dart';
 import 'package:prestamo/ui/widgets/myresizedcontainer.dart';
@@ -21,6 +21,7 @@ class _ConfiguracionPrestamoScreenState extends State<ConfiguracionPrestamoScree
   bool _cargando = false;
   bool _garantia = false;
   bool _gasto = false;
+  bool _desembolso = false;
   ConfiguracionPrestamo configuracionPrestamo = ConfiguracionPrestamo();
   
   _init() async {
@@ -32,6 +33,7 @@ class _ConfiguracionPrestamoScreenState extends State<ConfiguracionPrestamoScree
       print("ConfiguracionPrestamoScreen _init ${configuracionPrestamo.toJson()}");
       _garantia = configuracionPrestamo.garantia;
       _gasto = configuracionPrestamo.gasto;
+      _desembolso = configuracionPrestamo.desembolso;
       _streamController.add(configuracionPrestamo);
       // setState(() => _cargando = false);
     } catch (e) {
@@ -44,6 +46,7 @@ class _ConfiguracionPrestamoScreenState extends State<ConfiguracionPrestamoScree
       setState(() => _cargando = true);
       configuracionPrestamo.garantia = _garantia;
       configuracionPrestamo.gasto = _gasto;
+      configuracionPrestamo.desembolso = _desembolso;
       configuracionPrestamo = await LoansettingService.store(context: context, configuracionPrestamo: configuracionPrestamo);
       setState(() => _cargando = false);
       Utils.showSnackBar(content: "Se ha guardado correctamente", scaffoldKey: _scaffoldKey);
@@ -74,20 +77,35 @@ class _ConfiguracionPrestamoScreenState extends State<ConfiguracionPrestamoScree
                   ],
                 ),
                 Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 25.0),
-                  child: Text("Activar gasto"),
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 25.0),
+                      child: Text("Activar gasto"),
+                    ),
+                    Switch(
+                      onChanged: (data){
+                        setState(() => _gasto = data);
+                      },
+                      value: _gasto,
+                    )
+                  ],
                 ),
-                Switch(
-                  onChanged: (data){
-                    setState(() => _gasto = data);
-                  },
-                  value: _gasto,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(right: 25.0),
+                      child: Text("Activar desembolso"),
+                    ),
+                    Switch(
+                      onChanged: (data){
+                        setState(() => _desembolso = data);
+                      },
+                      value: _desembolso,
+                    )
+                  ],
                 )
-              ],
-            )
               ],
             ),
           );

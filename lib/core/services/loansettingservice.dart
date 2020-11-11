@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/cliente.dart';
-import 'package:prestamo/core/models/loansetting.dart';
-import 'package:prestamo/ui/views/configuraciones/configuracionPrestamo.dart';
+import 'package:prestamo/core/models/configuracionprestamo.dart';
+import 'package:prestamo/ui/views/configuraciones/configuracionPrestamoscreen.dart';
 
 
 class LoansettingService{
