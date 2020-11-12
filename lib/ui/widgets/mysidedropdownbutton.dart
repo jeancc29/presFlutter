@@ -89,7 +89,7 @@ class _MySideDropdownButtonState extends State<MySideDropdownButton> {
         Flexible(
           flex: 4,
           child: DropdownButton(
-            disabledHint: Text(""),
+            disabledHint: Text("${widget.elements[_index]}"),
               isExpanded: true, 
               items: widget.elements.map<DropdownMenuItem>((e) => DropdownMenuItem(child: Text(e), value: e,)).toList(), 
               onChanged:(!widget.enabled) ? null : (data){

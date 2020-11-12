@@ -7,6 +7,7 @@ import 'dart:ui';
 
 import 'package:corsac_jwt/corsac_jwt.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:prestamo/core/models/cliente.dart';
 
 class  Utils {
@@ -208,5 +209,10 @@ class  Utils {
      });
    }
 
+  static toCurrency(var number){
+    final formatCurrency = new NumberFormat.simpleCurrency();
+    number = Utils.toDouble(number.toString());
+    return formatCurrency.format(number).replaceFirst(".00", "");
+  }
 
 }

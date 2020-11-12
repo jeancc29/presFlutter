@@ -128,7 +128,7 @@ class _ConfiguracionPrestamoScreenState extends State<ConfiguracionPrestamoScree
       cargando: _cargando,
       configuracionPrestamo: true,
       body: [
-        MyHeader(title: "Crea una version de produccion", subtitle: "Agregue las garantias y gastos para que sus prestamos sean mas formales", function: _guardar, actionFuncion: "Guardar",),
+        MyHeader(title: "Configuracion de prestamos", subtitle: "Agregue las garantias y gastos para que sus prestamos sean mas formales", function: _guardar, actionFuncion: "Guardar",),
         SizedBox(height: 20,),
         MySubtitle(title: "Detalles",),
         Expanded(

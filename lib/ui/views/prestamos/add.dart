@@ -64,6 +64,8 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
 
   var _txtNumeroCheque = TextEditingController();
   var _txtCuentaDestino = TextEditingController();
+   var _txtMontoBruto = TextEditingController();
+  var _txtMontoNeto = TextEditingController();
 
   bool _cargando = false;
   List<Tipo> listaTipo;
@@ -300,6 +302,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
               medium: 3.5,
             ),
             MyTextFormField(
+              isMoneyFormat: true,
               controller: _txtTasacion,
               title: "Tasacion",
               hint: "Tasacion",
@@ -313,6 +316,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
               xlarge: 5,
             ),
             MyTextFormField(
+              isDigitOnly: true,
               controller: _txtNumeroPuertas,
               title: "No. Puertas",
               hint: "No. Puertas",
@@ -339,6 +343,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
             ),
             MySubtitle(title: "Avanzado",),
             MyTextFormField(
+              isDigitOnly: true,
               controller: _txtCilindros,
               title: "Cilindros",
               hint: "Cilindros",
@@ -351,6 +356,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
               medium: 4,
             ),
             MyTextFormField(
+              isDigitOnly: true,
               controller: _txtNumeroPasajeros,
               title: "No. Pasajeros",
               hint: "No. Pasajeros",
@@ -364,12 +370,14 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
               medium: 4,
             ), 
             MyTextFormField(
+              isDigitOnly: true,
               controller: _txtFuerzaMotriz,
               title: "Fuerza motriz (HP/CC)",
               hint: "Fuerza motriz (HP/CC)",
               medium: 4,
             ),
             MyTextFormField(
+              isDigitOnly: true,
               controller: _txtCapacidadCarga,
               title: "Capacidad carga (Ton.)",
               hint: "Capacidad carga (Ton.)",
@@ -396,6 +404,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
         _formGarantiaNormal(){
           return Wrap(children: [
             MyTextFormField(
+              isMoneyFormat: true,
               controller: _txtTasacion,
               title: "Valor",
               hint: "Valor",
@@ -467,7 +476,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
           }else{
             if(_txtDescripcion.text.isNotEmpty){
               int indexGarantia = listaGarantia.indexWhere((element) => element.descripcion == _txtDescripcion.text);
-              if(indexGarantia != null){
+              if(indexGarantia != -1){
                 listaGarantia[indexGarantia].descripcion = _txtDescripcion.text; 
                 listaGarantia[indexGarantia].tasacion = Utils.toDouble(_txtTasacion.text); 
               }else{
@@ -546,7 +555,15 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
           cells: [
             // DataCell(Text(e.id.toString())
             // ), 
-            DataCell(Text("${e.descripcion.length > 30 ? e.descripcion.substring(0, 30) + '...' : e.descripcion}")
+            // DataCell(Text("${e.descripcion.length > 30 ? e.descripcion.substring(0, 30) + '...' : e.descripcion}")
+            DataCell(
+              Tooltip(
+                // height: 50,
+                // decoration: BoxDecoration(),
+                message: "${e.descripcion.length > 80 ? e.descripcion.substring(0, 80) + '...' : e.descripcion}",
+                child: Text("${e.descripcion.length > 30 ? e.descripcion.substring(0, 30) + '...' : e.descripcion}",
+              )
+            )
             ), 
             DataCell(Text("${e.tasacion}")
             ), 
@@ -709,6 +726,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                     ),
                     MyTextFormField(
                       // labelText: "Cliente",
+                      isMoneyFormat: true,
                       title: "Monto a prestar *",
                       controller: _txtMonto,
                       hint: "Monto",
@@ -722,6 +740,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       hint: "% interes",
                       isRequired: true,
                       xlarge: 3,
+                      isDecimal: true,
                     ),
                     MyTextFormField(
                       // labelText: "Cliente",
@@ -730,6 +749,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       hint: "Cuotas",
                       isRequired: true,
                       xlarge: 3,
+                      isDigitOnly: true
                     ),
                     MyDatePicker(
                       title: "Fecha",
@@ -770,6 +790,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       controller: _txtMora,
                       hint: "% mora",
                       enabled: !_aplicarTasaDelPrestamo,
+                      isDecimal: true,
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 25.0),
@@ -780,6 +801,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       title: "Dias de gracia",
                       controller: _txtDiasGracia,
                       hint: "Dias de gracia",
+                      isDigitOnly: true,
                     ),
                   ],
                 ),
@@ -1016,13 +1038,18 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                         ),
                       MyTextFormField(
                         // labelText: "Cliente",
+                        isDecimal: true,
                         title: "Porcentaje",
                         controller: _txtPorcentajeGasto,
                         hint: "Porcentaje",
                         xlarge: 4,
+                        onChanged: (data){
+                          print("_txtPorcentajeGasto on change");
+                        },
                       ),
                       MyTextFormField(
                         // labelText: "Cliente",
+                        isDecimal: true,
                         title: "Importe",
                         controller: _txtImporteGasto,
                         hint: "Importe",
@@ -1151,13 +1178,15 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       ),
                       MyTextFormField(
                         // labelText: "Cliente",
+                        enabled: _tipoDesembolso.descripcion == "Cheque",
                         title: "Numero de cheque",
+                        hint: "Numero de cheque",
                         controller: _txtNumeroCheque,
                         xlarge: 4,
                       ),
                       MySubtitle(title: "Cuenta destino cliente", fontSize: 15, padding: EdgeInsets.only(top: 15, bottom: 12),),
                       MyDropdownButton(
-                        enabled: _tipoDesembolso.descripcion == "Cheque" || _tipoDesembolso.descripcion == "Transferencia",
+                        enabled: _tipoDesembolso.descripcion == "Transferencia",
                         xlarge: 2,
                           title: "Banco destino",
                           elements: (listaBanco.length > 0) ? listaBanco.map<String>((e) => e.descripcion).toList() : ["No hay bancos"],
@@ -1165,12 +1194,35 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                         ),
                       MyTextFormField(
                         // labelText: "Cliente",
+                        enabled: _tipoDesembolso.descripcion == "Transferencia",
                         title: "Cuenta destino",
+                        hint: "Cuenta destino",
                         controller: _txtCuentaDestino,
                         xlarge: 2,
                       ),
+
                      
-                      
+                      MySubtitle(title: "Montos", fontSize: 15, padding: EdgeInsets.only(top: 15, bottom: 12),),
+                      MyTextFormField(
+                        // labelText: "Cliente",
+                        isMoneyFormat: true,
+                        enabled: false,
+                        title: "Monto bruto",
+                        hint: "Monto bruto",
+                        controller: _txtMontoBruto,
+                        xlarge: 2,
+
+                      ),
+                      MyTextFormField(
+                        // labelText: "Cliente",
+                        isMoneyFormat: true,
+                        enabled: false,
+                        title: "Monto neto",
+                        hint: "Monto neto",
+                        controller: _txtMontoNeto,
+                        xlarge: 2,
+                      ),
+                     
                       
                   ],
                 )

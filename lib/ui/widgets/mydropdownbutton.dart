@@ -16,7 +16,7 @@ class MyDropdownButton extends StatefulWidget {
 
   final List<String> elements;
   final EdgeInsets padding;
-  MyDropdownButton({Key key, this.initialValue, this.title = "", @required this.onChanged, this.hint, this.elements, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = const EdgeInsets.only(left: 8.0, right: 8.0,), this.enabled = true, this.isAllBorder = true}) : super(key: key);
+  MyDropdownButton({Key key, this.initialValue, this.title = "", @required this.onChanged, this.hint, this.elements, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = const EdgeInsets.only(left: 8.0, right: 8.0, top: 8), this.enabled = true, this.isAllBorder = false}) : super(key: key);
   @override
   _MyDropdownButtonState createState() => _MyDropdownButtonState();
 }
@@ -65,6 +65,60 @@ class _MyDropdownButtonState extends State<MyDropdownButton> {
       return widget.xlarge;
   }
 
+  _dropdownFormField(){
+    return DropdownButtonFormField(
+      decoration: InputDecoration(
+        
+        // contentPadding: EdgeInsetsGeometry.lerp(a, b, t),
+        // contentPadding: EdgeInsets.all(10),
+        border: OutlineInputBorder(borderSide: BorderSide(width: 1))
+      ),
+      
+      itemHeight: 50,
+      disabledHint: Text("${widget.elements[_index]}"),
+      isDense: false, 
+      
+      items: widget.elements.map<DropdownMenuItem>((e) => DropdownMenuItem(child: Text(e, style: TextStyle(fontSize: 13),), value: e,)).toList(), 
+      onChanged: (!widget.enabled) ? null : (data){
+        widget.onChanged(data);
+        int idx = widget.elements.indexWhere((element) => element == data);
+        setState(() => _index = idx);
+      }, 
+      value: widget.elements[_index],
+    );
+                  
+  }
+
+  _dropdowHideUnderline(){
+    return DropdownButtonHideUnderline(
+          child: Container(
+            decoration: ShapeDecoration(
+              shape: RoundedRectangleBorder(
+                side: BorderSide(width: 1.0, style: BorderStyle.solid),
+                borderRadius: BorderRadius.all(Radius.circular(5.0)),
+              ),
+            ),
+            child: ButtonTheme(
+              alignedDropdown: true,
+              padding: EdgeInsets.only(top: 0, bottom: 0),
+              child: DropdownButton(
+                
+                disabledHint: Text("${(widget.elements.length == 0) ? '' : widget.elements[_index]}"),
+                isExpanded: true, 
+                
+                items: widget.elements.map<DropdownMenuItem>((e) => DropdownMenuItem(child: Text(e, style: TextStyle(fontSize: 13),), value: e,)).toList(), 
+                onChanged: (!widget.enabled) ? null : (data){
+                  widget.onChanged(data);
+                  int idx = widget.elements.indexWhere((element) => element == data);
+                  setState(() => _index = idx);
+                }, 
+                value: widget.elements[_index],
+        ),
+            ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -83,28 +137,10 @@ class _MyDropdownButtonState extends State<MyDropdownButton> {
                   child: 
                   (widget.isAllBorder)
                   ?
-                  DropdownButtonFormField(
-                    
-                    decoration: InputDecoration(
-                      
-                      // contentPadding: EdgeInsetsGeometry.lerp(a, b, t),
-                      contentPadding: EdgeInsets.all(10),
-                      border: OutlineInputBorder(borderSide: BorderSide(width: 1))
-                    ),
-                    disabledHint: Text(""),
-                    isExpanded: true, 
-                    
-                    items: widget.elements.map<DropdownMenuItem>((e) => DropdownMenuItem(child: Text(e, style: TextStyle(fontSize: 13),), value: e,)).toList(), 
-                    onChanged: (!widget.enabled) ? null : (data){
-                      widget.onChanged(data);
-                      int idx = widget.elements.indexWhere((element) => element == data);
-                      setState(() => _index = idx);
-                    }, 
-                    value: widget.elements[_index],
-                  )
+                  _dropdownFormField()
                   :
                   DropdownButton(
-                    disabledHint: Text(""),
+                    disabledHint: Text("${widget.elements[_index]}"),
                     isExpanded: true, 
                     
                     items: widget.elements.map<DropdownMenuItem>((e) => DropdownMenuItem(child: Text(e), value: e,)).toList(), 

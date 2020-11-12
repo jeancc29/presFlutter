@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:prestamo/core/classes/screensize.dart';
+import 'package:prestamo/core/classes/utils.dart';
 
 
 class MyTextFormField extends StatefulWidget {
+  final ValueChanged<String> onChanged;
   final String title;
   final String sideTitle;
   final String labelText;
@@ -10,6 +14,9 @@ class MyTextFormField extends StatefulWidget {
   final String hint;
   final maxLines;
   final bool enabled;
+  final bool isDigitOnly;
+  final bool isDecimal;
+  final bool isMoneyFormat;
 
   final double small;
   final double medium;
@@ -18,13 +25,17 @@ class MyTextFormField extends StatefulWidget {
   final EdgeInsets padding;
 
   final bool isRequired;
-  MyTextFormField({Key key, this.title = "", this.sideTitle, this.labelText = "", this.controller, this.hint, this.maxLines = 1, this.enabled = true, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = const EdgeInsets.only(left: 8.0, right: 8.0), this.isRequired = false}) : super(key: key);
+  MyTextFormField({Key key, this.title = "", this.onChanged, this.sideTitle, this.labelText = "", this.controller, this.hint, this.maxLines = 1, this.enabled = true, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = const EdgeInsets.only(left: 8.0, right: 8.0), this.isRequired = false, this.isDigitOnly = false, this.isDecimal = false, this.isMoneyFormat = false}) : super(key: key);
   @override
   _MyTextFormFieldState createState() => _MyTextFormFieldState();
 }
 
 class _MyTextFormFieldState extends State<MyTextFormField> {
   double _width;
+  static const _locale = 'en';
+  // String _formatNumber(String s) => NumberFormat.decimalPattern(_locale).format(int.parse(s));
+  String _formatNumber(String s) => NumberFormat.decimalPattern(_locale).format(Utils.toDouble(s));
+String get _currency => NumberFormat.simpleCurrency(locale: _locale, decimalDigits: 2).currencySymbol;
   @override
   void initState() {
     // TODO: implement initState
@@ -57,7 +68,58 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
       return widget.xlarge;
   }
 
+  _getkeyboardType(){
+    if(widget.maxLines != 1) 
+      return TextInputType.multiline;
+    if(widget.isDigitOnly || widget.isDecimal || widget.isMoneyFormat)
+      return TextInputType.number;
+    
+    return null;
+  }
+
+  List<TextInputFormatter> _getInputFormatters(){
+    List<TextInputFormatter> listFormatters = [];
+    if(widget.isDigitOnly)
+      listFormatters.add(FilteringTextInputFormatter.digitsOnly);
+
+    if(widget.isDecimal)
+      listFormatters.add(FilteringTextInputFormatter.allow(RegExp('^\$|^(0|([1-9][0-9]{0,}))(\\.[0-9]{0,})?\$')));
+    if(widget.isMoneyFormat)
+      listFormatters.add(FilteringTextInputFormatter.allow(RegExp('^\$|^(0|([1-9][0-9,]{0,}))(\\.[0-9]{0,})?\$')));
+
+    return listFormatters;
+  }
+
+
+
+  _getPrefixText(){
+    if(widget.isMoneyFormat){
+      return _currency;
+    }
+    return null;
+  }
  
+  _converToMoneyFormat(String data){
+    // print("_converToMoneyFormat $data");
+    // data = '${_formatNumber(data.replaceAll(',', ''))}';
+    String punto = '';
+    //Si al final del string hay un punto (.) entonces le quitamos ese punto
+    //para que la funcion toCurrency no lo elimine y despues se lo anadimos al final nuevamente
+    if(data.endsWith(".")){
+      punto += ".";
+      data = data.substring(0, data.length - 1);
+    }
+    
+    // data = '${Utils.toCurrency(data.replaceAll('\$', '').replaceAll(',', ''))}$punto';
+    if(data.isNotEmpty)
+      data = '${_formatNumber(data.replaceAll(',', ''))}$punto';
+    // print("_converToMoneyFormat2 $data");
+    widget.controller.value = TextEditingValue(
+      text: data,
+      selection: TextSelection.collapsed(offset: data.length),
+    );
+  }
+
   _screen(double width){
     return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,9 +140,9 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                    enabled: widget.enabled,
                     controller: widget.controller,
                     maxLines: widget.maxLines,
-                    keyboardType: (widget.maxLines != 1) ? TextInputType.multiline : null,
                     style: TextStyle(fontSize: 15),
                       decoration: InputDecoration(
+                        prefixText: _getPrefixText(),
                         hintText: widget.hint,
                         // contentPadding: EdgeInsets.all(10),
                         isDense: true,
@@ -89,10 +151,26 @@ class _MyTextFormFieldState extends State<MyTextFormField> {
                           borderSide: new BorderSide(),
                         ),
                       ),
+                      keyboardType: _getkeyboardType(),
+                      inputFormatters: _getInputFormatters(),
+                      //  [
+                      //   // WhitelistingTextInputFormatter.digitsOnly
+                      //   FilteringTextInputFormatter.allow(RegExp('^\$|^(0|([1-9][0-9]{0,}))(\\.[0-9]{0,})?\$'))
+
+                      // ],
                       validator: (data){
                         if(data.isEmpty && widget.isRequired)
                           return "Campo requerido";
                         return null;
+                      },
+                      onChanged: (data){
+                        if(widget.onChanged != null)
+                          widget.onChanged(data);
+
+                        if(widget.isMoneyFormat){
+                         _converToMoneyFormat(data);
+                        }
+                        
                       },
                     )
                   :
