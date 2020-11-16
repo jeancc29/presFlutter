@@ -236,7 +236,7 @@ class _MySearchFieldState extends State<MySearchField> {
       this._overlayEntry = null;
     }
 
-    widget.controller.text = cliente.nombres;
+    widget.controller.text = "${cliente.nombres} ${cliente.apellidos}";
     widget.onSelected(cliente);
   }
 

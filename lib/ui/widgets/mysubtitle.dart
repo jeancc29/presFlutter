@@ -16,7 +16,7 @@ class _MySubtitleState extends State<MySubtitle> {
       children: [
         Padding(
           padding: widget.padding,
-          child: Text(widget.title, style: TextStyle(fontSize: widget.fontSize, fontWeight: FontWeight.bold),),
+          child: Text(widget.title, style: TextStyle(fontSize: widget.fontSize, fontWeight: FontWeight.bold, fontFamily: "GoogleSans"),),
         ),
       ],
     );

@@ -8,13 +8,17 @@ import 'package:prestamo/core/models/caja.dart';
 import 'package:prestamo/core/models/cliente.dart';
 import 'package:prestamo/core/models/configuracionprestamo.dart';
 import 'package:prestamo/core/models/cuenta.dart';
+import 'package:prestamo/core/models/dia.dart';
 import 'package:prestamo/core/models/garantia.dart';
 import 'package:prestamo/core/models/tipo.dart';
+import 'package:prestamo/core/services/amortizationservice.dart';
 import 'package:prestamo/core/services/loanservice.dart';
 import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
 import 'package:prestamo/ui/widgets/mybutton.dart';
 import 'package:prestamo/ui/widgets/mycheckbox.dart';
 import 'package:prestamo/ui/widgets/mydatepicker.dart';
+import 'package:prestamo/ui/widgets/mydescription.dart';
+import 'package:prestamo/ui/widgets/mydropdown.dart';
 import 'package:prestamo/ui/widgets/mydropdownbutton.dart';
 import 'package:prestamo/ui/widgets/myheader.dart';
 import 'package:prestamo/ui/widgets/myresizedcontainer.dart';
@@ -46,6 +50,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   var _focusNodeTxtCliente = FocusNode();
   var _txtMonto = TextEditingController();
   var _txtInteres = TextEditingController();
+  var _txtInteresAnual = TextEditingController();
   var _txtCuotas = TextEditingController();
   var _txtCodigo = TextEditingController();
   var _txtMora = TextEditingController();
@@ -73,9 +78,11 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   List<Garantia> listaGarantia = List();
   List<Banco> listaBanco = List();
   List<Cuenta> listaCuenta = List();
+  List<Dia> listaDia = List();
   List<Cuenta> listaCuentaFiltrada = List();
   Cliente _cliente;
   Tipo _tipoAmortizacion;
+  Tipo _dias;
   Tipo _tipoPlazo;
   Tipo _tipoGasto;
   Tipo _tipoDesembolso;
@@ -99,6 +106,13 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       setState(() => _aplicarTasaDelPrestamo = data);
     }
   }
+  _interesChanged(data){
+    print("_interesChanged ${Utils.toDouble(data.toString())}");
+     _txtInteresAnual.text = AmortizationService.convertirInteres(tipoPlazo: _tipoPlazo, interes: Utils.toDouble(data.toString())).toString();
+  }
+  _interesAnualChanged(data){
+     _txtInteres.text = AmortizationService.convertirInteres(tipoPlazo: _tipoPlazo, interes: Utils.toDouble(data.toString()), convertirAAnos: false).toString();
+  }
   _incluirEnElFinanciamientoChanged(data){
       setState(() => _incluirEnElFinanciamiento = data);
   }
@@ -112,6 +126,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       listaCaja = (parsed["cajas"] != null) ? parsed["cajas"].map<Caja>((json) => Caja.fromMap(json)).toList() : List<Caja>();
       listaBanco = (parsed["bancos"] != null) ? parsed["bancos"].map<Banco>((json) => Banco.fromMap(json)).toList() : List<Banco>();
       listaCuenta = (parsed["cuentas"] != null) ? parsed["cuentas"].map<Cuenta>((json) => Cuenta.fromMap(json)).toList() : List<Cuenta>();
+      listaDia = (parsed["dias"] != null) ? parsed["dias"].map<Dia>((json) => Dia.fromMap(json)).toList() : List<Dia>();
       _updateTab(ConfiguracionPrestamo.fromMap(parsed["configuracionPrestamo"]));
       _selectComboFirstValue();
       _streamControllerTipo.add(listaTipo);
@@ -630,7 +645,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
               //   insets: EdgeInsets.fromLTRB(50.0, 0.0, 50.0, 40.0),
               // ),
               
-              tabs: listaTab.map((e) => Tab(child: Text(e),)).toList()
+              tabs: listaTab.map((e) => Tab(child: Text(e, style: TextStyle(fontFamily: "GoogleSans")),)).toList()
               // [
               //   AbsorbPointer(
               //     absorbing: false,
@@ -739,8 +754,19 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       controller: _txtInteres,
                       hint: "% interes",
                       isRequired: true,
-                      xlarge: 3,
+                      xlarge: 4.5,
                       isDecimal: true,
+                      onChanged: _interesChanged,
+                    ),
+                    MyTextFormField(
+                      // labelText: "Cliente",
+                      title: "% interes anual *",
+                      controller: _txtInteresAnual,
+                      hint: "% interes anual",
+                      isRequired: true,
+                      xlarge: 4.5,
+                      isDecimal: true,
+                      onChanged: _interesAnualChanged,
                     ),
                     MyTextFormField(
                       // labelText: "Cliente",
@@ -748,7 +774,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       controller: _txtCuotas,
                       hint: "Cuotas",
                       isRequired: true,
-                      xlarge: 3,
+                      xlarge: 4.5,
                       isDigitOnly: true
                     ),
                     MyDatePicker(
@@ -781,6 +807,83 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       controller: _txtCodigo,
                       hint: "Codigo unico",
                       xlarge: 4,
+                    ),
+                    MyDropdown(
+                      
+                    ),
+                    Visibility(
+                      visible: _tipoPlazo.descripcion == "Diario",
+                      child: MyResizedContainer(
+                        xlarge: 3,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 8.0),
+                              child: Text("Dias excluidos"),
+                            ),
+                            InkWell(
+                              onTap: (){
+                                showModalBottomSheet(
+                                  context: context,
+                                  builder: (context){
+                                    return Container(
+                                      height: MediaQuery.of(context).size.height / 2,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
+                                        color: Colors.white,
+                                      ),
+                                      child: SingleChildScrollView(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(left: 8.0, top: 8.0, bottom: 10),
+                                              child: Text("Excluir dias al prestamo", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 25)),
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(left: 8.0, top: 8.0, bottom: 10),
+                                              child: MyDescripcon(title: "Al Excluir dias al prestamo se omitiran los dias seleccionados, y si una cuota cae en unos de esos dias omitidos entonces el sistema asigna la cuota para otro dia correspondiente."),
+                                            ),
+                                            MyResizedContainer(
+                                              xlarge: 3,
+                                              child: Column(
+                                                children: listaDia.map((e) => CheckboxListTile(
+                                                  controlAffinity: ListTileControlAffinity.leading,
+                                                  value: e.seleccionado,
+                                                  title: Text("${e.dia}"),
+                                                  onChanged: (data){
+
+                                                  },
+                                                )).toList()
+                                              ),
+                                            )
+                                          ]
+                                        ),
+                                      )
+                                    );
+                                  }
+                                );
+                              },
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.5), width: 2))
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(bottom: 2.0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text("No hay datos", style: TextStyle(fontSize: 16)),
+                                      Icon(Icons.arrow_drop_down)
+                                    ],
+                                  ),
+                                )
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
                     ),
 
                     MySubtitle(title: "Mora"),
