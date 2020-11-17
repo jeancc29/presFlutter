@@ -719,7 +719,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       hint: "Buscar cliente",
                       onSelected: (cliente){
                         if(cliente != null)
-                          _cliente = cliente;
+                          setState(() => _cliente = cliente);
                       },
                       xlarge: 3,
                     ),
@@ -728,7 +728,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       title: "Amortizacion *",
                       elements: listaTipo.where((element) => element.renglon == "amortizacion").toList().map<String>((e) => e.descripcion).toList(),
                       onChanged: (data){
-                        _tipoAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data);
+                        setState(() => _tipoAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data));
                       },
                     ),
                     MyDropdownButton(
@@ -736,7 +736,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       title: "Plazo *",
                       elements: listaTipo.where((element) => element.renglon == "plazo").toList().map<String>((e) => e.descripcion).toList(),
                       onChanged: (data){
-                        _tipoPlazo = listaTipo.firstWhere((element) => element.descripcion == data);
+                        setState(() => _tipoPlazo = listaTipo.firstWhere((element) => element.descripcion == data));
                       },
                     ),
                     MyTextFormField(
@@ -808,82 +808,13 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       hint: "Codigo unico",
                       xlarge: 4,
                     ),
-                    MyDropdown(
-                      
-                    ),
+                    
                     Visibility(
                       visible: _tipoPlazo.descripcion == "Diario",
-                      child: MyResizedContainer(
-                        xlarge: 3,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.only(bottom: 8.0),
-                              child: Text("Dias excluidos"),
-                            ),
-                            InkWell(
-                              onTap: (){
-                                showModalBottomSheet(
-                                  context: context,
-                                  builder: (context){
-                                    return Container(
-                                      height: MediaQuery.of(context).size.height / 2,
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.only(topLeft: Radius.circular(10), topRight: Radius.circular(10)),
-                                        color: Colors.white,
-                                      ),
-                                      child: SingleChildScrollView(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.only(left: 8.0, top: 8.0, bottom: 10),
-                                              child: Text("Excluir dias al prestamo", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 25)),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(left: 8.0, top: 8.0, bottom: 10),
-                                              child: MyDescripcon(title: "Al Excluir dias al prestamo se omitiran los dias seleccionados, y si una cuota cae en unos de esos dias omitidos entonces el sistema asigna la cuota para otro dia correspondiente."),
-                                            ),
-                                            MyResizedContainer(
-                                              xlarge: 3,
-                                              child: Column(
-                                                children: listaDia.map((e) => CheckboxListTile(
-                                                  controlAffinity: ListTileControlAffinity.leading,
-                                                  value: e.seleccionado,
-                                                  title: Text("${e.dia}"),
-                                                  onChanged: (data){
-
-                                                  },
-                                                )).toList()
-                                              ),
-                                            )
-                                          ]
-                                        ),
-                                      )
-                                    );
-                                  }
-                                );
-                              },
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border(bottom: BorderSide(color: Colors.grey.withOpacity(0.5), width: 2))
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.only(bottom: 2.0),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text("No hay datos", style: TextStyle(fontSize: 16)),
-                                      Icon(Icons.arrow_drop_down)
-                                    ],
-                                  ),
-                                )
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
+                      child: MyDropdown(
+                        title: "Ultimos 30 dias",
+                        onTap: _showModalSheetDiasExcluidos,
+                      ),
                     ),
 
                     MySubtitle(title: "Mora"),
@@ -1355,6 +1286,66 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       setState(() => _tabController = TabController(length: listaTab.length, vsync: this));
   }
 
+
+  _showModalSheetDiasExcluidos(){
+    showModalBottomSheet(
+      context: context,
+      shape:  RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(20),
+              ),
+            ),
+            clipBehavior: Clip.antiAliasWithSaveLayer,
+      builder: (context){
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return Container(
+              // height: MediaQuery.of(context).size.height,
+              color: Colors.white,
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15.0, right: 15.0, top: 15.0, bottom: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text("Excluir dias al prestamo", style: TextStyle(fontWeight: FontWeight.w600, fontSize: 25)),
+                          IconButton(
+                            icon: Icon(Icons.clear),
+                            onPressed: (){
+                              Navigator.pop(context);
+                            },
+                          )
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15.0, top: 8.0, bottom: 10),
+                      child: MyDescripcon(title: "Al Excluir dias al prestamo se omitiran los dias seleccionados, y si una cuota cae en unos de esos dias omitidos entonces el sistema asigna la cuota para otro dia correspondiente."),
+                    ),
+                    Column(
+                      children: listaDia.map((e) => CheckboxListTile(
+                        controlAffinity: ListTileControlAffinity.leading,
+                        value: e.seleccionado,
+                        title: Text("${e.dia}"),
+                        
+                        onChanged: (data){
+                          setState(() => e.seleccionado = data);
+                        },
+                      )).toList()
+                    )
+                  ]
+                ),
+              )
+            );
+          }
+        );
+      }
+    );
+                              
+  }
   @override
   Widget build(BuildContext context) {
     return myScaffold(

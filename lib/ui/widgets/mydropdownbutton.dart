@@ -130,7 +130,7 @@ class _MyDropdownButtonState extends State<MyDropdownButton> {
             children: [
               Visibility(
                 visible: widget.title != "",
-                child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15),)
+                child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15, fontFamily: "GoogleSans"),)
               ),
               Container(
                   width: getWidth(boxconstraints.maxWidth) - (widget.padding.left + widget.padding.right),
@@ -143,7 +143,7 @@ class _MyDropdownButtonState extends State<MyDropdownButton> {
                     disabledHint: Text("${widget.elements[_index]}"),
                     isExpanded: true, 
                     
-                    items: widget.elements.map<DropdownMenuItem>((e) => DropdownMenuItem(child: Text(e), value: e,)).toList(), 
+                    items: widget.elements.map<DropdownMenuItem>((e) => DropdownMenuItem(child: Text(e, style: TextStyle(fontFamily: "GoogleSans")), value: e,)).toList(), 
                     onChanged: (!widget.enabled) ? null : (data){
                       widget.onChanged(data);
                       int idx = widget.elements.indexWhere((element) => element == data);

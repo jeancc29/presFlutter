@@ -124,7 +124,7 @@ String get _currency => NumberFormat.simpleCurrency(locale: _locale, decimalDigi
     return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Visibility(visible: widget.title != "",child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15),)),
+              Visibility(visible: widget.title != "",child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15, fontFamily: "GoogleSans"))),
               Container(
                 // color: Colors.red,
                 // decoration: BoxDecoration(

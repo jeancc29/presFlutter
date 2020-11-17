@@ -106,9 +106,9 @@ flutter:
         - asset: fonts/ProductSans-Regular.ttf
           weight: 400
         - asset: fonts/ProductSans-Medium.ttf
-          weight: 600
+          weight: 500
         - asset: fonts/ProductSans-MediumItalic.ttf
-          weight: 600
+          weight: 500
           style: italic
     - family: OpenSans
       fonts:

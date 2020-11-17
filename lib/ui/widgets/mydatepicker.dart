@@ -64,7 +64,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(widget.title, textAlign: TextAlign.start,),
+              Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontFamily: "GoogleSans")),
               SizedBox(
                 width: getWidth(boxconstraints.maxWidth) - (widget.padding * 2),
                 // height: 30,
@@ -73,7 +73,7 @@ class _MyDatePickerState extends State<MyDatePicker> {
                   padding: EdgeInsets.only(top: 15, bottom: 15),
                   color: Colors.transparent, 
                   shape: RoundedRectangleBorder(side: BorderSide(color: Colors.grey, width: 1)),
-                  child: Text("${fecha.year}-${fecha.month}-${fecha.day}", style: TextStyle(fontSize: 16)),
+                  child: Text("${fecha.year}-${fecha.month}-${fecha.day}", style: TextStyle(fontSize: 16, fontFamily: "GoogleSans")),
                   onPressed: () async {
                     DateTime f = await showDatePicker(initialEntryMode: widget.initialEntryMode, context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2100));
                     widget.onDateTimeChanged((f != null) ? f : fecha);

@@ -22,7 +22,7 @@ class _MyExpansionTileState extends State<MyExpansionTile> {
           padding: const EdgeInsets.only(left: 15.0),
           child: Icon(widget.icon,),
         ),
-        title: Text(widget.title, style: TextStyle(fontFamily: "GoogleSans", fontSize: 13.3, fontWeight: FontWeight.w600 )),
+        title: Text(widget.title, style: TextStyle(fontFamily: "GoogleSans", fontSize: 14.3, fontWeight: FontWeight.w500 )),
         children: widget.listaMylisttile,
       ),
     );
