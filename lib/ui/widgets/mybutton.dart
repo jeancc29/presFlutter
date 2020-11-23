@@ -11,7 +11,7 @@ myButton({@required function, @required String text, Color color, Color letterCo
         color: (color == null) ? Utils.colorPrimaryBlue : color,
         borderRadius: BorderRadius.circular(5)
       ),
-      child: Text(text, style: TextStyle(color: (letterColor != null) ? letterColor : Colors.white, fontFamily: "Roboto", fontWeight: FontWeight.w600),)
+      child: Text(text, style: TextStyle(color: (letterColor != null) ? letterColor : Colors.white, fontFamily: "GoogleSans", fontWeight: FontWeight.w600),)
     )
   );
 }

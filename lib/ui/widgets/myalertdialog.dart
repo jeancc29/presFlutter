@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prestamo/core/classes/screensize.dart';
+import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/ui/widgets/mybutton.dart';
 
 
@@ -75,7 +76,7 @@ class _MyAlertDialogState extends State<MyAlertDialog> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(widget.title, style: TextStyle(fontSize: 18, color: Colors.black,fontWeight: FontWeight.w600)),
+                  Text(widget.title, style: TextStyle(fontFamily: "GoogleSans",fontSize: 18, color: Colors.black,fontWeight: FontWeight.w600)),
                   Align(
                     alignment: Alignment.topRight,
                     child: IconButton(
@@ -99,7 +100,7 @@ class _MyAlertDialogState extends State<MyAlertDialog> {
                  
                        Padding(
                         padding: const EdgeInsets.only(top: 3.0, bottom: 14, right: 3.0),
-                        child: Text((widget.description != null) ? widget.description : "", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black.withOpacity(0.65),),),
+                        child: Text((widget.description != null) ? widget.description : "", style: TextStyle(fontFamily: "GoogleSans", fontSize: 14, fontWeight: FontWeight.w400, color: Utils.fromHex("#5f6368"), letterSpacing: 0.5),),
                       ),
                       (widget.content != null) ? widget.content : SizedBox(),
                       

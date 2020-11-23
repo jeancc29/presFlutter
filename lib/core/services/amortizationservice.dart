@@ -59,6 +59,12 @@ class AmortizationService{
         else
           interesARetornarl = interes / 4;
         break;
+      case "Semestral":
+        if(convertirAAnos)
+          interesARetornarl = interes * 2;
+        else
+          interesARetornarl = interes / 2;
+        break;
       default:
         if(convertirAAnos)
           interesARetornarl = interes * 12;

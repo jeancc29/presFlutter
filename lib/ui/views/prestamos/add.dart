@@ -14,6 +14,7 @@ import 'package:prestamo/core/models/tipo.dart';
 import 'package:prestamo/core/services/amortizationservice.dart';
 import 'package:prestamo/core/services/loanservice.dart';
 import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
+import 'package:prestamo/ui/widgets/myalertdialog.dart';
 import 'package:prestamo/ui/widgets/mybutton.dart';
 import 'package:prestamo/ui/widgets/mycheckbox.dart';
 import 'package:prestamo/ui/widgets/mydatepicker.dart';
@@ -72,6 +73,12 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
    var _txtMontoBruto = TextEditingController();
   var _txtMontoNeto = TextEditingController();
 
+  var _txtMontoAmortizacion = TextEditingController();
+  var _txtInteresAmortizacion = TextEditingController();
+  var _txtInteresAnualAmortizacion = TextEditingController();
+  var _txtNumeroCuotaAmortizacion = TextEditingController();
+  var _txtMontoCuotaAmortizacion = TextEditingController();
+
   bool _cargando = false;
   List<Tipo> listaTipo;
   List<Caja> listaCaja;
@@ -89,15 +96,103 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   Tipo _tipoGarantia;
   Tipo _tipoCondicionGarantia;
   Tipo _tipoTipoVehiculoGarantia;
+  Tipo _tipoPlazoAmortizacion;
   Caja _caja;
   Cuenta _cuenta;
   Banco _banco;
   Banco _bancoDestino;
   var _fecha = DateTime.now();
   var _fechaPrimerPago = DateTime.now();
+  var _fechaPrimerPagoAmortizacion = DateTime.now();
   
   _create(){
 
+  }
+
+  
+
+  _showDialogAmortizacion(){
+    showDialog(
+      context: context,
+      builder: (context){
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return MyAlertDialog(
+              title: "Amortizar", 
+              description: "Determine la amortizacion para obtener un desglose detallado de los cuotas, interes y capital a pagar.",
+              content: Wrap(
+                children: [
+                  MyTextFormField(
+                    controller: _txtMontoAmortizacion,
+                    title: "Monto *",
+                    hint: "Monto",
+                    isMoneyFormat: true,
+                    medium: 3,
+                  ),
+                  MyTextFormField(
+                    controller: _txtNumeroCuotaAmortizacion,
+                    title: "# cuotas *",
+                    hint: "# cuotas",
+                    isDigitOnly: true,
+                    medium: 5,
+                  ),
+                   MyTextFormField(
+                    controller: _txtInteresAmortizacion,
+                    title: "Interes ${_tipoPlazoAmortizacion != null ? _tipoPlazoAmortizacion.descripcion : ''}*",
+                    hint: "Interes",
+                    isDecimal: true,
+                    onChanged: _interesAmortizacionChanged,
+                    medium: 5,
+                  ),
+                  MyTextFormField(
+                    // labelText: "Cliente",
+                    title: "% interes anual *",
+                    controller: _txtInteresAnualAmortizacion,
+                    hint: "% interes anual",
+                    isRequired: true,
+                    xlarge: 4.5,
+                    isDecimal: true,
+                    onChanged: _interesAnualAmortizacionChanged,
+                    medium: 5,
+                  ),
+                  MyDropdownButton(
+                    xlarge: 2,
+                    medium: 3,
+                    title: "Plazo *",
+                    elements: listaTipo.where((element) => element.renglon == "plazo").toList().map<String>((e) => e.descripcion).toList(),
+                    onChanged: (data){
+                      setState((){
+                        _tipoPlazoAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data);
+                        _interesAnualAmortizacionChanged(_txtInteresAnualAmortizacion.text);
+                        _interesAmortizacionChanged(_txtInteresAmortizacion.text);
+                      });
+                    },
+                  ),
+                  MyDatePicker(
+                      title: "Fecha primer pago",
+                      initialEntryMode: DatePickerEntryMode.calendar,
+                      onDateTimeChanged: (data){
+                        _fechaPrimerPagoAmortizacion = data;
+                      },
+                      medium: 3,
+                    ),
+                  MyTextFormField(
+                    xlarge: 2,
+                    medium: 1,
+                    controller: _txtMontoCuotaAmortizacion,
+                    title: "Monto cuota *",
+                    hint: "Monto cuota",
+                    isMoneyFormat: true,
+                    info: "Si no sabe que interes usar entonces llene este campo con el monto a pagar por cada cuota y el sistema calculara el interes automaticamente.",
+                  ),
+                ],
+              ), 
+              okFunction: null
+            );
+          }
+        );
+      }
+    );
   }
 
   _aplicarTasaDelPrestamoChanged(data){
@@ -113,6 +208,17 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   _interesAnualChanged(data){
      _txtInteres.text = AmortizationService.convertirInteres(tipoPlazo: _tipoPlazo, interes: Utils.toDouble(data.toString()), convertirAAnos: false).toString();
   }
+
+  _interesAmortizacionChanged(data){
+    print("_interesChanged ${Utils.toDouble(data.toString())}");
+     String interes = AmortizationService.convertirInteres(tipoPlazo: _tipoPlazoAmortizacion, interes: Utils.toDouble(data.toString())).toString();
+     _txtInteresAnualAmortizacion.text = (interes != "0") ? interes : "";
+  }
+  _interesAnualAmortizacionChanged(data){
+    String interes = AmortizationService.convertirInteres(tipoPlazo: _tipoPlazoAmortizacion, interes: Utils.toDouble(data.toString()), convertirAAnos: false).toString();
+     _txtInteresAmortizacion.text = (interes != "0") ? interes : "";
+  }
+
   _incluirEnElFinanciamientoChanged(data){
       setState(() => _incluirEnElFinanciamiento = data);
   }
@@ -169,6 +275,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     }
     if(listaPlazo.length > 0){
       _tipoPlazo = listaPlazo[0];
+      _tipoPlazoAmortizacion = listaPlazo[0];
     }
     if(listaAmortizacion.length > 0){
       _tipoAmortizacion = listaAmortizacion[0];
@@ -1353,7 +1460,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       cargando: _cargando,
       prestamos: true,
       body: [
-        MyHeader(title: "Prestamo", subtitle: "Agregue todos los prestamos con sus respectivas garantias, garantes y cobradores.", function: _create, actionFuncion: "en proceso...",),
+        MyHeader(title: "Prestamo", subtitle: "Agregue todos los prestamos con sus respectivas garantias, garantes y cobradores.", function: _create, actionFuncion: "en proceso...", function2: _showDialogAmortizacion, actionFuncion2: "AMORTIZACION",),
          
         Expanded(
           child: StreamBuilder(
