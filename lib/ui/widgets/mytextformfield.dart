@@ -80,14 +80,16 @@ String get _currency => NumberFormat.simpleCurrency(locale: _locale, decimalDigi
 
   List<TextInputFormatter> _getInputFormatters(){
     List<TextInputFormatter> listFormatters = [];
-    if(widget.isDigitOnly)
-      listFormatters.add(FilteringTextInputFormatter.digitsOnly);
+    // if(widget.isDigitOnly)
+    //   listFormatters.add(FilteringTextInputFormatter.digitsOnly);
 
-    if(widget.isDecimal)
-      listFormatters.add(FilteringTextInputFormatter.allow(RegExp('^\$|^(0|([1-9][0-9]{0,}))(\\.[0-9]{0,})?\$')));
+    // if(widget.isDecimal)
+    //   listFormatters.add(FilteringTextInputFormatter.allow(RegExp('^\$|^(0|([1-9][0-9]{0,}))(\\.[0-9]{0,})?\$')));
+    // if(widget.isMoneyFormat)
+    //   listFormatters.add(FilteringTextInputFormatter.allow(RegExp('^\$|^(0|([1-9,?][0-9,?]{0,}))(\\.[0-9]{0,})?\$')));
+
     if(widget.isMoneyFormat)
-      listFormatters.add(FilteringTextInputFormatter.allow(RegExp('^\$|^(0|([1-9][0-9,]{0,}))(\\.[0-9]{0,})?\$')));
-
+      listFormatters.add(CustomTextInputFormatter());
     return listFormatters;
   }
 
@@ -112,12 +114,16 @@ String get _currency => NumberFormat.simpleCurrency(locale: _locale, decimalDigi
     }
     
     // data = '${Utils.toCurrency(data.replaceAll('\$', '').replaceAll(',', ''))}$punto';
+    // print("_converToMoneyFormat2 before $data text: ${widget.controller.text}");
+
     if(data.isNotEmpty)
       data = '${_formatNumber(data.replaceAll(',', ''))}$punto';
-    // print("_converToMoneyFormat2 $data");
+    // print("_converToMoneyFormat2 $data text: ${widget.controller.text}");
+    // widget.controller.text = data;
     widget.controller.value = TextEditingValue(
+      // text: data.isNotEmpty ? data.replaceAll(',', '') : data,
       text: data,
-      selection: TextSelection.collapsed(offset: data.length),
+      selection: TextSelection.collapsed(offset: data.length, ),
     );
   }
 
@@ -150,12 +156,16 @@ String get _currency => NumberFormat.simpleCurrency(locale: _locale, decimalDigi
           return null;
         },
         onChanged: (data){
-          if(widget.onChanged != null)
-            widget.onChanged(data);
+    // print("_converToMoneyFormat2 $data");
+
+          
 
           if(widget.isMoneyFormat){
             _converToMoneyFormat(data);
           }
+
+          if(widget.onChanged != null)
+            widget.onChanged(data);
           
         },
       );
@@ -220,5 +230,41 @@ String get _currency => NumberFormat.simpleCurrency(locale: _locale, decimalDigi
         );
       }
     );
+  }
+}
+
+class CustomTextInputFormatter extends TextInputFormatter {
+  toMoney(String data){
+    const _locale = 'en';
+  // String _formatNumber(String s) => NumberFormat.decimalPattern(_locale).format(int.parse(s));
+    String _formatNumber(String s) => NumberFormat.decimalPattern(_locale).format(Utils.toDouble(s));
+    return _formatNumber(data.replaceAll(',', ''));
+  }
+  @override
+  TextEditingValue formatEditUpdate(
+      TextEditingValue oldValue, TextEditingValue newValue) {
+    if (newValue.text.length == 0) {
+      return newValue.copyWith(text: '');
+    } else if (newValue.text.compareTo(oldValue.text) != 0) {
+      // int selectionIndexFromTheRight =
+      //     newValue.text.length - newValue.selection.extentOffset;
+      // List<String> chars = newValue.text.replaceAll(' ', '').split('');
+      // String newString = '';
+      // for (int i = 0; i < chars.length; i++) {
+      //   if (i % 3 == 0 && i != 0) newString += ' ';
+      //   newString += chars[i];
+      // }
+      // newString = newString.replaceAll(' ', ',');
+      // print("newValue: ${newValue.text}");
+      String newString = '${(!newValue.text.endsWith(".")) ? toMoney(newValue.text) : newValue.text}';
+      return TextEditingValue(
+        text: newString,
+        selection: TextSelection.collapsed(
+          offset: newString.length,
+        ),
+      );
+    } else {
+      return newValue;
+    }
   }
 }

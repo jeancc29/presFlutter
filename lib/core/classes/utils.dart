@@ -127,6 +127,8 @@ class  Utils {
 
   static toDouble(String caracter){
     try {
+      if(caracter.length > 0)
+        caracter = caracter.replaceAll(",", '');
        return double.parse(caracter);
     } catch (e) {
       return 0.0;

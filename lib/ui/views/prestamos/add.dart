@@ -96,6 +96,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   Tipo _tipoGarantia;
   Tipo _tipoCondicionGarantia;
   Tipo _tipoTipoVehiculoGarantia;
+  Tipo _tipoAmortizacionAmortizacion;
   Tipo _tipoPlazoAmortizacion;
   Caja _caja;
   Cuenta _cuenta;
@@ -117,47 +118,26 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       builder: (context){
         return StatefulBuilder(
           builder: (context, setState) {
+            _calcularAmortizacion(){
+              AmortizationService.amortizacionFrances(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), cuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion);
+            }
             return MyAlertDialog(
               title: "Amortizar", 
               description: "Determine la amortizacion para obtener un desglose detallado de los cuotas, interes y capital a pagar.",
               content: Wrap(
                 children: [
-                  MyTextFormField(
-                    controller: _txtMontoAmortizacion,
-                    title: "Monto *",
-                    hint: "Monto",
-                    isMoneyFormat: true,
-                    medium: 3,
-                  ),
-                  MyTextFormField(
-                    controller: _txtNumeroCuotaAmortizacion,
-                    title: "# cuotas *",
-                    hint: "# cuotas",
-                    isDigitOnly: true,
-                    medium: 5,
-                  ),
-                   MyTextFormField(
-                    controller: _txtInteresAmortizacion,
-                    title: "Interes ${_tipoPlazoAmortizacion != null ? _tipoPlazoAmortizacion.descripcion : ''}*",
-                    hint: "Interes",
-                    isDecimal: true,
-                    onChanged: _interesAmortizacionChanged,
-                    medium: 5,
-                  ),
-                  MyTextFormField(
-                    // labelText: "Cliente",
-                    title: "% interes anual *",
-                    controller: _txtInteresAnualAmortizacion,
-                    hint: "% interes anual",
-                    isRequired: true,
-                    xlarge: 4.5,
-                    isDecimal: true,
-                    onChanged: _interesAnualAmortizacionChanged,
-                    medium: 5,
-                  ),
                   MyDropdownButton(
+                      xlarge: 3,
+                      medium: 2,
+                      title: "Amortizacion *",
+                      elements: listaTipo.where((element) => element.renglon == "amortizacion").toList().map<String>((e) => e.descripcion).toList(),
+                      onChanged: (data){
+                        setState(() => _tipoAmortizacionAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data));
+                      },
+                    ),
+                    MyDropdownButton(
                     xlarge: 2,
-                    medium: 3,
+                    medium: 2,
                     title: "Plazo *",
                     elements: listaTipo.where((element) => element.renglon == "plazo").toList().map<String>((e) => e.descripcion).toList(),
                     onChanged: (data){
@@ -168,6 +148,44 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       });
                     },
                   ),
+                  MyTextFormField(
+                    controller: _txtMontoAmortizacion,
+                    title: "Monto *",
+                    hint: "Monto",
+                    isMoneyFormat: true,
+                    medium: 2,
+                    onChanged: (data){
+                      print("Monto change1: ${_txtMontoAmortizacion.text}");
+                    },
+                  ),
+                  MyTextFormField(
+                    controller: _txtNumeroCuotaAmortizacion,
+                    title: "# cuotas *",
+                    hint: "# cuotas",
+                    isDigitOnly: true,
+                    medium: 2,
+                  ),
+                  
+                   MyTextFormField(
+                    controller: _txtInteresAmortizacion,
+                    title: "Interes ${_tipoPlazoAmortizacion != null ? _tipoPlazoAmortizacion.descripcion : ''}*",
+                    hint: "Interes",
+                    isDecimal: true,
+                    onChanged: _interesAmortizacionChanged,
+                    medium: 3,
+                  ),
+                  MyTextFormField(
+                    // labelText: "Cliente",
+                    title: "% interes anual *",
+                    controller: _txtInteresAnualAmortizacion,
+                    hint: "% interes anual",
+                    isRequired: true,
+                    xlarge: 4.5,
+                    isDecimal: true,
+                    onChanged: _interesAnualAmortizacionChanged,
+                    medium: 3,
+                  ),
+                  
                   MyDatePicker(
                       title: "Fecha primer pago",
                       initialEntryMode: DatePickerEntryMode.calendar,
@@ -185,9 +203,10 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                     isMoneyFormat: true,
                     info: "Si no sabe que interes usar entonces llene este campo con el monto a pagar por cada cuota y el sistema calculara el interes automaticamente.",
                   ),
+
                 ],
               ), 
-              okFunction: null
+              okFunction: _calcularAmortizacion
             );
           }
         );
