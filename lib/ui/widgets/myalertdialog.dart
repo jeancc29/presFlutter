@@ -89,82 +89,142 @@ class _MyAlertDialogState extends State<MyAlertDialog> {
                 ],
               )
               ,
-              content: SingleChildScrollView(
-                child: Container(
-                  // padding: EdgeInsets.only(bottom: 20),
-                  // width: MediaQuery.of(context).size.width / 2.5,
-                  width: getWidth(width),
-                  child: Wrap(
-                    children: [
-                      
-                 
-                       Padding(
-                        padding: const EdgeInsets.only(top: 3.0, bottom: 14, right: 3.0),
-                        child: Text((widget.description != null) ? widget.description : "", style: TextStyle(fontFamily: "GoogleSans", fontSize: 14, fontWeight: FontWeight.w400, color: Utils.fromHex("#5f6368"), letterSpacing: 0.5),),
-                      ),
-                      (widget.content != null) ? widget.content : SizedBox(),
-                      
-                      Padding(
-                        padding: const EdgeInsets.only(top: 18.0),
-                        child: Row(
-                          // mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            Visibility(
-                              visible: widget.cargando,
-                              child: Align(
-                                alignment: Alignment.topLeft,
-                                child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator()),
-                              ),
+              content: Container(
+                // padding: EdgeInsets.only(bottom: 20),
+                // width: MediaQuery.of(context).size.width / 2.5,
+                width: getWidth(width),
+                child: Wrap(
+                  children: [
+                    
+               
+                     Padding(
+                      padding: const EdgeInsets.only(top: 3.0, bottom: 14, right: 3.0),
+                      child: Text((widget.description != null) ? widget.description : "", style: TextStyle(fontFamily: "GoogleSans", fontSize: 14, fontWeight: FontWeight.w400, color: Utils.fromHex("#5f6368"), letterSpacing: 0.5),),
+                    ),
+                    (widget.content != null) ? SingleChildScrollView(child: widget.content) : SizedBox(),
+                    
+                    Padding(
+                      padding: const EdgeInsets.only(top: 18.0),
+                      child: Row(
+                        // mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Visibility(
+                            visible: widget.cargando,
+                            child: Align(
+                              alignment: Alignment.topLeft,
+                              child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator()),
                             ),
-                            Expanded(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.only(bottom: 10.0),
-                                    child: FlatButton(child: Text("Cancelar", style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold)), onPressed: (){Navigator.pop(context);}),
-                                  ),
-                                // FlatButton(child: Text("Agregar", style: TextStyle(color: Utils.colorPrimaryBlue)), onPressed: () => _retornarReferencia(referencia: Referencia(nombre: _txtNombre.text, telefono: _txtTelefono.text, tipo: _tipo, parentesco: _parentesco)),),
-                                  Visibility(
-                                    visible: !widget.isDeleteDialog,
-                                    child: Padding(
-                                      padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
-                                      child: AbsorbPointer(
-                                        absorbing: widget.cargando,
-                                        child:  myButton(
-                                        text: "Ok",
-                                        function: widget.okFunction, 
-                                        color: (widget.cargando) ? Colors.grey[300] : null,
-                                        letterColor: (widget.cargando) ? Colors.grey : null,
-                                      ),
-                                      )
+                          ),
+                          Expanded(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 10.0),
+                                  child: FlatButton(child: Text("Cancelar", style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold)), onPressed: (){Navigator.pop(context);}),
+                                ),
+                              // FlatButton(child: Text("Agregar", style: TextStyle(color: Utils.colorPrimaryBlue)), onPressed: () => _retornarReferencia(referencia: Referencia(nombre: _txtNombre.text, telefono: _txtTelefono.text, tipo: _tipo, parentesco: _parentesco)),),
+                                Visibility(
+                                  visible: !widget.isDeleteDialog,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
+                                    child: AbsorbPointer(
+                                      absorbing: widget.cargando,
+                                      child:  myButton(
+                                      text: "Ok",
+                                      function: widget.okFunction, 
+                                      color: (widget.cargando) ? Colors.grey[300] : null,
+                                      letterColor: (widget.cargando) ? Colors.grey : null,
                                     ),
+                                    )
                                   ),
-                                  Visibility(
-                                    visible: widget.isDeleteDialog,
-                                    child: Padding(
-                                      padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
-                                      child: AbsorbPointer(
-                                        absorbing: widget.cargando,
-                                        child:  FlatButton(
-                                        child: Text(widget.deleteDescripcion, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: (widget.cargando) ? Colors.grey : Colors.red)),
-                                        onPressed: widget.okFunction, 
-                                        // color: (widget.cargando) ? Colors.grey[300] : null,
-                                      ),
-                                      )
+                                ),
+                                Visibility(
+                                  visible: widget.isDeleteDialog,
+                                  child: Padding(
+                                    padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
+                                    child: AbsorbPointer(
+                                      absorbing: widget.cargando,
+                                      child:  FlatButton(
+                                      child: Text(widget.deleteDescripcion, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: (widget.cargando) ? Colors.grey : Colors.red)),
+                                      onPressed: widget.okFunction, 
+                                      // color: (widget.cargando) ? Colors.grey[300] : null,
                                     ),
+                                    )
                                   ),
-                                ],
-                              )
+                                ),
+                              ],
                             )
+                          )
             
-                          ],
-                        ),
-                      )
-                    ],
-                  )
-                ),
+                        ],
+                      ),
+                    )
+                  
+                  ],
+                )
               ),
+              // actions: [
+              //   Container(
+              //     // padding: EdgeInsets.only(right: 6.0),
+              //     width: getWidth(width),
+              //     child: Row(
+              //               // mainAxisAlignment: MainAxisAlignment.end,
+              //               children: [
+              //                 Visibility(
+              //                   visible: widget.cargando,
+              //                   child: Align(
+              //                     alignment: Alignment.topLeft,
+              //                     child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator()),
+              //                   ),
+              //                 ),
+              //                 Expanded(
+              //                   child: Row(
+              //                     mainAxisAlignment: MainAxisAlignment.end,
+              //                     children: [
+              //                       Padding(
+              //                         padding: const EdgeInsets.only(bottom: 10.0),
+              //                         child: FlatButton(child: Text("Cancelar", style: TextStyle(color: Colors.black54, fontWeight: FontWeight.bold)), onPressed: (){Navigator.pop(context);}),
+              //                       ),
+              //                     // FlatButton(child: Text("Agregar", style: TextStyle(color: Utils.colorPrimaryBlue)), onPressed: () => _retornarReferencia(referencia: Referencia(nombre: _txtNombre.text, telefono: _txtTelefono.text, tipo: _tipo, parentesco: _parentesco)),),
+              //                       Visibility(
+              //                         visible: !widget.isDeleteDialog,
+              //                         child: Padding(
+              //                           padding: EdgeInsets.only(bottom: 10, left: 20, right: 20),
+              //                           child: AbsorbPointer(
+              //                             absorbing: widget.cargando,
+              //                             child:  myButton(
+              //                             text: "Ok",
+              //                             function: widget.okFunction, 
+              //                             color: (widget.cargando) ? Colors.grey[300] : null,
+              //                             letterColor: (widget.cargando) ? Colors.grey : null,
+              //                           ),
+              //                           )
+              //                         ),
+              //                       ),
+              //                       Visibility(
+              //                         visible: widget.isDeleteDialog,
+              //                         child: Padding(
+              //                           padding: EdgeInsets.only(bottom: 10, left: 10, right: 10),
+              //                           child: AbsorbPointer(
+              //                             absorbing: widget.cargando,
+              //                             child:  FlatButton(
+              //                             child: Text(widget.deleteDescripcion, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: (widget.cargando) ? Colors.grey : Colors.red)),
+              //                             onPressed: widget.okFunction, 
+              //                             // color: (widget.cargando) ? Colors.grey[300] : null,
+              //                           ),
+              //                           )
+              //                         ),
+              //                       ),
+              //                     ],
+              //                   )
+              //                 )
+            
+              //               ],
+              //             ),
+              //   ),
+              // ],
+
             //   actions: [
             //     Visibility(
             //       visible: widget.cargando,

@@ -14,8 +14,8 @@ class _MyTableState extends State<MyTable> {
   Widget build(BuildContext context) {
     return Container(
       child: DataTable(
-        columns: widget.columns.map((e) => DataColumn(label: Text(e, style: TextStyle(fontFamily: "GoogleSans")))),
-        rows: widget.rows.map((row) => DataRow(cells: row.map((string) => DataCell(Text(string, style: TextStyle(fontFamily: "GoogleSans")))))),
+        columns: widget.columns.map((e) => DataColumn(label: Text(e, style: TextStyle(fontFamily: "GoogleSans"), textAlign: TextAlign.center,))).toList(),
+        rows: widget.rows.map((row) => DataRow(cells: row.map((string) => DataCell(Text(string, style: TextStyle(fontFamily: "GoogleSans"), textAlign: TextAlign.center,))).toList() )).toList(),
       )
     );
   }

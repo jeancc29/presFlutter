@@ -15,9 +15,10 @@ class Amortizacion {
   int idTipo;
   Tipo tipo;
   int idPrestamo;
+  DateTime fecha;
   
 
-  Amortizacion({this.id, this.cuota, this.interes, this.capital, this.capitalRestante, this.capitalSaldado, this.interesSaldado, this.idTipo, this.tipo, this.idPrestamo});
+  Amortizacion({this.id, this.cuota, this.interes, this.capital, this.capitalRestante, this.capitalSaldado, this.interesSaldado, this.idTipo, this.tipo, this.idPrestamo, this.fecha});
 
   Amortizacion.fromMap(Map snapshot) :
         id = snapshot['id'] ?? 0,
@@ -30,6 +31,7 @@ class Amortizacion {
         idTipo = snapshot['idTipo'] ?? 0,
         idPrestamo = snapshot['idPrestamo'] ?? 0,
         tipo = (snapshot['tipo'] != null) ? Tipo.fromMap(snapshot['tipo']) : null
+        fecha = DateTime.parse(snapshot['fecha']) ?? null
         ;
 
 
@@ -46,7 +48,8 @@ class Amortizacion {
       "interesSaldado": interesSaldado,
       "idTipo": idTipo,
       "tipo": tipo,
-      "idPrestamo": idPrestamo,
+      "idPrestamo": idPrestamo, 
+      "fecha": fecha.toString(), 
     };
   }
 }

@@ -135,6 +135,10 @@ class  Utils {
     }
   }
 
+  static double redondear(numero, [decimales = 2]){
+    return double.parse((numero).toStringAsFixed(decimales));
+  }
+
   static toInt(String caracter){
     try {
        return int.parse(caracter);

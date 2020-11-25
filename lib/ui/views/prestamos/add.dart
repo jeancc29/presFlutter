@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
+import 'package:prestamo/core/models/amortizacion.dart';
 import 'package:prestamo/core/models/banco.dart';
 import 'package:prestamo/core/models/caja.dart';
 import 'package:prestamo/core/models/cliente.dart';
@@ -25,9 +26,11 @@ import 'package:prestamo/ui/widgets/myheader.dart';
 import 'package:prestamo/ui/widgets/myresizedcontainer.dart';
 import 'package:prestamo/ui/widgets/myscaffold.dart';
 import 'package:prestamo/ui/widgets/mysearch.dart';
+import 'package:prestamo/ui/widgets/mybottomsheet.dart';
 import 'package:prestamo/ui/widgets/mysidedropdownbutton.dart';
 import 'package:prestamo/ui/widgets/mysidetextformfield.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
+import 'package:prestamo/ui/widgets/mytable.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -40,6 +43,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   var _tabController;
   List<String> listaTab = ["Prestamo", "Garante y cobrador", "Gasto", "Garantia", "Desembolso"];
   ScrollController _scrollController;
+  ScrollController _scrollControllerCulo;
   ScrollController _scrollControllerGarante;
   ScrollController _scrollControllerGastos;
   ScrollController _scrollControllerDesembolso;
@@ -110,16 +114,166 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
 
   }
 
-  
+  _showModalBottomSheetAmortizacion(){
+    List<Amortizacion> listaAmortizacion = List();
+    
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape:  RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+      ),
+      builder: (context){
+        return StatefulBuilder(
+          builder: (context, setState) {
+            _calcularAmortizacion(){
+              setState(() => listaAmortizacion = AmortizationService.amortizacionFrances(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion));
+            }
+            return MyBottomSheet(
+            height: 1.13,
+            description: "Determine la amortizacion para obtener un desglose detallado de los cuotas, interes y capital a pagar.", 
+            okFunctionDescription: "Calcular",
+            okFunction: _calcularAmortizacion,
+            content: StatefulBuilder(
+              builder: (context, setState) {
+
+                return Center(
+                  child: MyResizedContainer(
+                    xlarge: 1.1,
+                    child: Wrap(
+                      children: [
+                        MyDropdownButton(
+                          xlarge: 2,
+                          medium: 2,
+                          title: "Amortizacion *",
+                          elements: listaTipo.where((element) => element.renglon == "amortizacion").toList().map<String>((e) => e.descripcion).toList(),
+                          onChanged: (data){
+                            setState(() => _tipoAmortizacionAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data));
+                          },
+                        ),
+                        MyDropdownButton(
+                        xlarge: 2,
+                        medium: 2,
+                        title: "Plazo *",
+                        elements: listaTipo.where((element) => element.renglon == "plazo").toList().map<String>((e) => e.descripcion).toList(),
+                        onChanged: (data){
+                          setState((){
+                            _tipoPlazoAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data);
+                            // _interesAnualAmortizacionChanged(_txtInteresAnualAmortizacion.text);
+                            _interesAmortizacionChanged(_txtInteresAmortizacion.text);
+                          });
+                        },
+                      ),
+                      MyTextFormField(
+                        controller: _txtMontoAmortizacion,
+                        title: "Monto *",
+                        hint: "Monto",
+                        isMoneyFormat: true,
+                        medium: 2,
+                        onChanged: (data){
+                          // print("Monto change1: ${_txtMontoAmortizacion.text}");
+                        },
+                      ),
+                      MyTextFormField(
+                        controller: _txtNumeroCuotaAmortizacion,
+                        title: "# cuotas *",
+                        hint: "# cuotas",
+                        isDigitOnly: true,
+                        medium: 2,
+                      ),
+                      
+                        MyTextFormField(
+                        controller: _txtInteresAmortizacion,
+                        title: "Interes ${_tipoPlazoAmortizacion != null ? _tipoPlazoAmortizacion.descripcion : ''}*",
+                        hint: "Interes",
+                        isDecimal: true,
+                        onChanged: _interesAmortizacionChanged,
+                        medium: 3,
+                      ),
+                      MyTextFormField(
+                        // labelText: "Cliente",
+                        title: "% interes anual *",
+                        controller: _txtInteresAnualAmortizacion,
+                        hint: "% interes anual",
+                        isRequired: true,
+                        xlarge: 4.5,
+                        isDecimal: true,
+                        onChanged: _interesAnualAmortizacionChanged,
+                        medium: 3,
+                      ),
+                      
+                      MyDatePicker(
+                          title: "Fecha primer pago",
+                          initialEntryMode: DatePickerEntryMode.calendar,
+                          onDateTimeChanged: (data){
+                            _fechaPrimerPagoAmortizacion = data;
+                          },
+                          medium: 3,
+                          xlarge: 6,
+                        ),
+                      MyTextFormField(
+                        xlarge: 2,
+                        medium: 1,
+                        controller: _txtMontoCuotaAmortizacion,
+                        title: "Monto cuota *",
+                        hint: "Monto cuota",
+                        isMoneyFormat: true,
+                        info: "Si no sabe que interes usar entonces llene este campo con el monto a pagar por cada cuota y el sistema calculara el interes automaticamente.",
+                      ),
+                      Scrollbar(
+                        controller: _scrollControllerCulo,
+                        isAlwaysShown: true,
+                        child: SingleChildScrollView(
+                          child: DraggableScrollbar(
+                            child: Container(
+                              constraints: BoxConstraints(maxHeight: 160),
+                              child: ListView.builder(
+                                controller: _scrollControllerCulo,
+                                itemCount: 1,
+                                itemBuilder: (context, index) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(bottom: 18.0),
+                                    child: MyTable(
+                                      columns: ["#", "Capital", "Interes", "Cuota", "Balance"], 
+                                      rows: (listaAmortizacion.length == 0) 
+                                      ? [] 
+                                      : listaAmortizacion.asMap().map((index, e) => MapEntry(index, ["${index + 1}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList()
+                                      // : List.generate(listaAmortizacion.length, (index) => listaAmortizacion.map((e) => e.))
+                                    ),
+                                  );
+                                }
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                      ],
+                    ),
+                  ),
+                );
+              }
+            ), 
+            title: "Amortizacion"
+      );
+          }
+        );
+      }
+    );
+  }
 
   _showDialogAmortizacion(){
+    List<Amortizacion> listaAmortizacion = List();
     showDialog(
       context: context,
       builder: (context){
         return StatefulBuilder(
           builder: (context, setState) {
+
             _calcularAmortizacion(){
-              AmortizationService.amortizacionFrances(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), cuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion);
+              setState(() => listaAmortizacion = AmortizationService.amortizacionFrances(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion));
             }
             return MyAlertDialog(
               title: "Amortizar", 
@@ -143,7 +297,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                     onChanged: (data){
                       setState((){
                         _tipoPlazoAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data);
-                        _interesAnualAmortizacionChanged(_txtInteresAnualAmortizacion.text);
+                        // _interesAnualAmortizacionChanged(_txtInteresAnualAmortizacion.text);
                         _interesAmortizacionChanged(_txtInteresAmortizacion.text);
                       });
                     },
@@ -155,7 +309,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                     isMoneyFormat: true,
                     medium: 2,
                     onChanged: (data){
-                      print("Monto change1: ${_txtMontoAmortizacion.text}");
+                      // print("Monto change1: ${_txtMontoAmortizacion.text}");
                     },
                   ),
                   MyTextFormField(
@@ -203,7 +357,33 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                     isMoneyFormat: true,
                     info: "Si no sabe que interes usar entonces llene este campo con el monto a pagar por cada cuota y el sistema calculara el interes automaticamente.",
                   ),
-
+                  Scrollbar(
+                    controller: _scrollControllerCulo,
+                    isAlwaysShown: true,
+                    child: SingleChildScrollView(
+                      child: DraggableScrollbar(
+                        child: Container(
+                          constraints: BoxConstraints(maxHeight: 100),
+                          child: ListView.builder(
+                            controller: _scrollControllerCulo,
+                            itemCount: 1,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 18.0),
+                                child: MyTable(
+                                  columns: ["#", "Capital", "Interes", "Cuota", "Balance"], 
+                                  rows: (listaAmortizacion.length == 0) 
+                                  ? [] 
+                                  : listaAmortizacion.asMap().map((index, e) => MapEntry(index, ["${index + 1}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList()
+                                  // : List.generate(listaAmortizacion.length, (index) => listaAmortizacion.map((e) => e.))
+                                ),
+                              );
+                            }
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
                 ],
               ), 
               okFunction: _calcularAmortizacion
@@ -221,7 +401,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     }
   }
   _interesChanged(data){
-    print("_interesChanged ${Utils.toDouble(data.toString())}");
+    // print("_interesChanged ${Utils.toDouble(data.toString())}");
      _txtInteresAnual.text = AmortizationService.convertirInteres(tipoPlazo: _tipoPlazo, interes: Utils.toDouble(data.toString())).toString();
   }
   _interesAnualChanged(data){
@@ -724,6 +904,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     // TODO: implement initState
     _tabController = TabController(length: 4, vsync: this);
     _scrollController = ScrollController();
+    _scrollControllerCulo = ScrollController();
     _streamControllerTipo = BehaviorSubject();
     _streamControllerGarantia = BehaviorSubject();
     _streamControllerCuenta = BehaviorSubject();
@@ -1416,6 +1597,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   _showModalSheetDiasExcluidos(){
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       shape:  RoundedRectangleBorder(
               borderRadius: BorderRadius.vertical(
                 top: Radius.circular(20),
@@ -1426,7 +1608,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
         return StatefulBuilder(
           builder: (context, setState) {
             return Container(
-              // height: MediaQuery.of(context).size.height,
+              height: MediaQuery.of(context).size.height / 1.3,
               color: Colors.white,
               child: SingleChildScrollView(
                 child: Column(
@@ -1472,6 +1654,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     );
                               
   }
+  
   @override
   Widget build(BuildContext context) {
     return myScaffold(
@@ -1479,7 +1662,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       cargando: _cargando,
       prestamos: true,
       body: [
-        MyHeader(title: "Prestamo", subtitle: "Agregue todos los prestamos con sus respectivas garantias, garantes y cobradores.", function: _create, actionFuncion: "en proceso...", function2: _showDialogAmortizacion, actionFuncion2: "AMORTIZACION",),
+        MyHeader(title: "Prestamo", subtitle: "Agregue todos los prestamos con sus respectivas garantias, garantes y cobradores.", function: _create, actionFuncion: "en proceso...", function2: _showModalBottomSheetAmortizacion, actionFuncion2: "AMORTIZACION",),
          
         Expanded(
           child: StreamBuilder(
