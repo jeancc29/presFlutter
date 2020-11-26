@@ -130,7 +130,30 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
         return StatefulBuilder(
           builder: (context, setState) {
             _calcularAmortizacion(){
-              setState(() => listaAmortizacion = AmortizationService.amortizacionFrances(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion));
+              setState(() => listaAmortizacion = AmortizationService.amortizacionFrances(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
+            }
+
+            String _totalCapital(){
+              if(listaAmortizacion == null)
+                return Utils.toCurrency(0);
+              if(listaAmortizacion.length == 0)
+                return Utils.toCurrency(0);
+              return Utils.toCurrency(listaAmortizacion.map<double>((element) => element.capital).reduce((value, element) => value + element));
+            }
+
+            String _totalInteres(){
+              if(listaAmortizacion == null)
+                return Utils.toCurrency(0);
+              if(listaAmortizacion.length == 0)
+                return Utils.toCurrency(0);
+              return Utils.toCurrency(listaAmortizacion.map<double>((element) => element.interes).reduce((value, element) => value + element));
+            }
+            String _totalCuota(){
+              if(listaAmortizacion == null)
+                return Utils.toCurrency(0);
+              if(listaAmortizacion.length == 0)
+                return Utils.toCurrency(0);
+              return Utils.toCurrency(listaAmortizacion.map<double>((element) => element.cuota).reduce((value, element) => value + element));
             }
             return MyBottomSheet(
             height: 1.13,
@@ -241,8 +264,10 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                                       columns: ["#", "fecha", "Capital", "Interes", "Cuota", "Balance"], 
                                       rows: (listaAmortizacion.length == 0) 
                                       ? [] 
-                                      : listaAmortizacion.asMap().map((index, e) => MapEntry(index, ["${index + 1}", "${e.fecha.toString()}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList()
+                                      : listaAmortizacion.asMap().map((index, e) => MapEntry(index, ["${index + 1}", "${e.fecha.toString()}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList(),
+                                      totals: ["", "totales", _totalCapital(), _totalInteres(), _totalCuota(), ""],
                                       // : List.generate(listaAmortizacion.length, (index) => listaAmortizacion.map((e) => e.))
+
                                     ),
                                   );
                                 }

@@ -9,11 +9,9 @@ class AmortizationService{
   static List<Amortizacion> amortizacionFrances({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago}){
     // double i = interes / 100;
     fechaPrimerPago = (fechaPrimerPago == null) ? DateTime.now() : fechaPrimerPago;
-    print("AmortizacionService amortizacionFrances fechaPrimerPago: ${fechaPrimerPago.toString()}");
     double i = convertirInteres(interes: interes, tipoPlazo: tipoPlazo, convertirAAnos: false) / 100;
     double cuotaCalculadaAPagar = monto * ((i * (pow(1+i, numeroCuota))) / ((pow((1+i), numeroCuota)) - 1) );
     cuotaCalculadaAPagar = Utils.redondear(cuotaCalculadaAPagar);
-    print("AmortizacionService amortizacionFrances monto: $monto interes:  $i cuota: $numeroCuota");
     
     List<Amortizacion> lista = List();
     for(int index = 0; index < numeroCuota; index++) {
@@ -31,8 +29,8 @@ class AmortizationService{
         capitalSaldado = montoCapital;
         lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: fechaPrimerPago));
       }else{
-        print("AmortizacionService frances: ${index} length: ${lista.length}");
-        print("AmortizacionService frances: ${lista[index - 1].capitalRestante}");
+        // print("AmortizacionService frances: ${index} length: ${lista.length}");
+        // print("AmortizacionService frances: ${lista[index - 1].capitalRestante}");
         montoInteres = Utils.redondear(lista[index - 1].capitalRestante * i);
         montoCapital = Utils.redondear(cuotaCalculadaAPagar - montoInteres);
         montoCuota = cuotaCalculadaAPagar;
@@ -44,12 +42,12 @@ class AmortizationService{
           montoInteres = Utils.redondear(_sumarORestarMontoSobranteAlInteres(capitalRestante, montoInteres));
           capitalRestante = 0;
         }
-        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: lista[0].fecha.day, tipoPlazo: tipoPlazo)));
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: fechaPrimerPago.day, tipoPlazo: tipoPlazo)));
       }
 
       
     }
-    lista.forEach((element) {print("pagado: ${element.capitalSaldado} restante: ${element.capitalRestante} cuota: ${element.cuota} capital: ${element.capital} interes: ${element.interes}");});
+    // lista.forEach((element) {print("pagado: ${element.capitalSaldado} restante: ${element.capitalRestante} cuota: ${element.cuota} capital: ${element.capital} interes: ${element.interes}");});
     // print("resultado _amortizacionFrances: $r");
     // print("resultado i _amortizacionFrances: $i - ${pow((1+i), cuota) - 1}");
     return lista;
@@ -62,7 +60,7 @@ class AmortizationService{
     else if(capitalRestante < 0)
       montoInteres = montoInteres + capitalRestante.abs();
 
-    print("amortizationservice _sumarORestarMontoSobranteAlInteres montoInteres: $montoInteres restante: $capitalRestante");
+    // print("amortizationservice _sumarORestarMontoSobranteAlInteres montoInteres: $montoInteres restante: $capitalRestante");
     return montoInteres;
   }
 
@@ -73,13 +71,13 @@ class AmortizationService{
     else if(capitalRestante < 0)
       montoCapital = montoCapital - capitalRestante.abs();
 
-    print("amortizationservice _sumarORestarMontoSobranteAlCapital montoCapital: $montoCapital restante: $capitalRestante");
+    // print("amortizationservice _sumarORestarMontoSobranteAlCapital montoCapital: $montoCapital restante: $capitalRestante");
     return montoCapital;
   }
 
   static convertirInteres({Tipo tipoPlazo, double interes, bool convertirAAnos = true}){
     double interesARetornarl = 0;
-    print("AmortizationService convertirInteres: ${tipoPlazo.descripcion}");
+    // print("AmortizationService convertirInteres: ${tipoPlazo.descripcion}");
     switch (tipoPlazo.descripcion) {
       case "Diario":
         if(convertirAAnos)
@@ -226,6 +224,7 @@ class AmortizationService{
       //el dia de cada mes sea 31 y el siguiente mes sea 28 entonces el otro 
       //siguiente mes debe caer 31 y no 28
         if(listaDiasExcluidos == null){
+          // print("aumentarFecha dayOfTheMonth$dayOfTheMonthToAmortize: $dayOfTheMonthToAmortize");
           fecha = Utils.getNextMonth(fecha, dayOfTheMonth: dayOfTheMonthToAmortize);
         }
         else{
