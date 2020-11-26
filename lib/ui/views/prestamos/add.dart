@@ -209,7 +209,8 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                           title: "Fecha primer pago",
                           initialEntryMode: DatePickerEntryMode.calendar,
                           onDateTimeChanged: (data){
-                            _fechaPrimerPagoAmortizacion = data;
+                            print("fechaPrimer pago mierda: ${data.toString()}");
+                            setState(() => _fechaPrimerPagoAmortizacion = data);
                           },
                           medium: 3,
                           xlarge: 6,
@@ -237,10 +238,10 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 18.0),
                                     child: MyTable(
-                                      columns: ["#", "Capital", "Interes", "Cuota", "Balance"], 
+                                      columns: ["#", "fecha", "Capital", "Interes", "Cuota", "Balance"], 
                                       rows: (listaAmortizacion.length == 0) 
                                       ? [] 
-                                      : listaAmortizacion.asMap().map((index, e) => MapEntry(index, ["${index + 1}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList()
+                                      : listaAmortizacion.asMap().map((index, e) => MapEntry(index, ["${index + 1}", "${e.fecha.toString()}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList()
                                       // : List.generate(listaAmortizacion.length, (index) => listaAmortizacion.map((e) => e.))
                                     ),
                                   );
@@ -273,7 +274,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
           builder: (context, setState) {
 
             _calcularAmortizacion(){
-              setState(() => listaAmortizacion = AmortizationService.amortizacionFrances(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion));
+              setState(() => listaAmortizacion = AmortizationService.amortizacionFrances(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
             }
             return MyAlertDialog(
               title: "Amortizar", 
@@ -344,7 +345,8 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       title: "Fecha primer pago",
                       initialEntryMode: DatePickerEntryMode.calendar,
                       onDateTimeChanged: (data){
-                        _fechaPrimerPagoAmortizacion = data;
+                        print("Fecha primer pago amortizacion change");
+                        // setState(() => _fechaPrimerPagoAmortizacion = data);
                       },
                       medium: 3,
                     ),
@@ -1096,6 +1098,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       title: "Fecha primer pago",
                       initialEntryMode: DatePickerEntryMode.calendar,
                       onDateTimeChanged: (data){
+                        print("Fecha primer pago change");
                         _fechaPrimerPago = data;
                       },
                       xlarge: 4,

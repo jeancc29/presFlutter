@@ -75,9 +75,12 @@ class _MyDatePickerState extends State<MyDatePicker> {
                   shape: RoundedRectangleBorder(side: BorderSide(color: Colors.grey, width: 1)),
                   child: Text("${fecha.year}-${fecha.month}-${fecha.day}", style: TextStyle(fontSize: 16, fontFamily: "GoogleSans")),
                   onPressed: () async {
+                    // widget.onDateTimeChanged(DateTime.now());
                     DateTime f = await showDatePicker(initialEntryMode: widget.initialEntryMode, context: context, initialDate: DateTime.now(), firstDate: DateTime(2000), lastDate: DateTime(2100));
-                    widget.onDateTimeChanged((f != null) ? f : fecha);
-                    setState(() => fecha = (f != null) ? f : fecha);
+                    setState(() {fecha = (f != null) ? f : fecha; widget.onDateTimeChanged(f);});
+                    
+                    print("MyDateTimePicker onPressed date: ${f.toString()}");
+
                   },
                 ),
               ),

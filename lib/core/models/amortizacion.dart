@@ -30,7 +30,7 @@ class Amortizacion {
         interesSaldado = (snapshot['interesSaldado'] != null) ? Utils.toDouble(snapshot['interesSaldado'].toString()) : 0,
         idTipo = snapshot['idTipo'] ?? 0,
         idPrestamo = snapshot['idPrestamo'] ?? 0,
-        tipo = (snapshot['tipo'] != null) ? Tipo.fromMap(snapshot['tipo']) : null
+        tipo = (snapshot['tipo'] != null) ? Tipo.fromMap(snapshot['tipo']) : null,
         fecha = DateTime.parse(snapshot['fecha']) ?? null
         ;
 

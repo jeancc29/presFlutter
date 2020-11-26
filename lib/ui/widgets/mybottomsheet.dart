@@ -19,9 +19,7 @@ class MyBottomSheet extends StatefulWidget {
 class _MyBottomSheetState extends State<MyBottomSheet> {
   @override
   Widget build(BuildContext context) {
-    return StatefulBuilder(
-          builder: (context, setState) {
-            return Container(
+     return Container(
               height: MediaQuery.of(context).size.height / widget.height,
               color: Colors.white,
               child: Column(
@@ -91,7 +89,6 @@ class _MyBottomSheetState extends State<MyBottomSheet> {
                                 ),
                               )
                             ),
-                           
                           ],
                         )
             
@@ -102,8 +99,6 @@ class _MyBottomSheetState extends State<MyBottomSheet> {
                 ]
               )
             );
-          }
-        );
         
   }
 }
