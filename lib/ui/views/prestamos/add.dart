@@ -50,6 +50,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   StreamController<List<Tipo>> _streamControllerTipo;
   StreamController<List<Garantia>> _streamControllerGarantia;
   StreamController<List<Cuenta>> _streamControllerCuenta;
+  StreamController<List<Dia>> _streamControllerDiasExcluidos;
   var _formKey = GlobalKey<FormState>();
   var _txtCliente = TextEditingController();
   var _focusNodeTxtCliente = FocusNode();
@@ -130,7 +131,14 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
         return StatefulBuilder(
           builder: (context, setState) {
             _calcularAmortizacion(){
-              setState(() => listaAmortizacion = AmortizationService.amortizacionFrances(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
+              if(_tipoAmortizacionAmortizacion.descripcion == "Cuota fija")
+                setState(() => listaAmortizacion = AmortizationService.amortizacionFrancesCuotaFija(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
+              else if(_tipoAmortizacionAmortizacion.descripcion == "Disminuir cuota")
+                setState(() => listaAmortizacion = AmortizationService.amortizacionAlemanODisminuirCuota(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
+              else if(_tipoAmortizacionAmortizacion.descripcion == "Interes fijo")
+                setState(() => listaAmortizacion = AmortizationService.amortizacionInteresFijo(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
+              else
+                setState(() => listaAmortizacion = AmortizationService.amortizacionCapitalAlFinal(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
             }
 
             String _totalCapital(){
@@ -209,6 +217,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       ),
                       
                         MyTextFormField(
+                        enabled: _txtMontoCuotaAmortizacion.text.isEmpty,
                         controller: _txtInteresAmortizacion,
                         title: "Interes ${_tipoPlazoAmortizacion != null ? _tipoPlazoAmortizacion.descripcion : ''}*",
                         hint: "Interes",
@@ -246,6 +255,57 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                         hint: "Monto cuota",
                         isMoneyFormat: true,
                         info: "Si no sabe que interes usar entonces llene este campo con el monto a pagar por cada cuota y el sistema calculara el interes automaticamente.",
+                        onChanged: (data){
+                          if(Utils.toDouble(_txtMontoAmortizacion.text) == 0){
+                            _txtInteresAmortizacion.text = null;
+                            return;
+                          }
+                          if(Utils.toInt(_txtNumeroCuotaAmortizacion.text) == 0){
+                            _txtInteresAmortizacion.text = null;
+                            return;
+                          }
+                          
+                          
+                         switch (_tipoAmortizacionAmortizacion.descripcion) {
+                           case "Cuota fija":
+                              print("montoCuota change data: $data");
+                              if(data.isNotEmpty){
+                                _txtInteresAmortizacion.text = AmortizationService.obtenerTasaInteresAmortizacionFrancesCuotaFija(monto: Utils.toDouble(_txtMontoAmortizacion.text), numeroCuotas: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), montoCuota: Utils.toDouble(_txtMontoCuotaAmortizacion.text)).toString();
+                                _interesAmortizacionChanged(_txtInteresAmortizacion.text);
+                              }else{
+                                _txtInteresAmortizacion.text = "";
+                                _txtInteresAnualAmortizacion.text = "";
+                              }
+                             
+                             break;
+                           case "Disminuir cuota":
+                              if(data.isNotEmpty){
+                                _txtInteresAmortizacion.text = AmortizationService.obtenerTasaInteresAmortizacionAlemanaODisminuirCuota(monto: Utils.toDouble(_txtMontoAmortizacion.text), numeroCuotas: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), montoCuota: Utils.toDouble(_txtMontoCuotaAmortizacion.text)).toString();
+                                _interesAmortizacionChanged(_txtInteresAmortizacion.text);
+                              }else{
+                                _txtInteresAmortizacion.text = "";
+                                _txtInteresAnualAmortizacion.text = "";
+                              }
+                             break;
+                           case "Interes fijo":
+                              if(data.isNotEmpty){
+                                _txtInteresAmortizacion.text = AmortizationService.obtenerTasaInteresAmortizacionAlemanaODisminuirCuota(monto: Utils.toDouble(_txtMontoAmortizacion.text), numeroCuotas: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), montoCuota: Utils.toDouble(_txtMontoCuotaAmortizacion.text)).toString();
+                                _interesAmortizacionChanged(_txtInteresAmortizacion.text);
+                              }else{
+                                _txtInteresAmortizacion.text = "";
+                                _txtInteresAnualAmortizacion.text = "";
+                              }
+                             break;
+                           default:
+                           if(data.isNotEmpty){
+                                _txtInteresAmortizacion.text = AmortizationService.obtenerTasaInteresAmortizacionCapitalAlFinal(monto: Utils.toDouble(_txtMontoAmortizacion.text), numeroCuotas: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), montoCuota: Utils.toDouble(_txtMontoCuotaAmortizacion.text)).toString();
+                                _interesAmortizacionChanged(_txtInteresAmortizacion.text);
+                              }else{
+                                _txtInteresAmortizacion.text = "";
+                                _txtInteresAnualAmortizacion.text = "";
+                              }
+                         }
+                        },
                       ),
                       Scrollbar(
                         controller: _scrollControllerCulo,
@@ -299,7 +359,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
           builder: (context, setState) {
 
             _calcularAmortizacion(){
-              setState(() => listaAmortizacion = AmortizationService.amortizacionFrances(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
+              setState(() => listaAmortizacion = AmortizationService.amortizacionFrancesCuotaFija(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
             }
             return MyAlertDialog(
               title: "Amortizar", 
@@ -423,9 +483,9 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
 
   _aplicarTasaDelPrestamoChanged(data){
     if(_txtInteres.text.isNotEmpty){
-      _txtMora.text = _txtInteres.text;
-      setState(() => _aplicarTasaDelPrestamo = data);
+      _txtMora.text = (data) ? _txtInteres.text : "";
     }
+    setState(() => _aplicarTasaDelPrestamo = data);
   }
   _interesChanged(data){
     // print("_interesChanged ${Utils.toDouble(data.toString())}");
@@ -446,7 +506,10 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   }
 
   _incluirEnElFinanciamientoChanged(data){
-      setState(() => _incluirEnElFinanciamiento = data);
+      setState((){
+        _incluirEnElFinanciamiento = data;
+        _calcularMontoNeto();
+      });
   }
 
   _init() async {
@@ -505,6 +568,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     }
     if(listaAmortizacion.length > 0){
       _tipoAmortizacion = listaAmortizacion[0];
+      _tipoAmortizacionAmortizacion = listaAmortizacion[0];
     }
     _cbxBancoOnChanged();
     _cbxBancoDestinoOnChanged();
@@ -935,6 +999,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     _streamControllerTipo = BehaviorSubject();
     _streamControllerGarantia = BehaviorSubject();
     _streamControllerCuenta = BehaviorSubject();
+    _streamControllerDiasExcluidos = BehaviorSubject();
     _init();
     super.initState();
   }
@@ -951,6 +1016,58 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     else
       return _prestamoScreen();
   }
+
+  _calcularMontoNeto(){
+    double monto = Utils.toDouble(_txtMonto.text);
+    double importeGasto = Utils.toDouble(_txtImporteGasto.text);
+    if(!_incluirEnElFinanciamiento)
+      _txtMontoNeto.text = "${Utils.redondear(monto - importeGasto)}";
+    else
+      _txtMontoNeto.text = "$monto";
+  }
+
+  _txtMontoChange(String data){
+    print("_txtMontoChange data: $data");
+    if(data.isEmpty){
+      _txtMontoBruto.text = "";
+      _txtMontoNeto.text = "";
+      return;
+    }
+
+    _txtMontoBruto.text = data;
+    if(_txtImporteGasto.text.isEmpty)
+      _txtMontoNeto.text = data;
+    else{
+        _calcularMontoNeto();
+    }
+  }
+
+  _txtPorcentajeGastoChange(String data){
+    double monto = Utils.toDouble(_txtMonto.text);
+    if(monto == 0){
+      _txtImporteGasto.text = "";
+      return;
+    }
+    double convertirPorcentajeAMonto = Utils.redondear(monto * (Utils.toDouble(data) / 100));
+    _txtImporteGasto.text = (convertirPorcentajeAMonto == 0) ? "" : "$convertirPorcentajeAMonto";
+    _calcularMontoNeto();
+  }
+
+  _txtImporteGastoChange(String data){
+    double monto = Utils.toDouble(_txtMonto.text);
+    if(monto == 0){
+      _txtPorcentajeGasto.text = "";
+      return;
+    }
+
+    double convertirImporteAPorcentaje = Utils.toDouble(data) / monto;
+    double convertirImporteATasa = convertirImporteAPorcentaje * 100;
+    _txtPorcentajeGasto.text = (convertirImporteAPorcentaje == 0) ? "" : "${Utils.redondear(convertirImporteATasa)}";
+    _calcularMontoNeto();
+  }
+
+
+
   _screen(){
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1081,6 +1198,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       hint: "Monto",
                       isRequired: true,
                       xlarge: 3,
+                      onChanged: _txtMontoChange,
                     ),
                     MyTextFormField(
                       // labelText: "Cliente",
@@ -1146,9 +1264,22 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                     
                     Visibility(
                       visible: _tipoPlazo.descripcion == "Diario",
-                      child: MyDropdown(
-                        title: "Ultimos 30 dias",
-                        onTap: _showModalSheetDiasExcluidos,
+                      child: StreamBuilder<List<Dia>>(
+                        stream: _streamControllerDiasExcluidos.stream,
+                        builder: (context, snapshot) {
+                          if(snapshot.hasData)
+                            return MyDropdown(
+                              title: "Dias excluidos",
+                              onTap: _showModalSheetDiasExcluidos,
+                              hint: (snapshot.data.length == 0) ? "Ninguno" : snapshot.data.map<String>((e) => e.dia).toList().join(", ")
+                            );
+
+                          return MyDropdown(
+                            title: "Dias excluidos",
+                            onTap: _showModalSheetDiasExcluidos,
+                            hint: "Ninguno"
+                          );
+                        }
                       ),
                     ),
 
@@ -1412,9 +1543,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                         controller: _txtPorcentajeGasto,
                         hint: "Porcentaje",
                         xlarge: 4,
-                        onChanged: (data){
-                          print("_txtPorcentajeGasto on change");
-                        },
+                        onChanged: _txtPorcentajeGastoChange,
                       ),
                       MyTextFormField(
                         // labelText: "Cliente",
@@ -1423,6 +1552,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                         controller: _txtImporteGasto,
                         hint: "Importe",
                         xlarge: 4,
+                        onChanged: _txtImporteGastoChange,
                       ),
                       
                       Padding(
@@ -1622,8 +1752,8 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   }
 
 
-  _showModalSheetDiasExcluidos(){
-    showModalBottomSheet(
+  _showModalSheetDiasExcluidos() async {
+    await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       shape:  RoundedRectangleBorder(
@@ -1668,7 +1798,9 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                         title: Text("${e.dia}"),
                         
                         onChanged: (data){
-                          setState(() => e.seleccionado = data);
+                          setState((){
+                            e.seleccionado = data;
+                          });
                         },
                       )).toList()
                     )
@@ -1681,6 +1813,8 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       }
     );
                               
+   
+    _streamControllerDiasExcluidos.add(listaDia.where((e) => e.seleccionado).toList());
   }
   
   @override

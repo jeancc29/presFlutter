@@ -1,12 +1,14 @@
 import 'dart:math';
 
+import 'package:flutter/cupertino.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/amortizacion.dart';
 import 'package:prestamo/core/models/dia.dart';
 import 'package:prestamo/core/models/tipo.dart';
 
 class AmortizationService{
-  static List<Amortizacion> amortizacionFrances({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago}){
+  // https://clasesdematematicafinancieraenlima.com/tasa-de-interes-en-una-anualidad/
+  static List<Amortizacion> amortizacionFrancesCuotaFija({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago}){
     // double i = interes / 100;
     fechaPrimerPago = (fechaPrimerPago == null) ? DateTime.now() : fechaPrimerPago;
     double i = convertirInteres(interes: interes, tipoPlazo: tipoPlazo, convertirAAnos: false) / 100;
@@ -34,6 +36,158 @@ class AmortizationService{
         montoInteres = Utils.redondear(lista[index - 1].capitalRestante * i);
         montoCapital = Utils.redondear(cuotaCalculadaAPagar - montoInteres);
         montoCuota = cuotaCalculadaAPagar;
+        capitalRestante = Utils.redondear(lista[index - 1].capitalRestante - montoCapital);
+        capitalSaldado = Utils.redondear(lista[index - 1].capitalRestante + montoCapital);
+
+        if((index + 1) == numeroCuota){
+          montoCapital = Utils.redondear(_sumarORestarMontoSobranteAlCapital(capitalRestante, montoCapital));
+          montoInteres = Utils.redondear(_sumarORestarMontoSobranteAlInteres(capitalRestante, montoInteres));
+          capitalRestante = 0;
+        }
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: fechaPrimerPago.day, tipoPlazo: tipoPlazo)));
+      }
+
+      
+    }
+    // lista.forEach((element) {print("pagado: ${element.capitalSaldado} restante: ${element.capitalRestante} cuota: ${element.cuota} capital: ${element.capital} interes: ${element.interes}");});
+    // print("resultado _amortizacionFrances: $r");
+    // print("resultado i _amortizacionFrances: $i - ${pow((1+i), cuota) - 1}");
+    return lista;
+  }
+
+  //metodo alemante, disminuir cuota
+  static List<Amortizacion> amortizacionAlemanODisminuirCuota({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago}){
+    // double i = interes / 100;
+    //Capital = monto / numeroCuotas;
+    //interes = capitalSaldado * interes;
+
+    fechaPrimerPago = (fechaPrimerPago == null) ? DateTime.now() : fechaPrimerPago;
+    double i = convertirInteres(interes: interes, tipoPlazo: tipoPlazo, convertirAAnos: false) / 100;
+    double cuotaCalculadaAPagar = monto / numeroCuota;
+    cuotaCalculadaAPagar = Utils.redondear(cuotaCalculadaAPagar);
+    
+    List<Amortizacion> lista = List();
+    for(int index = 0; index < numeroCuota; index++) {
+      double montoInteres = 0;
+      double montoCapital = 0;
+      double montoCuota = 0;
+      double capitalRestante = 0;
+      double capitalSaldado = 0;
+
+      if(index == 0){
+        montoInteres =  Utils.redondear((monto * i));
+        montoCapital = Utils.redondear(cuotaCalculadaAPagar);
+        montoCuota = cuotaCalculadaAPagar + montoInteres;
+        capitalRestante = monto - montoCapital;
+        capitalSaldado = montoCapital;
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: fechaPrimerPago));
+      }else{
+        // print("AmortizacionService frances: ${index} length: ${lista.length}");
+        // print("AmortizacionService frances: ${lista[index - 1].capitalRestante}");
+        montoInteres = Utils.redondear(lista[index - 1].capitalRestante * i);
+        montoCapital = Utils.redondear(cuotaCalculadaAPagar);
+        montoCuota = cuotaCalculadaAPagar + montoInteres;
+        capitalRestante = Utils.redondear(lista[index - 1].capitalRestante - montoCapital);
+        capitalSaldado = Utils.redondear(lista[index - 1].capitalRestante + montoCapital);
+
+        if((index + 1) == numeroCuota){
+          montoCapital = Utils.redondear(_sumarORestarMontoSobranteAlCapital(capitalRestante, montoCapital));
+          montoInteres = Utils.redondear(_sumarORestarMontoSobranteAlInteres(capitalRestante, montoInteres));
+          capitalRestante = 0;
+        }
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: fechaPrimerPago.day, tipoPlazo: tipoPlazo)));
+      }
+
+      
+    }
+    // lista.forEach((element) {print("pagado: ${element.capitalSaldado} restante: ${element.capitalRestante} cuota: ${element.cuota} capital: ${element.capital} interes: ${element.interes}");});
+    // print("resultado _amortizacionFrances: $r");
+    // print("resultado i _amortizacionFrances: $i - ${pow((1+i), cuota) - 1}");
+    return lista;
+  }
+
+  //Metodo interes fijo
+  static List<Amortizacion> amortizacionInteresFijo({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago}){
+    // double i = interes / 100;
+    //Capital = monto / numeroCuotas;
+    //interes = capitalSaldado * interes;
+
+    fechaPrimerPago = (fechaPrimerPago == null) ? DateTime.now() : fechaPrimerPago;
+    double i = convertirInteres(interes: interes, tipoPlazo: tipoPlazo, convertirAAnos: false) / 100;
+    double cuotaCalculadaAPagar = monto / numeroCuota;
+    cuotaCalculadaAPagar = Utils.redondear(cuotaCalculadaAPagar);
+    
+    List<Amortizacion> lista = List();
+    for(int index = 0; index < numeroCuota; index++) {
+      double montoInteres = 0;
+      double montoCapital = 0;
+      double montoCuota = 0;
+      double capitalRestante = 0;
+      double capitalSaldado = 0;
+
+      if(index == 0){
+        montoInteres =  Utils.redondear((monto * i));
+        montoCapital = Utils.redondear(cuotaCalculadaAPagar);
+        montoCuota = cuotaCalculadaAPagar + montoInteres;
+        capitalRestante = monto - montoCapital;
+        capitalSaldado = montoCapital;
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: fechaPrimerPago));
+      }else{
+        // print("AmortizacionService frances: ${index} length: ${lista.length}");
+        // print("AmortizacionService frances: ${lista[index - 1].capitalRestante}");
+        montoInteres = Utils.redondear(monto * i);
+        montoCapital = Utils.redondear(cuotaCalculadaAPagar);
+        montoCuota = cuotaCalculadaAPagar + montoInteres;
+        capitalRestante = Utils.redondear(lista[index - 1].capitalRestante - montoCapital);
+        capitalSaldado = Utils.redondear(lista[index - 1].capitalRestante + montoCapital);
+
+        if((index + 1) == numeroCuota){
+          montoCapital = Utils.redondear(_sumarORestarMontoSobranteAlCapital(capitalRestante, montoCapital));
+          montoInteres = Utils.redondear(_sumarORestarMontoSobranteAlInteres(capitalRestante, montoInteres));
+          capitalRestante = 0;
+        }
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: fechaPrimerPago.day, tipoPlazo: tipoPlazo)));
+      }
+
+      
+    }
+    // lista.forEach((element) {print("pagado: ${element.capitalSaldado} restante: ${element.capitalRestante} cuota: ${element.cuota} capital: ${element.capital} interes: ${element.interes}");});
+    // print("resultado _amortizacionFrances: $r");
+    // print("resultado i _amortizacionFrances: $i - ${pow((1+i), cuota) - 1}");
+    return lista;
+  }
+
+  //Metodo capital al final
+  static List<Amortizacion> amortizacionCapitalAlFinal({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago}){
+    // double i = interes / 100;
+    //Capital = monto / numeroCuotas;
+    //interes = capitalSaldado * interes;
+
+    fechaPrimerPago = (fechaPrimerPago == null) ? DateTime.now() : fechaPrimerPago;
+    double i = convertirInteres(interes: interes, tipoPlazo: tipoPlazo, convertirAAnos: false) / 100;
+    
+    
+    List<Amortizacion> lista = List();
+    for(int index = 0; index < numeroCuota; index++) {
+      double montoInteres = 0;
+      double montoCapital = 0;
+      double montoCuota = 0;
+      double capitalRestante = 0;
+      double capitalSaldado = 0;
+
+      if(index + 1 < numeroCuota){
+        montoInteres =  Utils.redondear((monto * i));
+        montoCapital = 0;
+        montoCuota = montoInteres;
+        capitalRestante = monto - montoCapital;
+        capitalSaldado = montoCapital;
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: fechaPrimerPago));
+      }else{
+        // print("AmortizacionService frances: ${index} length: ${lista.length}");
+        // print("AmortizacionService frances: ${lista[index - 1].capitalRestante}");
+        montoInteres = Utils.redondear(monto * i);
+        montoCapital = monto;
+        montoCuota = montoCapital + montoInteres;
         capitalRestante = Utils.redondear(lista[index - 1].capitalRestante - montoCapital);
         capitalSaldado = Utils.redondear(lista[index - 1].capitalRestante + montoCapital);
 
@@ -304,6 +458,27 @@ class AmortizationService{
     }
 
     return fecha;
+  }
+
+ static double obtenerTasaInteresAmortizacionFrancesCuotaFija({@required double monto, @required double numeroCuotas, @required double montoCuota}){
+    //formula de Baily
+    double h = pow(((montoCuota * numeroCuotas) / monto), (2 / (numeroCuotas + 1))) - 1;
+    double i = ((((numeroCuotas - 1) * h) - 12) / ((2 * (numeroCuotas - 1) * h) - 12)) * h;
+    double tasa = i * 100;
+    return Utils.redondear(tasa, 4);
+  }
+
+  static double obtenerTasaInteresAmortizacionAlemanaODisminuirCuota({@required double monto, @required double numeroCuotas, @required double montoCuota}){
+    double i = (((montoCuota * numeroCuotas) / monto) - 1) / numeroCuotas;
+    double tasa = i * 100;
+    return Utils.redondear(tasa, 4);
+  }
+
+  static double obtenerTasaInteresAmortizacionCapitalAlFinal({@required double monto, @required double numeroCuotas, @required double montoCuota}){
+    print("(montoCuota * numeroCuotas): ${(montoCuota * numeroCuotas)} (montoCuota * numeroCuotas) + monto: ${(montoCuota * numeroCuotas) + monto}");
+    double i = ((((montoCuota * numeroCuotas) + monto) / monto) - 1) / numeroCuotas;
+    double tasa = i * 100;
+    return Utils.redondear(tasa, 4);
   }
   
 }

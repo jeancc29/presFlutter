@@ -80,11 +80,11 @@ String get _currency => NumberFormat.simpleCurrency(locale: _locale, decimalDigi
 
   List<TextInputFormatter> _getInputFormatters(){
     List<TextInputFormatter> listFormatters = [];
-    // if(widget.isDigitOnly)
-    //   listFormatters.add(FilteringTextInputFormatter.digitsOnly);
+    if(widget.isDigitOnly)
+      listFormatters.add(FilteringTextInputFormatter.digitsOnly);
 
-    // if(widget.isDecimal)
-    //   listFormatters.add(FilteringTextInputFormatter.allow(RegExp('^\$|^(0|([1-9][0-9]{0,}))(\\.[0-9]{0,})?\$')));
+    if(widget.isDecimal)
+      listFormatters.add(FilteringTextInputFormatter.allow(RegExp('^\$|^(0|([1-9][0-9]{0,}))(\\.[0-9]{0,})?\$')));
     // if(widget.isMoneyFormat)
     //   listFormatters.add(FilteringTextInputFormatter.allow(RegExp('^\$|^(0|([1-9,?][0-9,?]{0,}))(\\.[0-9]{0,})?\$')));
 
