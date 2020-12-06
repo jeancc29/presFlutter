@@ -5,7 +5,8 @@ class MyTable extends StatefulWidget {
   final List<List<String>> rows;
   final List<String> totals;
   final EdgeInsets padding;
-  MyTable({Key key, @required this.columns, @required this.rows, this.totals, this.padding = const EdgeInsets.only(bottom: 15, top: 15)}) : super(key: key);
+  final int indexCellKeyToReturnOnClick;
+  MyTable({Key key, @required this.columns, @required this.rows, this.totals, this.indexCellKeyToReturnOnClick = 0, this.padding = const EdgeInsets.only(bottom: 15, top: 15)}) : super(key: key);
   @override
   _MyTableState createState() => _MyTableState();
 }
