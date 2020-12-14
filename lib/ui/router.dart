@@ -9,6 +9,7 @@ import 'package:prestamo/ui/views/cuentas/index.dart';
 import 'package:prestamo/ui/views/gastos/add.dart';
 import 'package:prestamo/ui/views/gastos/index.dart';
 import 'package:prestamo/ui/views/prestamos/add.dart';
+import 'package:prestamo/ui/views/prestamos/index.dart';
 import 'package:prestamo/ui/views/rutas/index.dart';
 
 
@@ -21,6 +22,10 @@ class MyRouter {
           builder: (_)=> ClientesScreen()
         );
       case '/prestamos' :
+        return  MaterialPageRoute(
+          builder: (_)=> PrestamosScreen()
+        );
+      case '/addPrestamo' :
         return  MaterialPageRoute(
           builder: (_)=> PrestamoAddScreen()
         );

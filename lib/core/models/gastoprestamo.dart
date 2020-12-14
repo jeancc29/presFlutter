@@ -4,16 +4,17 @@ import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/banco.dart';
 import 'package:prestamo/core/models/tipo.dart';
 
-class Loanexpense {
+class Gastoprestamo {
   int id;
   double porcentaje;
   double importe;
   Tipo tipo;
+  bool incluirEnElFinanciamiento;
   
 
-  Loanexpense({this.id, this.porcentaje, this.importe, this.tipo});
+  Gastoprestamo({this.id, this.porcentaje, this.importe, this.tipo,this.incluirEnElFinanciamiento});
 
-  Loanexpense.fromMap(Map snapshot) :
+  Gastoprestamo.fromMap(Map snapshot) :
         id = snapshot['id'] ?? 0,
         porcentaje = Utils.toDouble(snapshot['porcentaje'].toString()) ?? 0,
         importe = Utils.toDouble(snapshot['importe'].toString()) ?? 0,

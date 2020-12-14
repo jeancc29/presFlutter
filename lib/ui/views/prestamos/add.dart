@@ -7,10 +7,15 @@ import 'package:prestamo/core/models/amortizacion.dart';
 import 'package:prestamo/core/models/banco.dart';
 import 'package:prestamo/core/models/caja.dart';
 import 'package:prestamo/core/models/cliente.dart';
+import 'package:prestamo/core/models/cobrador.dart';
 import 'package:prestamo/core/models/configuracionprestamo.dart';
 import 'package:prestamo/core/models/cuenta.dart';
+import 'package:prestamo/core/models/desembolso.dart';
 import 'package:prestamo/core/models/dia.dart';
+import 'package:prestamo/core/models/garante.dart';
 import 'package:prestamo/core/models/garantia.dart';
+import 'package:prestamo/core/models/gastoprestamo.dart';
+import 'package:prestamo/core/models/prestamo.dart';
 import 'package:prestamo/core/models/tipo.dart';
 import 'package:prestamo/core/services/amortizationservice.dart';
 import 'package:prestamo/core/services/loanservice.dart';
@@ -18,6 +23,7 @@ import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
 import 'package:prestamo/ui/widgets/myalertdialog.dart';
 import 'package:prestamo/ui/widgets/mybutton.dart';
 import 'package:prestamo/ui/widgets/mycheckbox.dart';
+import 'package:prestamo/ui/widgets/mycustomersearch.dart';
 import 'package:prestamo/ui/widgets/mydatepicker.dart';
 import 'package:prestamo/ui/widgets/mydescription.dart';
 import 'package:prestamo/ui/widgets/mydropdown.dart';
@@ -35,12 +41,14 @@ import 'package:prestamo/ui/widgets/mytextformfield.dart';
 import 'package:rxdart/rxdart.dart';
 
 class PrestamoAddScreen extends StatefulWidget {
+  final Prestamo prestamo;
+  PrestamoAddScreen({Key key, this.prestamo}) : super(key: key);
   @override
   _PrestamoAddScreenState createState() => _PrestamoAddScreenState();
 }
 
 class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProviderStateMixin {
-  var _tabController;
+  TabController _tabController;
   List<String> listaTab = ["Prestamo", "Garante y cobrador", "Gasto", "Garantia", "Desembolso"];
   ScrollController _scrollController;
   ScrollController _scrollControllerCulo;
@@ -92,6 +100,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   List<Cuenta> listaCuenta = List();
   List<Dia> listaDia = List();
   List<Cuenta> listaCuentaFiltrada = List();
+  Prestamo _prestamo = Prestamo();
   Cliente _cliente;
   Tipo _tipoAmortizacion;
   Tipo _dias;
@@ -107,12 +116,110 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   Cuenta _cuenta;
   Banco _banco;
   Banco _bancoDestino;
+
+  
+
   var _fecha = DateTime.now();
   var _fechaPrimerPago = DateTime.now();
   var _fechaPrimerPagoAmortizacion = DateTime.now();
-  
-  _create(){
 
+  String _errorMessageTxtNumeroIdentificacionGarante = null;
+  String _errorMessageTxtTelefonoGarante = null;
+  String _errorMessageTxtDireccionGarante = null;
+  
+  _guardar() async {
+    if(!_formKey.currentState.validate()){
+      if(_txtMonto.text.isNotEmpty && _txtInteres.text.isNotEmpty && _txtInteresAnual.text.isNotEmpty && _txtCuotas.text.isNotEmpty){
+        setState(() => _tabController.index = 1);
+      }
+      return;
+    }
+
+
+    if(_cliente == null){
+      Utils.showAlertDialog(context: context, title: "Campo vacio", content: "Debe seleccionar un cliente");
+      return;
+    }
+
+    _prestamo.cliente = _cliente;
+    _prestamo.monto = Utils.toDouble(_txtMonto.text);
+    _prestamo.porcentajeInteres = Utils.toDouble(_txtInteres.text);
+    _prestamo.porcentajeInteresAnual = Utils.toDouble(_txtInteresAnual.text);
+    _prestamo.numeroCuotas = Utils.toInt(_txtCuotas.text);
+    _prestamo.fecha = _fecha;
+    _prestamo.fechaPrimerPago = _fechaPrimerPago;
+    _prestamo.caja = _caja;
+    _prestamo.codigo = _txtCodigo.text;
+    _prestamo.diasExcluidos = listaDia.where((element) => element.seleccionado).toList();
+    _prestamo.porcentajeMora = Utils.toDouble(_txtMora.text);
+    _prestamo.diasGracia = Utils.toInt(_txtDiasGracia.text);
+    _prestamo.tipoPlazo = _tipoPlazo;
+    _prestamo.tipoAmortizacion = _tipoAmortizacion;
+
+    if(_txtNombresGarante.text.isNotEmpty){
+      Garante garante = Garante(
+        nombres: _txtNombresGarante.text,
+        numeroIdentificacion: (_txtNumeroIdentificacionGarante.text.isNotEmpty) ? _txtNumeroIdentificacionGarante.text : null,
+        telefono: (_txtTelefonoGarante.text.isNotEmpty) ? _txtTelefonoGarante.text : null,
+        direccion: (_txtDireccionGarante.text.isNotEmpty) ? _txtDireccionGarante.text : null,
+      );
+
+      _prestamo.garante = garante;
+    }
+    _prestamo.cobrador = Cobrador(id: 1, nombre: "Ninguno");
+    if(_txtPorcentajeGasto.text.isNotEmpty){
+      Gastoprestamo gasto = Gastoprestamo(
+        porcentaje: Utils.toDouble(_txtPorcentajeGasto.text),
+        importe: Utils.toDouble(_txtImporteGasto.text),
+      );
+      _prestamo.gastoPrestamo = gasto;
+    }
+
+    if(listaGarantia.length > 0){
+      _prestamo.garantias = listaGarantia;
+    }
+
+    Desembolso desembolso = Desembolso(
+      banco: _banco,
+      bancoDestino: _bancoDestino,
+      cuenta: _cuenta,
+      cuentaDestino: _txtCuentaDestino.text,
+      tipo: _tipoDesembolso,
+      montoBruto: Utils.toDouble(_txtMontoBruto.text),
+      montoNeto: Utils.toDouble(_txtMontoNeto.text),
+      numeroCheque: _txtNumeroCheque.text,
+      
+    );
+
+    _prestamo.desembolso = desembolso;
+    switch (_prestamo.tipoAmortizacion.descripcion) {
+        case "Cuota fija":
+          double monto = (_incluirEnElFinanciamiento && _txtImporteGasto.text.isNotEmpty) ? (_prestamo.monto + Utils.toDouble(_txtImporteGasto.text)) : _prestamo.monto;
+          _prestamo.amortizaciones = AmortizationService.amortizacionFrancesCuotaFija(tipoPlazo: _tipoPlazo, interes: _prestamo.porcentajeInteres, monto: monto, numeroCuota: _prestamo.numeroCuotas, fechaPrimerPago: _prestamo.fechaPrimerPago, tipoAmortizacion: _prestamo.tipoAmortizacion);
+          break;
+        case "Disminuir cuota":
+          double monto = (_incluirEnElFinanciamiento && _txtImporteGasto.text.isNotEmpty) ? (_prestamo.monto + Utils.toDouble(_txtImporteGasto.text)) : _prestamo.monto;
+          _prestamo.amortizaciones = AmortizationService.amortizacionAlemanODisminuirCuota(tipoPlazo: _tipoPlazo, interes: _prestamo.porcentajeInteres, monto: monto, numeroCuota: _prestamo.numeroCuotas, fechaPrimerPago: _prestamo.fechaPrimerPago, tipoAmortizacion: _prestamo.tipoAmortizacion);
+          break;
+        case "Interes fijo":
+          double monto = (_incluirEnElFinanciamiento && _txtImporteGasto.text.isNotEmpty) ? (_prestamo.monto + Utils.toDouble(_txtImporteGasto.text)) : _prestamo.monto;
+          _prestamo.amortizaciones = AmortizationService.amortizacionInteresFijo(tipoPlazo: _tipoPlazo, interes: _prestamo.porcentajeInteres, monto: monto, numeroCuota: _prestamo.numeroCuotas, fechaPrimerPago: _prestamo.fechaPrimerPago, tipoAmortizacion: _prestamo.tipoAmortizacion);
+          break;
+        default:
+          double monto = (_incluirEnElFinanciamiento && _txtImporteGasto.text.isNotEmpty) ? (_prestamo.monto + Utils.toDouble(_txtImporteGasto.text)) : _prestamo.monto;
+          _prestamo.amortizaciones = AmortizationService.amortizacionCapitalAlFinal(tipoPlazo: _tipoPlazo, interes: _prestamo.porcentajeInteres, monto: monto, numeroCuota: _prestamo.numeroCuotas, fechaPrimerPago: _prestamo.fechaPrimerPago, tipoAmortizacion: _prestamo.tipoAmortizacion);
+      }
+
+      _prestamo.amortizaciones.forEach((element) {print("_guardar amortizacion prestao: ${element.fecha}");});
+    // try {
+      setState(() => _cargando = true);
+      var parsed = await LoanService.store(context: context, prestamo: _prestamo );
+      print("_guardar parsed: $parsed");
+      setState(() => _cargando = false);
+    // } on Exception catch (e) {
+    //       // TODO
+    // }
+    
   }
 
   _showModalBottomSheetAmortizacion(){
@@ -203,6 +310,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                         title: "Monto *",
                         hint: "Monto",
                         isMoneyFormat: true,
+                        isRequired: true,
                         medium: 2,
                         onChanged: (data){
                           // print("Monto change1: ${_txtMontoAmortizacion.text}");
@@ -212,6 +320,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                         controller: _txtNumeroCuotaAmortizacion,
                         title: "# cuotas *",
                         hint: "# cuotas",
+                        isRequired: true,
                         isDigitOnly: true,
                         medium: 2,
                       ),
@@ -221,6 +330,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                         controller: _txtInteresAmortizacion,
                         title: "Interes ${_tipoPlazoAmortizacion != null ? _tipoPlazoAmortizacion.descripcion : ''}*",
                         hint: "Interes",
+                        isRequired: true,
                         isDecimal: true,
                         onChanged: _interesAmortizacionChanged,
                         medium: 3,
@@ -569,6 +679,9 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     if(listaAmortizacion.length > 0){
       _tipoAmortizacion = listaAmortizacion[0];
       _tipoAmortizacionAmortizacion = listaAmortizacion[0];
+    }
+    if(listaCaja.length > 0){
+      _caja = listaCaja[0];
     }
     _cbxBancoOnChanged();
     _cbxBancoDestinoOnChanged();
@@ -1044,6 +1157,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
 
   _txtPorcentajeGastoChange(String data){
     double monto = Utils.toDouble(_txtMonto.text);
+    print("_txtPorcentajeGastoChange: monto: $monto porcentaje: $data");
     if(monto == 0){
       _txtImporteGasto.text = "";
       return;
@@ -1162,13 +1276,14 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
               children: [
                 Wrap(
                   children: [
-                    MySearchField(
+                    MyCustomerSearchField(
                       // labelText: "Cliente",
                       title: "Cliente *",
                       controller: _txtCliente,
                       focusNode: _focusNodeTxtCliente,
                       hint: "Buscar cliente",
                       onSelected: (cliente){
+                        print("cliente: ${cliente.toJson()}");
                         if(cliente != null)
                           setState(() => _cliente = cliente);
                       },
@@ -1190,19 +1305,33 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                         setState(() => _tipoPlazo = listaTipo.firstWhere((element) => element.descripcion == data));
                       },
                     ),
-                    MyTextFormField(
-                      // labelText: "Cliente",
-                      isMoneyFormat: true,
-                      title: "Monto a prestar *",
-                      controller: _txtMonto,
-                      hint: "Monto",
-                      isRequired: true,
-                      xlarge: 3,
-                      onChanged: _txtMontoChange,
+                    Focus(
+                      child: MyTextFormField(
+                        // labelText: "Cliente",
+                        isMoneyFormat: true,
+                        title: "Monto a prestar *",
+                        controller: _txtMonto,
+                        hint: "Monto",
+                        isRequired: true,
+                        xlarge: 3,
+                        onChanged: _txtMontoChange,
+                      ),
+                      onFocusChange: (hasFocus){
+                        if(!hasFocus){
+                          if(_txtPorcentajeGasto.text.isNotEmpty && _txtImporteGasto.text.isEmpty){
+                            print("Condicion porcentaje gasto");
+                            _txtPorcentajeGastoChange(_txtPorcentajeGasto.text);
+                          }
+                          else if(_txtPorcentajeGasto.text.isEmpty && _txtImporteGasto.text.isNotEmpty)
+                            _txtImporteGastoChange(_txtImporteGasto.text);
+                          else
+                            _calcularMontoNeto();
+                        }
+                      },
                     ),
                     MyTextFormField(
                       // labelText: "Cliente",
-                      title: "% interes *",
+                      title: "% interes ${_tipoPlazo.descripcion}",
                       controller: _txtInteres,
                       hint: "% interes",
                       isRequired: true,
@@ -1233,7 +1362,9 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       title: "Fecha",
                       initialEntryMode: DatePickerEntryMode.calendar,
                       onDateTimeChanged: (data){
-                        _fecha = data;
+                        setState(() {
+                          _fecha = data;
+                        });
                       },
                       xlarge: 4,
                     ),
@@ -1241,8 +1372,9 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       title: "Fecha primer pago",
                       initialEntryMode: DatePickerEntryMode.calendar,
                       onDateTimeChanged: (data){
-                        print("Fecha primer pago change");
-                        _fechaPrimerPago = data;
+                        setState(() {
+                          _fechaPrimerPago = data;
+                        });
                       },
                       xlarge: 4,
                     ),
@@ -1251,7 +1383,9 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       title: "Caja *",
                       elements: listaCaja.map<String>((e) => e.descripcion).toList(),
                       onChanged: (data){
-                        _caja = listaCaja.firstWhere((element) => element.descripcion == data);
+                        setState(() {
+                          _caja = listaCaja.firstWhere((element) => element.descripcion == data);
+                        });
                       },
                     ),
                     MyTextFormField(
@@ -1458,13 +1592,23 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
           children: [
             Wrap(
               children: [
-                  MySubtitle(title: "Garante"),
+                  MySubtitle(title: "Garante", padding: EdgeInsets.only(bottom: 5)),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 15.0, left: 5),
+                    child: MyDescripcon(title: "El garante es opcional, por lo tanto puede dejarlos vacios si no hay, pero en caso de llenar, los campos Nombres, Numero Identificacion y telefono son obligatorios."),
+                  ),
                   MyTextFormField(
                     // labelText: "Cliente",
                     title: "Nombres",
                     controller: _txtNombresGarante,
                     hint: "Nombres",
                     xlarge: 4,
+                    validator: (data){
+                      if((_txtNumeroIdentificacionGarante.text.isNotEmpty || _txtTelefonoGarante.text.isNotEmpty) && _txtNombresGarante.text.isEmpty)
+                        return "Campo vacio";
+
+                      return null;
+                    },
                   ),
                   MyTextFormField(
                     // labelText: "Cliente",
@@ -1472,6 +1616,14 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                     controller: _txtNumeroIdentificacionGarante,
                     hint: "Numero identificacion",
                     xlarge: 5,
+                    validator: (data){
+                      print("validator garanteeeee");
+                      if((_txtNombresGarante.text.isNotEmpty || _txtTelefonoGarante.text.isNotEmpty) && data.isEmpty)
+                        return "Campo vacio";
+                      
+                      return null;
+                    },
+                    // errorMessage: _errorMessageTxtNumeroIdentificacionGarante,
                   ),
                   MyTextFormField(
                     // labelText: "Cliente",
@@ -1479,6 +1631,13 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                     controller: _txtTelefonoGarante,
                     hint: "Telefono",
                     xlarge: 5,
+                    validator: (data){
+                      print("validator garanteeeee");
+                      if((_txtNombresGarante.text.isNotEmpty || _txtNumeroIdentificacionGarante.text.isNotEmpty) && data.isEmpty)
+                        return "Campo vacio";
+                      
+                      return null;
+                    },
                   ),
                   MyTextFormField(
                     // labelText: "Cliente",
@@ -1824,7 +1983,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       cargando: _cargando,
       prestamos: true,
       body: [
-        MyHeader(title: "Prestamo", subtitle: "Agregue todos los prestamos con sus respectivas garantias, garantes y cobradores.", function: _create, actionFuncion: "en proceso...", function2: _showModalBottomSheetAmortizacion, actionFuncion2: "AMORTIZACION",),
+        MyHeader(title: "Prestamo", subtitle: "Agregue todos los prestamos con sus respectivas garantias, garantes y cobradores.", function: _guardar, actionFuncion: "en proceso...", function2: _showModalBottomSheetAmortizacion, actionFuncion2: "AMORTIZACION",),
          
         Expanded(
           child: StreamBuilder(

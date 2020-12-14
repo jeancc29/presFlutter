@@ -15,7 +15,7 @@ class Cliente {
   BigInt id;
   // String foto;
   Uint8List foto;
-  String fotoEnlace;
+  String nombreFoto;
   String nombres;
   String apellidos;
   String apodo;
@@ -39,12 +39,12 @@ class Cliente {
 
   String nacionalidad;
 
-  Cliente({this.id, this.foto, this.nombres, this.apellidos, this.apodo, this.numeroDependientes, this.fechaNacimiento, this.sexo, this.estadoCivil, this.status, this.nacionalidad, this.idDireccion, this.direccion, this.idContacto, this.contacto, this.idDocumento, this.documento, this.trabajo, this.negocio, this.referencias, this.fotoEnlace});
+  Cliente({this.id, this.foto, this.nombres, this.apellidos, this.apodo, this.numeroDependientes, this.fechaNacimiento, this.sexo, this.estadoCivil, this.status, this.nacionalidad, this.idDireccion, this.direccion, this.idContacto, this.contacto, this.idDocumento, this.documento, this.trabajo, this.negocio, this.referencias, this.nombreFoto});
 
   Cliente.fromMap(Map snapshot) :
         id = (snapshot['id'] != null) ? BigInt.from(snapshot['id']) : BigInt.from(0),
         foto = (snapshot['foto'] != null) ? base64Decode(snapshot['foto']) : null,
-        // fotoEnlace = snapshot['foto'] ?? '',
+        nombreFoto = snapshot['nombreFoto'] ?? '',
         nombres = snapshot['nombres'] ?? '',
         apellidos = snapshot['apellidos'] ?? '',
         apodo = snapshot['apodo'] ?? '',
@@ -91,7 +91,7 @@ List referenciasToJson() {
 
   toJson() {
     return {
-      "id": id,
+      "id": (id != null) ? id.toInt() : null,
       "foto": (foto != null) ? base64Encode(foto) : null,
       "nombres": nombres,
       "apellidos": apellidos,
@@ -108,11 +108,11 @@ List referenciasToJson() {
       "idDireccion": idDireccion,
       "direccion": direccion,
       "idContacto": idContacto,
-      "contacto": contacto.toJson(),
+      "contacto": (contacto != null) ? contacto.toJson() : null,
       "idDocumento": idDocumento,
-      "documento": documento.toJson(),
-      "trabajo": trabajo.toJson(),
-      "negocio": negocio.toJson(),
+      "documento": (documento != null) ? documento.toJson() : null,
+      "trabajo": (trabajo != null) ? trabajo.toJson() : null,
+      "negocio": (negocio != null) ? negocio.toJson() : null,
       "referencias": referenciasToJson(),
     };
   }

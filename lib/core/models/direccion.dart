@@ -20,7 +20,7 @@ class Direccion {
         id = snapshot['id'] ?? 0,
         direccion = snapshot['direccion'] ?? '',
         idCiudad = snapshot['idCiudad'] ?? 0,
-        ciudad = (snapshot['ciudad'] != null) ? Ciudad.fromMap(snapshot['estado']) : null,
+        ciudad = (snapshot['ciudad'] != null) ? Ciudad.fromMap(snapshot['ciudad']) : null,
         idEstado = snapshot['idEstado'] ?? 0,
         estado = (snapshot['estado'] != null) ? Estado.fromMap(snapshot['estado']) : null,
         sector = snapshot['sector'] ?? '',

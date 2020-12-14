@@ -18,6 +18,7 @@ class MyTextFormField extends StatefulWidget {
   final bool isDigitOnly;
   final bool isDecimal;
   final bool isMoneyFormat;
+  final ValueChanged<String> validator;
 
   final double small;
   final double medium;
@@ -26,7 +27,7 @@ class MyTextFormField extends StatefulWidget {
   final EdgeInsets padding;
 
   final bool isRequired;
-  MyTextFormField({Key key, this.title = "", this.info = "", this.onChanged, this.sideTitle, this.labelText = "", this.controller, this.hint, this.maxLines = 1, this.enabled = true, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = const EdgeInsets.only(left: 8.0, right: 8.0), this.isRequired = false, this.isDigitOnly = false, this.isDecimal = false, this.isMoneyFormat = false}) : super(key: key);
+  MyTextFormField({Key key, this.title = "", this.info = "", this.onChanged, this.sideTitle, this.labelText = "", this.controller, this.hint, this.maxLines = 1, this.enabled = true, this.small = 1, this.validator, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = const EdgeInsets.only(left: 8.0, right: 8.0), this.isRequired = false, this.isDigitOnly = false, this.isDecimal = false, this.isMoneyFormat = false}) : super(key: key);
   @override
   _MyTextFormFieldState createState() => _MyTextFormFieldState();
 }
@@ -150,7 +151,11 @@ String get _currency => NumberFormat.simpleCurrency(locale: _locale, decimalDigi
         //   FilteringTextInputFormatter.allow(RegExp('^\$|^(0|([1-9][0-9]{0,}))(\\.[0-9]{0,})?\$'))
 
         // ],
-        validator: (data){
+        validator: (widget.validator != null)
+        ?
+        widget.validator
+        :
+        (data){
           if(data.isEmpty && widget.isRequired)
             return "Campo requerido";
           return null;
@@ -178,9 +183,13 @@ String get _currency => NumberFormat.simpleCurrency(locale: _locale, decimalDigi
                     keyboardType: (widget.maxLines != 1) ? TextInputType.multiline : null,
                     style: TextStyle(fontSize: 15),
                       decoration: InputDecoration(
-                        labelText: widget.labelText
+                        labelText: widget.labelText,
                       ),
-                      validator: (data){
+                      validator: (widget.validator != null) 
+                      ? 
+                      widget.validator
+                      :
+                       (data){
                         if(data.isEmpty && widget.isRequired)
                           return "Campo requerido";
                         return null;

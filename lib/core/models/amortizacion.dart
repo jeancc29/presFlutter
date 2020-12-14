@@ -45,7 +45,7 @@ class Amortizacion {
       "capital": capital,
       "capitalRestante": capitalRestante,
       "capitalSaldado": capitalSaldado,
-      "interesSaldado": interesSaldado,
+      "interesSaldado": (interesSaldado != null) ? interesSaldado : 0,
       "idTipo": idTipo,
       "tipo": tipo,
       "idPrestamo": idPrestamo, 

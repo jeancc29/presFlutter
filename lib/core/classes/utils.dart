@@ -125,6 +125,10 @@ class  Utils {
     // return true;
   }
 
+  static Map<String, dynamic> parsedToJsonOrNot(dynamic responseBody) {
+    return (responseBody is String) ? json.decode(responseBody).cast<String, dynamic>() : responseBody;
+  }
+
   static toDouble(String caracter){
     try {
       if(caracter.length > 0)

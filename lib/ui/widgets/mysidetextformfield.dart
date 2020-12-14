@@ -11,6 +11,7 @@ class MySideTextFormField extends StatefulWidget {
   final String hint;
   final maxLines;
   final bool enabled;
+  final ValueChanged<String> validator;
 
   final double small;
   final double medium;
@@ -19,7 +20,7 @@ class MySideTextFormField extends StatefulWidget {
   final EdgeInsets padding;
 
   final bool isRequired;
-  MySideTextFormField({Key key, this.title = "", this.whenBeSmall, this.labelText = "", this.controller, this.hint, this.maxLines = 1, this.enabled = true, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = const EdgeInsets.only(left: 8.0, right: 8.0), this.isRequired = false}) : super(key: key);
+  MySideTextFormField({Key key, this.title = "", this.whenBeSmall, this.labelText = "", this.controller, this.hint, this.maxLines = 1, this.enabled = true, this.validator, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = const EdgeInsets.only(left: 8.0, right: 8.0), this.isRequired = false}) : super(key: key);
   @override
   _MySideTextFormFieldState createState() => _MySideTextFormFieldState();
 }
@@ -89,7 +90,12 @@ class _MySideTextFormFieldState extends State<MySideTextFormField> {
                   borderSide: new BorderSide(),
                 ),
               ),
-              validator: (data){
+              validator: 
+              (widget.validator != null)
+              ?
+              widget.validator
+              :
+              (data){
                 if(data.isEmpty && widget.isRequired)
                   return "Campo requerido";
                 return null;
@@ -113,7 +119,21 @@ class _MySideTextFormFieldState extends State<MySideTextFormField> {
           child: 
           (whenBeSmall.toString() == ScreenSize.isType(boxconstraints.maxWidth).toString())
           ?
-          MyTextFormField(title: widget.title, controller: widget.controller, small: widget.small, medium: widget.medium, large: widget.large, xlarge: widget.xlarge, isRequired: widget.isRequired,)
+          MyTextFormField(
+            title: widget.title, 
+            controller: widget.controller, 
+            small: widget.small, 
+            medium: widget.medium, 
+            large: widget.large, 
+            xlarge: widget.xlarge, 
+            isRequired: widget.isRequired,
+            validator: (widget.validator != null) 
+            ?
+            widget.validator
+            :
+            null
+            )
+
           :
           _screen(boxconstraints.maxWidth)
         );

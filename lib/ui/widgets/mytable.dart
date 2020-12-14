@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 
 class MyTable extends StatefulWidget {
-  final List<String> columns;
-  final List<List<String>> rows;
+  final List<dynamic> columns;
+  final List<List<dynamic>> rows;
   final List<String> totals;
   final EdgeInsets padding;
+  final Function delete;
+  final Function onTap;
   final int indexCellKeyToReturnOnClick;
-  MyTable({Key key, @required this.columns, @required this.rows, this.totals, this.indexCellKeyToReturnOnClick = 0, this.padding = const EdgeInsets.only(bottom: 15, top: 15)}) : super(key: key);
+  final String colorColumn;
+  final double fontSizeColumn;
+  MyTable({Key key, @required this.columns, @required this.rows, this.totals, this.onTap, this.delete, this.indexCellKeyToReturnOnClick = 0, this.padding = const EdgeInsets.only(bottom: 15, top: 15), this.colorColumn, this.fontSizeColumn}) : super(key: key);
   @override
   _MyTableState createState() => _MyTableState();
 }
@@ -20,6 +24,11 @@ class _MyTableState extends State<MyTable> {
     super.initState();
   }
 
+  _onSelectChanged(String data){
+    if(widget.onTap != null)
+      widget.onTap(data);
+  }
+
   List<DataRow> _init(){
     rows = List();
     print("befoore first if");
@@ -30,7 +39,16 @@ class _MyTableState extends State<MyTable> {
       return [];
     print("second if");
 
-    rows = widget.rows.map((row) => DataRow(cells: row.map((string) => DataCell(Text(string, style: TextStyle(fontFamily: "GoogleSans"), textAlign: TextAlign.center,))).toList() )).toList();
+    rows = widget.rows.map((row){
+      DataRow dataRow = DataRow(
+        onSelectChanged: (data){_onSelectChanged(row[widget.indexCellKeyToReturnOnClick]);},
+        cells: row.map((e) => DataCell((e is Widget) ? e : Text(e, style: TextStyle(fontFamily: "GoogleSans"), textAlign: TextAlign.center,))).toList() 
+      );
+
+      if(widget.delete != null)
+        dataRow.cells.add(DataCell(IconButton(icon: Icon(Icons.delete), onPressed: (){widget.delete(row[widget.indexCellKeyToReturnOnClick]);},)));
+      return dataRow;
+    }).toList();
     var totals = getTotalsDataRow();
     if(totals != null)
       rows.add(totals);
@@ -52,12 +70,32 @@ class _MyTableState extends State<MyTable> {
     return DataRow(cells: widget.totals.map((string) => DataCell(Text(string, style: TextStyle(fontSize: 17, fontFamily: "GoogleSans", fontWeight: FontWeight.w500), textAlign: TextAlign.center,))).toList() );
   }
 
+  _initColumn(){
+    
+    var columns =  widget.columns.map((e) => DataColumn(
+      label: 
+      (e is Widget) 
+      ? 
+      e 
+      : 
+      Text(e, style: TextStyle(fontFamily: "GoogleSans",), overflow: TextOverflow.ellipsis, softWrap: true, textAlign: TextAlign.center,)
+    )).toList();
+    if(widget.delete != null)
+      columns.add(DataColumn(label: Center(child: IconButton(icon: Icon(Icons.delete), onPressed: null,))));
+
+    return columns;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: DataTable(
-        columns: widget.columns.map((e) => DataColumn(label: Text(e, style: TextStyle(fontFamily: "GoogleSans"), textAlign: TextAlign.center,))).toList(),
-        rows: _init(),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: DataTable(
+          showCheckboxColumn: false,
+          columns: _initColumn(),
+          rows: _init(),
+        ),
       )
     );
   }

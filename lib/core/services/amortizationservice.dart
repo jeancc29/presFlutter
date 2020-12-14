@@ -8,7 +8,7 @@ import 'package:prestamo/core/models/tipo.dart';
 
 class AmortizationService{
   // https://clasesdematematicafinancieraenlima.com/tasa-de-interes-en-una-anualidad/
-  static List<Amortizacion> amortizacionFrancesCuotaFija({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago}){
+  static List<Amortizacion> amortizacionFrancesCuotaFija({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago, Tipo tipoAmortizacion}){
     // double i = interes / 100;
     fechaPrimerPago = (fechaPrimerPago == null) ? DateTime.now() : fechaPrimerPago;
     double i = convertirInteres(interes: interes, tipoPlazo: tipoPlazo, convertirAAnos: false) / 100;
@@ -22,14 +22,13 @@ class AmortizationService{
       double montoCuota = 0;
       double capitalRestante = 0;
       double capitalSaldado = 0;
-
       if(index == 0){
         montoInteres =  Utils.redondear((monto * i));
         montoCapital = Utils.redondear(cuotaCalculadaAPagar - montoInteres);
         montoCuota = cuotaCalculadaAPagar;
         capitalRestante = monto - montoCapital;
         capitalSaldado = montoCapital;
-        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: fechaPrimerPago));
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: fechaPrimerPago, tipo: tipoAmortizacion));
       }else{
         // print("AmortizacionService frances: ${index} length: ${lista.length}");
         // print("AmortizacionService frances: ${lista[index - 1].capitalRestante}");
@@ -44,7 +43,7 @@ class AmortizationService{
           montoInteres = Utils.redondear(_sumarORestarMontoSobranteAlInteres(capitalRestante, montoInteres));
           capitalRestante = 0;
         }
-        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: fechaPrimerPago.day, tipoPlazo: tipoPlazo)));
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: fechaPrimerPago.day, tipoPlazo: tipoPlazo), tipo: tipoAmortizacion));
       }
 
       
@@ -56,7 +55,7 @@ class AmortizationService{
   }
 
   //metodo alemante, disminuir cuota
-  static List<Amortizacion> amortizacionAlemanODisminuirCuota({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago}){
+  static List<Amortizacion> amortizacionAlemanODisminuirCuota({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago, Tipo tipoAmortizacion}){
     // double i = interes / 100;
     //Capital = monto / numeroCuotas;
     //interes = capitalSaldado * interes;
@@ -80,7 +79,7 @@ class AmortizationService{
         montoCuota = cuotaCalculadaAPagar + montoInteres;
         capitalRestante = monto - montoCapital;
         capitalSaldado = montoCapital;
-        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: fechaPrimerPago));
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: fechaPrimerPago, tipo: tipoAmortizacion));
       }else{
         // print("AmortizacionService frances: ${index} length: ${lista.length}");
         // print("AmortizacionService frances: ${lista[index - 1].capitalRestante}");
@@ -95,7 +94,7 @@ class AmortizationService{
           montoInteres = Utils.redondear(_sumarORestarMontoSobranteAlInteres(capitalRestante, montoInteres));
           capitalRestante = 0;
         }
-        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: fechaPrimerPago.day, tipoPlazo: tipoPlazo)));
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: fechaPrimerPago.day, tipoPlazo: tipoPlazo), tipo: tipoAmortizacion));
       }
 
       
@@ -107,7 +106,7 @@ class AmortizationService{
   }
 
   //Metodo interes fijo
-  static List<Amortizacion> amortizacionInteresFijo({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago}){
+  static List<Amortizacion> amortizacionInteresFijo({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago, Tipo tipoAmortizacion}){
     // double i = interes / 100;
     //Capital = monto / numeroCuotas;
     //interes = capitalSaldado * interes;
@@ -131,7 +130,7 @@ class AmortizationService{
         montoCuota = cuotaCalculadaAPagar + montoInteres;
         capitalRestante = monto - montoCapital;
         capitalSaldado = montoCapital;
-        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: fechaPrimerPago));
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: fechaPrimerPago, tipo: tipoAmortizacion));
       }else{
         // print("AmortizacionService frances: ${index} length: ${lista.length}");
         // print("AmortizacionService frances: ${lista[index - 1].capitalRestante}");
@@ -146,7 +145,7 @@ class AmortizationService{
           montoInteres = Utils.redondear(_sumarORestarMontoSobranteAlInteres(capitalRestante, montoInteres));
           capitalRestante = 0;
         }
-        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: fechaPrimerPago.day, tipoPlazo: tipoPlazo)));
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: fechaPrimerPago.day, tipoPlazo: tipoPlazo), tipo: tipoAmortizacion));
       }
 
       
@@ -158,7 +157,7 @@ class AmortizationService{
   }
 
   //Metodo capital al final
-  static List<Amortizacion> amortizacionCapitalAlFinal({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago}){
+  static List<Amortizacion> amortizacionCapitalAlFinal({double monto, double interes, int numeroCuota, Tipo tipoPlazo, DateTime fechaPrimerPago, Tipo tipoAmortizacion}){
     // double i = interes / 100;
     //Capital = monto / numeroCuotas;
     //interes = capitalSaldado * interes;
@@ -175,13 +174,21 @@ class AmortizationService{
       double capitalRestante = 0;
       double capitalSaldado = 0;
 
-      if(index + 1 < numeroCuota){
+      if(index == 0){
         montoInteres =  Utils.redondear((monto * i));
         montoCapital = 0;
         montoCuota = montoInteres;
         capitalRestante = monto - montoCapital;
         capitalSaldado = montoCapital;
-        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: fechaPrimerPago));
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: fechaPrimerPago, tipo: tipoAmortizacion));
+      }
+      else if(index + 1 < numeroCuota && index > 0){
+        montoInteres =  Utils.redondear((monto * i));
+        montoCapital = 0;
+        montoCuota = montoInteres;
+        capitalRestante = monto - montoCapital;
+        capitalSaldado = montoCapital;
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: fechaPrimerPago.day, tipoPlazo: tipoPlazo,), tipo: tipoAmortizacion));
       }else{
         // print("AmortizacionService frances: ${index} length: ${lista.length}");
         // print("AmortizacionService frances: ${lista[index - 1].capitalRestante}");
@@ -196,7 +203,7 @@ class AmortizationService{
           montoInteres = Utils.redondear(_sumarORestarMontoSobranteAlInteres(capitalRestante, montoInteres));
           capitalRestante = 0;
         }
-        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: fechaPrimerPago.day, tipoPlazo: tipoPlazo)));
+        lista.add(Amortizacion(cuota: montoCuota, interes: montoInteres, capital: montoCapital, capitalSaldado: capitalSaldado, capitalRestante: capitalRestante, fecha: aumentarFecha(fecha: lista[index - 1].fecha, dayOfTheMonthToAmortize: fechaPrimerPago.day, tipoPlazo: tipoPlazo), tipo: tipoAmortizacion));
       }
 
       

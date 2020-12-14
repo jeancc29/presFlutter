@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/cliente.dart';
+import 'package:prestamo/core/models/prestamo.dart';
 
 
 class LoanService{
@@ -69,11 +70,11 @@ class LoanService{
     return parsed;
   }
 
-  static Future<List<Cliente>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Cliente cliente}) async {
+  static Future<Map<String, dynamic>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Prestamo prestamo}) async {
     var map = Map<String, dynamic>();
-    // cliente.toJson();
+    // prestamo.toJson();
     // map["servidor"] = await Db.servidor();
-    map["data"] = cliente.toJson();
+    map["data"] = prestamo.toJson();
     Map<String, dynamic> map2 = Map<String, dynamic>();
     // map2["data"] = map;
     // print("map: ${map}");
@@ -106,6 +107,6 @@ class LoanService{
     }
 
 
-    return (parsed["bancas"] != null) ? parsed["bancas"].map<Cliente>((json) => Cliente.fromMap(json)).toList() : List<Cliente>();
+    return parsed;
   }
 }

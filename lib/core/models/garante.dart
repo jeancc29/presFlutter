@@ -3,7 +3,7 @@
 class Garante {
   int id;
   String nombres;
-  int numeroIdentificacion;
+  String numeroIdentificacion;
   String telefono;
   String direccion;
   
@@ -13,7 +13,7 @@ class Garante {
   Garante.fromMap(Map snapshot) :
         id = snapshot['id'] ?? 0,
         nombres = snapshot['nombres'] ?? '',
-        numeroIdentificacion = snapshot['numeroIdentificacion'] ?? 0,
+        numeroIdentificacion = snapshot['numeroIdentificacion'] ?? '',
         telefono = snapshot['telefono'] ?? '',
         direccion = snapshot['direccion'] ?? ''
         ;

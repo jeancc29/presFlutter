@@ -94,7 +94,7 @@ class Garantia {
 
   toJson() {
     return {
-      "id": id,
+      "id": (id != null) ? id : null,
       "foto": (foto != null) ? base64Encode(foto) : null,
       "descripcion": descripcion,
       "matricula": matricula,
