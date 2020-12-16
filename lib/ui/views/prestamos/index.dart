@@ -27,6 +27,8 @@ class _PrestamosScreenState extends State<PrestamosScreen> {
   bool _cargando = false;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   List<Prestamo> listaPrestamo = List();
+  List<Tipo> listaTipo = List();
+  List<Tipo> listaPlazo = List();
 
   @override
   void initState() {
@@ -44,6 +46,8 @@ class _PrestamosScreenState extends State<PrestamosScreen> {
     //   // print("tipoAmortizacion is type: ${e["caja"]["descripcion"]}");
     // }).toList();
     listaPrestamo = parsed["prestamos"].map<Prestamo>((e) => Prestamo.fromMap(e)).toList();
+    listaTipo = parsed["tipos"].map<Tipo>((e) => Tipo.fromMap(e)).toList();
+    listaPlazo = listaTipo.where((element) => element.renglon == "plazo").toList();
     listaPrestamo.forEach((element) {print("prestamo cliente: ${element.tipoAmortizacion.descripcion}");});
     _streamController.add(listaPrestamo);
   }
@@ -98,10 +102,11 @@ class _PrestamosScreenState extends State<PrestamosScreen> {
       builder: (context){
         return MyAlertDialog(
           title: "Filtrar prestamos", 
+          description: "Filtra entre fechas, fecha proximo pago, prestamos al dia, mora y mucho mas...",
           content: Wrap(
             children: [
-              MyDatePicker(initialHint: "Todas las fechas", title: "Fecha inicial", isDropdown: true, initialEntryMode: DatePickerEntryMode.calendar, onDateTimeChanged: _onFechaInicialChanged),
-              MyDatePicker(initialHint: "Todas las fechas", title: "Fecha final", isDropdown: true, initialEntryMode: DatePickerEntryMode.calendar, onDateTimeChanged: _onFechaFinalChanged, ),
+              MyDatePicker(initialHint: "Todas las fechas", medium: 2, title: "Fecha inicial", initialEntryMode: DatePickerEntryMode.calendar, onDateTimeChanged: _onFechaInicialChanged),
+              MyDatePicker(initialHint: "Todas las fechas", medium: 2, title: "Fecha final", initialEntryMode: DatePickerEntryMode.calendar, onDateTimeChanged: _onFechaFinalChanged, ),
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: MyDatePicker(initialHint: "Todas las fechas", title: "Fecha proximo pago", initialEntryMode: DatePickerEntryMode.calendar, onDateTimeChanged: _onFechaProximoPagoChanged, ),
@@ -109,6 +114,11 @@ class _PrestamosScreenState extends State<PrestamosScreen> {
               MyDropdownButton(
                 title: "Estado",
                 elements: ["Todos", "Al dia", "Pendiente", "Cuota Vencida", "Mora", "Cancelado"],
+                onChanged: (data){},
+              ),
+              MyDropdownButton(
+                title: "Plazo",
+                elements: listaPlazo.map<String>((e) => e.descripcion).toList(),
                 onChanged: (data){},
               )
             ],
@@ -147,7 +157,7 @@ class _PrestamosScreenState extends State<PrestamosScreen> {
                 // ),
                 Padding(
                   padding: const EdgeInsets.only(top: 40.0),
-                  child: FlatButton(onPressed: _showDialogFiltrar, child: Text("Mas filtros", style: TextStyle(fontFamily: "GoogleSans", fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black.withOpacity(.7)))),
+                  child: FlatButton(onPressed: _showDialogFiltrar, child: Text("Mas filtros...", style: TextStyle(fontFamily: "GoogleSans", fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black.withOpacity(.5)))),
                 ),
                 
              ],
