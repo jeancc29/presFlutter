@@ -31,6 +31,7 @@ import 'package:prestamo/ui/widgets/mydropdownbutton.dart';
 import 'package:prestamo/ui/widgets/myheader.dart';
 import 'package:prestamo/ui/widgets/myresizedcontainer.dart';
 import 'package:prestamo/ui/widgets/myscaffold.dart';
+import 'package:prestamo/ui/widgets/myscrollbar.dart';
 import 'package:prestamo/ui/widgets/mysearch.dart';
 import 'package:prestamo/ui/widgets/mybottomsheet.dart';
 import 'package:prestamo/ui/widgets/mysidedropdownbutton.dart';
@@ -59,6 +60,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   StreamController<List<Garantia>> _streamControllerGarantia;
   StreamController<List<Cuenta>> _streamControllerCuenta;
   StreamController<List<Dia>> _streamControllerDiasExcluidos;
+  StreamController<List<Amortizacion>> _streamControllerAmortizacion;
   var _formKey = GlobalKey<FormState>();
   var _txtCliente = TextEditingController();
   var _focusNodeTxtCliente = FocusNode();
@@ -214,8 +216,10 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     // try {
       setState(() => _cargando = true);
       var parsed = await LoanService.store(context: context, prestamo: _prestamo );
-      print("_guardar parsed: $parsed");
+      print("_guardar parsed: ${parsed["prestamo"]}");
+      Navigator.pop(context, Prestamo.fromMap(parsed["prestamo"]));
       setState(() => _cargando = false);
+
     // } on Exception catch (e) {
     //       // TODO
     // }
@@ -335,16 +339,20 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                         onChanged: _interesAmortizacionChanged,
                         medium: 3,
                       ),
-                      MyTextFormField(
-                        // labelText: "Cliente",
-                        title: "% interes anual *",
-                        controller: _txtInteresAnualAmortizacion,
-                        hint: "% interes anual",
-                        isRequired: true,
-                        xlarge: 4.5,
-                        isDecimal: true,
-                        onChanged: _interesAnualAmortizacionChanged,
-                        medium: 3,
+                      Visibility(
+                        visible: false,
+                        child: MyTextFormField(
+                          // labelText: "Cliente",
+                          title: "% interes anual *",
+                          controller: _txtInteresAnualAmortizacion,
+                          hint: "% interes anual",
+                          isRequired: true,
+                          xlarge: 4.5,
+                          isDecimal: true,
+                          onChanged: _interesAnualAmortizacionChanged,
+                          medium: 3,
+                          
+                        ),
                       ),
                       
                       MyDatePicker(
@@ -435,7 +443,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                                       rows: (listaAmortizacion.length == 0) 
                                       ? [] 
                                       : listaAmortizacion.asMap().map((index, e) => MapEntry(index, ["${index + 1}", "${e.fecha.toString()}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList(),
-                                      totals: ["", "totales", _totalCapital(), _totalInteres(), _totalCuota(), ""],
+                                      // totals: ["", "totales", _totalCapital(), _totalInteres(), _totalCuota(), ""],
                                       // : List.generate(listaAmortizacion.length, (index) => listaAmortizacion.map((e) => e.))
 
                                     ),
@@ -468,121 +476,418 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
         return StatefulBuilder(
           builder: (context, setState) {
 
-            _calcularAmortizacion(){
-              setState(() => listaAmortizacion = AmortizationService.amortizacionFrancesCuotaFija(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
+             _calcularAmortizacion(){
+              if(_tipoAmortizacionAmortizacion.descripcion == "Cuota fija")
+                // setState(() => listaAmortizacion = AmortizationService.amortizacionFrancesCuotaFija(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
+                listaAmortizacion = AmortizationService.amortizacionFrancesCuotaFija(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion);
+              else if(_tipoAmortizacionAmortizacion.descripcion == "Disminuir cuota")
+                // setState(() => listaAmortizacion = AmortizationService.amortizacionAlemanODisminuirCuota(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
+                listaAmortizacion = AmortizationService.amortizacionAlemanODisminuirCuota(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion);
+              else if(_tipoAmortizacionAmortizacion.descripcion == "Interes fijo")
+                // setState(() => listaAmortizacion = AmortizationService.amortizacionInteresFijo(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
+                listaAmortizacion = AmortizationService.amortizacionInteresFijo(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion);
+              else
+                // setState(() => listaAmortizacion = AmortizationService.amortizacionCapitalAlFinal(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion));
+                listaAmortizacion = AmortizationService.amortizacionCapitalAlFinal(interes: Utils.toDouble(_txtInteresAnualAmortizacion.text), numeroCuota: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), monto: Utils.toDouble(_txtMontoAmortizacion.text), tipoPlazo: _tipoPlazoAmortizacion, fechaPrimerPago: _fechaPrimerPagoAmortizacion);
+              _streamControllerAmortizacion.add(listaAmortizacion);
             }
+
+            String _totalCapital(){ 
+              if(listaAmortizacion == null)
+                return Utils.toCurrency(0);
+              if(listaAmortizacion.length == 0)
+                return Utils.toCurrency(0);
+              return Utils.toCurrency(listaAmortizacion.map<double>((element) => element.capital).reduce((value, element) => value + element));
+            }
+
+            String _totalInteres(){
+              if(listaAmortizacion == null)
+                return Utils.toCurrency(0);
+              if(listaAmortizacion.length == 0)
+                return Utils.toCurrency(0);
+              return Utils.toCurrency(listaAmortizacion.map<double>((element) => element.interes).reduce((value, element) => value + element));
+            }
+
+            String _totalInteresMasCapital(){
+              if(listaAmortizacion == null)
+                return Utils.toCurrency(0);
+              if(listaAmortizacion.length == 0)
+                return Utils.toCurrency(0);
+
+              double totalInteres = listaAmortizacion.map<double>((element) => element.interes).reduce((value, element) => value + element);
+              double totalCapital = listaAmortizacion.map<double>((element) => element.capital).reduce((value, element) => value + element);
+              return Utils.toCurrency(totalInteres + totalCapital);
+            }
+            String _totalCuota(){
+              if(listaAmortizacion == null)
+                return Utils.toCurrency(0);
+              if(listaAmortizacion.length == 0)
+                return Utils.toCurrency(0);
+              return Utils.toCurrency(listaAmortizacion.map<double>((element) => element.cuota).reduce((value, element) => value + element));
+            }
+            
             return MyAlertDialog(
               title: "Amortizar", 
+              xlarge: 2.2,
               description: "Determine la amortizacion para obtener un desglose detallado de los cuotas, interes y capital a pagar.",
-              content: Wrap(
-                children: [
-                  MyDropdownButton(
-                      xlarge: 3,
-                      medium: 2,
-                      title: "Amortizacion *",
-                      elements: listaTipo.where((element) => element.renglon == "amortizacion").toList().map<String>((e) => e.descripcion).toList(),
-                      onChanged: (data){
-                        setState(() => _tipoAmortizacionAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data));
-                      },
-                    ),
-                    MyDropdownButton(
-                    xlarge: 2,
-                    medium: 2,
-                    title: "Plazo *",
-                    elements: listaTipo.where((element) => element.renglon == "plazo").toList().map<String>((e) => e.descripcion).toList(),
-                    onChanged: (data){
-                      setState((){
-                        _tipoPlazoAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data);
-                        // _interesAnualAmortizacionChanged(_txtInteresAnualAmortizacion.text);
-                        _interesAmortizacionChanged(_txtInteresAmortizacion.text);
-                      });
-                    },
-                  ),
-                  MyTextFormField(
-                    controller: _txtMontoAmortizacion,
-                    title: "Monto *",
-                    hint: "Monto",
-                    isMoneyFormat: true,
-                    medium: 2,
-                    onChanged: (data){
-                      // print("Monto change1: ${_txtMontoAmortizacion.text}");
-                    },
-                  ),
-                  MyTextFormField(
-                    controller: _txtNumeroCuotaAmortizacion,
-                    title: "# cuotas *",
-                    hint: "# cuotas",
-                    isDigitOnly: true,
-                    medium: 2,
-                  ),
-                  
-                   MyTextFormField(
-                    controller: _txtInteresAmortizacion,
-                    title: "Interes ${_tipoPlazoAmortizacion != null ? _tipoPlazoAmortizacion.descripcion : ''}*",
-                    hint: "Interes",
-                    isDecimal: true,
-                    onChanged: _interesAmortizacionChanged,
-                    medium: 3,
-                  ),
-                  MyTextFormField(
-                    // labelText: "Cliente",
-                    title: "% interes anual *",
-                    controller: _txtInteresAnualAmortizacion,
-                    hint: "% interes anual",
-                    isRequired: true,
-                    xlarge: 4.5,
-                    isDecimal: true,
-                    onChanged: _interesAnualAmortizacionChanged,
-                    medium: 3,
-                  ),
-                  
-                  MyDatePicker(
-                      title: "Fecha primer pago",
-                      initialEntryMode: DatePickerEntryMode.calendar,
-                      onDateTimeChanged: (data){
-                        print("Fecha primer pago amortizacion change");
-                        // setState(() => _fechaPrimerPagoAmortizacion = data);
-                      },
-                      medium: 3,
-                    ),
-                  MyTextFormField(
-                    xlarge: 2,
-                    medium: 1,
-                    controller: _txtMontoCuotaAmortizacion,
-                    title: "Monto cuota *",
-                    hint: "Monto cuota",
-                    isMoneyFormat: true,
-                    info: "Si no sabe que interes usar entonces llene este campo con el monto a pagar por cada cuota y el sistema calculara el interes automaticamente.",
-                  ),
-                  Scrollbar(
-                    controller: _scrollControllerCulo,
-                    isAlwaysShown: true,
-                    child: SingleChildScrollView(
-                      child: DraggableScrollbar(
-                        child: Container(
-                          constraints: BoxConstraints(maxHeight: 100),
-                          child: ListView.builder(
-                            controller: _scrollControllerCulo,
-                            itemCount: 1,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 18.0),
-                                child: MyTable(
-                                  columns: ["#", "Capital", "Interes", "Cuota", "Balance"], 
-                                  rows: (listaAmortizacion.length == 0) 
-                                  ? [] 
-                                  : listaAmortizacion.asMap().map((index, e) => MapEntry(index, ["${index + 1}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList()
-                                  // : List.generate(listaAmortizacion.length, (index) => listaAmortizacion.map((e) => e.))
-                                ),
-                              );
-                            }
-                          ),
+              content: 
+              Wrap(
+                      children: [
+                        MyDropdownButton(
+                          xlarge: 2,
+                          medium: 2,
+                          title: "Amortizacion *",
+                          elements: listaTipo.where((element) => element.renglon == "amortizacion").toList().map<String>((e) => e.descripcion).toList(),
+                          onChanged: (data){
+                            setState(() => _tipoAmortizacionAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data));
+                          },
+                        ),
+                        MyDropdownButton(
+                        xlarge: 2,
+                        medium: 2,
+                        title: "Plazo *",
+                        elements: listaTipo.where((element) => element.renglon == "plazo").toList().map<String>((e) => e.descripcion).toList(),
+                        onChanged: (data){
+                          setState((){
+                            _tipoPlazoAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data);
+                            // _interesAnualAmortizacionChanged(_txtInteresAnualAmortizacion.text);
+                            _interesAmortizacionChanged(_txtInteresAmortizacion.text);
+                          });
+                        },
+                      ),
+                      MyTextFormField(
+                        controller: _txtMontoAmortizacion,
+                        title: "Monto *",
+                        hint: "Monto",
+                        isMoneyFormat: true,
+                        isRequired: true,
+                        medium: 3,
+                        onChanged: (data){
+                          // print("Monto change1: ${_txtMontoAmortizacion.text}");
+                        },
+                      ),
+                      MyTextFormField(
+                        controller: _txtNumeroCuotaAmortizacion,
+                        title: "# cuotas *",
+                        hint: "# cuotas",
+                        isRequired: true,
+                        isDigitOnly: true,
+                        medium: 4.5,
+                      ),
+                      
+                        MyTextFormField(
+                        enabled: _txtMontoCuotaAmortizacion.text.isEmpty,
+                        controller: _txtInteresAmortizacion,
+                        title: "Interes ${_tipoPlazoAmortizacion != null ? _tipoPlazoAmortizacion.descripcion : ''}*",
+                        hint: "Interes",
+                        isRequired: true,
+                        isDecimal: true,
+                        onChanged: _interesAmortizacionChanged,
+                        medium: 4.5,
+                      ),
+                      Visibility(
+                        visible: false,
+                        child: MyTextFormField(
+                          // labelText: "Cliente",
+                          title: "% interes anual *",
+                          controller: _txtInteresAnualAmortizacion,
+                          hint: "% interes anual",
+                          isRequired: true,
+                          xlarge: 4.5,
+                          isDecimal: true,
+                          onChanged: _interesAnualAmortizacionChanged,
+                          medium: 4.5,
+                          
                         ),
                       ),
+                      
+                      MyDatePicker(
+                          title: "Fecha 1er pago",
+                          initialEntryMode: DatePickerEntryMode.calendar,
+                          onDateTimeChanged: (data){
+                            print("fechaPrimer pago mierda: ${data.toString()}");
+                            setState(() => _fechaPrimerPagoAmortizacion = data);
+                          },
+                          medium: 4.5,
+                          xlarge: 6,
+                        ),
+                      MyTextFormField(
+                        xlarge: 2,
+                        medium: 1,
+                        controller: _txtMontoCuotaAmortizacion,
+                        title: "Monto cuota *",
+                        hint: "Monto cuota",
+                        isMoneyFormat: true,
+                        info: "Si no sabe que interes usar entonces llene este campo con el monto a pagar por cada cuota y el sistema calculara el interes automaticamente.",
+                        onChanged: (data){
+                          if(Utils.toDouble(_txtMontoAmortizacion.text) == 0){
+                            _txtInteresAmortizacion.text = null;
+                            return;
+                          }
+                          if(Utils.toInt(_txtNumeroCuotaAmortizacion.text) == 0){
+                            _txtInteresAmortizacion.text = null;
+                            return;
+                          }
+                          
+                          
+                         switch (_tipoAmortizacionAmortizacion.descripcion) {
+                           case "Cuota fija":
+                              print("montoCuota change data: $data");
+                              if(data.isNotEmpty){
+                                _txtInteresAmortizacion.text = AmortizationService.obtenerTasaInteresAmortizacionFrancesCuotaFija(monto: Utils.toDouble(_txtMontoAmortizacion.text), numeroCuotas: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), montoCuota: Utils.toDouble(_txtMontoCuotaAmortizacion.text)).toString();
+                                _interesAmortizacionChanged(_txtInteresAmortizacion.text);
+                              }else{
+                                _txtInteresAmortizacion.text = "";
+                                _txtInteresAnualAmortizacion.text = "";
+                              }
+                             
+                             break;
+                           case "Disminuir cuota":
+                              if(data.isNotEmpty){
+                                _txtInteresAmortizacion.text = AmortizationService.obtenerTasaInteresAmortizacionAlemanaODisminuirCuota(monto: Utils.toDouble(_txtMontoAmortizacion.text), numeroCuotas: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), montoCuota: Utils.toDouble(_txtMontoCuotaAmortizacion.text)).toString();
+                                _interesAmortizacionChanged(_txtInteresAmortizacion.text);
+                              }else{
+                                _txtInteresAmortizacion.text = "";
+                                _txtInteresAnualAmortizacion.text = "";
+                              }
+                             break;
+                           case "Interes fijo":
+                              if(data.isNotEmpty){
+                                _txtInteresAmortizacion.text = AmortizationService.obtenerTasaInteresAmortizacionAlemanaODisminuirCuota(monto: Utils.toDouble(_txtMontoAmortizacion.text), numeroCuotas: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), montoCuota: Utils.toDouble(_txtMontoCuotaAmortizacion.text)).toString();
+                                _interesAmortizacionChanged(_txtInteresAmortizacion.text);
+                              }else{
+                                _txtInteresAmortizacion.text = "";
+                                _txtInteresAnualAmortizacion.text = "";
+                              }
+                             break;
+                           default:
+                           if(data.isNotEmpty){
+                                _txtInteresAmortizacion.text = AmortizationService.obtenerTasaInteresAmortizacionCapitalAlFinal(monto: Utils.toDouble(_txtMontoAmortizacion.text), numeroCuotas: Utils.toDouble(_txtNumeroCuotaAmortizacion.text), montoCuota: Utils.toDouble(_txtMontoCuotaAmortizacion.text)).toString();
+                                _interesAmortizacionChanged(_txtInteresAmortizacion.text);
+                              }else{
+                                _txtInteresAmortizacion.text = "";
+                                _txtInteresAnualAmortizacion.text = "";
+                              }
+                         }
+                        },
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: LayoutBuilder(
+                              
+                              builder: (context, BoxConstraints boxconstraint) {
+                                return Container(
+                                  // height: 200,
+                                  // color: Colors.red,
+                                  constraints: BoxConstraints(minHeight: 50, maxHeight: 200),
+                                  child: StreamBuilder<List<Amortizacion>>(
+                                    stream: _streamControllerAmortizacion.stream,
+                                    builder: (context, snapshot) {
+                                      if(snapshot.hasData)
+                                        return MyScrollbar(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(bottom: 18.0),
+                                            child: MyTable(
+                                              columns: ["#", "fecha", "Capital", "Interes", "Cuota", "Balance"], 
+                                              rows: (listaAmortizacion.length == 0) 
+                                              ? [] 
+                                              : listaAmortizacion.asMap().map((index, e) => MapEntry(index, ["${index + 1}", "${e.fecha.year}-${e.fecha.month}-${e.fecha.day}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList(),
+                                              // totals: [["", "totales", _totalCapital(), _totalInteres(), _totalCuota(), ""]],
+                                              // totals: [
+                                              //   [Flexible(child: Text("Total interes")), "", "", "", "", _totalInteres()],
+                                              //   ["Interes", "+ capital", "", "", "", _totalInteresMasCapital()],
+                                              // ],
+                                              customTotals: Container(
+                                                width: boxconstraint.maxWidth,
+                                                // color: Colors.red,
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                      Text("Total interes", style: TextStyle(fontSize: 17, fontFamily: "GoogleSans", fontWeight: FontWeight.w500)),
+                                                      Text(_totalInteres(), style: TextStyle(fontSize: 17, fontFamily: "GoogleSans", fontWeight: FontWeight.w500)),
+                                                    ]
+                                                  ),
+                                                  Divider(),
+                                                  Row(
+                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    children: [
+                                                    Text("Interes mas capital", style: TextStyle(fontSize: 17, fontFamily: "GoogleSans", fontWeight: FontWeight.w500)),
+                                                    Text(_totalInteresMasCapital(), style: TextStyle(fontSize: 17, fontFamily: "GoogleSans", fontWeight: FontWeight.w500)),
+                                                  ]),
+                                                ],),
+                                          
+                                              ),
+                                              // : List.generate(listaAmortizacion.length, (index) => listaAmortizacion.map((e) => e.))
+
+                                            ),
+                                          ),
+                                        );
+
+                                        return Padding(
+                                            padding: const EdgeInsets.only(bottom: 18.0),
+                                            child: MyTable(
+                                              columns: ["#", "fecha", "Capital", "Interes", "Cuota", "Balance"], 
+                                              rows: (listaAmortizacion.length == 0) 
+                                              ? [] 
+                                              : listaAmortizacion.asMap().map((index, e) => MapEntry(index, ["${index + 1}", "${e.fecha.year}-${e.fecha.month}-${e.fecha.day}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList(),
+                                              // totals: ["", "totales", _totalCapital(), _totalInteres(), _totalCuota(), ""],
+                                              // : List.generate(listaAmortizacion.length, (index) => listaAmortizacion.map((e) => e.))
+
+                                            ),
+                                          );
+                                    }
+                                  ),
+                                );
+                              }
+                            ),
+                          ),
+                        ],
+                      )
+                      // Scrollbar(
+                      //   controller: _scrollControllerCulo,
+                      //   isAlwaysShown: true,
+                      //   child: SingleChildScrollView(
+                      //     child: DraggableScrollbar(
+                      //       child: Container(
+                      //         constraints: BoxConstraints(maxHeight: 160),
+                      //         child: ListView.builder(
+                      //           controller: _scrollControllerCulo,
+                      //           itemCount: 1,
+                      //           itemBuilder: (context, index) {
+                      //             return Padding(
+                      //               padding: const EdgeInsets.only(bottom: 18.0),
+                      //               child: MyTable(
+                      //                 columns: ["#", "fecha", "Capital", "Interes", "Cuota", "Balance"], 
+                      //                 rows: (listaAmortizacion.length == 0) 
+                      //                 ? [] 
+                      //                 : listaAmortizacion.asMap().map((index, e) => MapEntry(index, ["${index + 1}", "${e.fecha.toString()}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList(),
+                      //                 totals: ["", "totales", _totalCapital(), _totalInteres(), _totalCuota(), ""],
+                      //                 // : List.generate(listaAmortizacion.length, (index) => listaAmortizacion.map((e) => e.))
+
+                      //               ),
+                      //             );
+                                
+                      //           }
+                      //         ),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // )
+                      ],
                     ),
-                  )
-                ],
-              ), 
+              // Wrap(
+              //   children: [
+              //     MyDropdownButton(
+              //         xlarge: 3,
+              //         medium: 2,
+              //         title: "Amortizacion *",
+              //         elements: listaTipo.where((element) => element.renglon == "amortizacion").toList().map<String>((e) => e.descripcion).toList(),
+              //         onChanged: (data){
+              //           setState(() => _tipoAmortizacionAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data));
+              //         },
+              //       ),
+              //       MyDropdownButton(
+              //       xlarge: 2,
+              //       medium: 2,
+              //       title: "Plazo *",
+              //       elements: listaTipo.where((element) => element.renglon == "plazo").toList().map<String>((e) => e.descripcion).toList(),
+              //       onChanged: (data){
+              //         setState((){
+              //           _tipoPlazoAmortizacion = listaTipo.firstWhere((element) => element.descripcion == data);
+              //           // _interesAnualAmortizacionChanged(_txtInteresAnualAmortizacion.text);
+              //           _interesAmortizacionChanged(_txtInteresAmortizacion.text);
+              //         });
+              //       },
+              //     ),
+              //     MyTextFormField(
+              //       controller: _txtMontoAmortizacion,
+              //       title: "Monto *",
+              //       hint: "Monto",
+              //       isMoneyFormat: true,
+              //       medium: 2,
+              //       onChanged: (data){
+              //         // print("Monto change1: ${_txtMontoAmortizacion.text}");
+              //       },
+              //     ),
+              //     MyTextFormField(
+              //       controller: _txtNumeroCuotaAmortizacion,
+              //       title: "# cuotas *",
+              //       hint: "# cuotas",
+              //       isDigitOnly: true,
+              //       medium: 2,
+              //     ),
+                  
+              //      MyTextFormField(
+              //       controller: _txtInteresAmortizacion,
+              //       title: "Interes ${_tipoPlazoAmortizacion != null ? _tipoPlazoAmortizacion.descripcion : ''}*",
+              //       hint: "Interes",
+              //       isDecimal: true,
+              //       onChanged: _interesAmortizacionChanged,
+              //       medium: 3,
+              //     ),
+              //     MyTextFormField(
+              //       // labelText: "Cliente",
+              //       title: "% interes anual *",
+              //       controller: _txtInteresAnualAmortizacion,
+              //       hint: "% interes anual",
+              //       isRequired: true,
+              //       xlarge: 4.5,
+              //       isDecimal: true,
+              //       onChanged: _interesAnualAmortizacionChanged,
+              //       medium: 3,
+              //     ),
+                  
+              //     MyDatePicker(
+              //         title: "Fecha primer pago",
+              //         initialEntryMode: DatePickerEntryMode.calendar,
+              //         onDateTimeChanged: (data){
+              //           print("Fecha primer pago amortizacion change");
+              //           // setState(() => _fechaPrimerPagoAmortizacion = data);
+              //         },
+              //         medium: 3,
+              //       ),
+              //     MyTextFormField(
+              //       xlarge: 2,
+              //       medium: 1,
+              //       controller: _txtMontoCuotaAmortizacion,
+              //       title: "Monto cuota *",
+              //       hint: "Monto cuota",
+              //       isMoneyFormat: true,
+              //       info: "Si no sabe que interes usar entonces llene este campo con el monto a pagar por cada cuota y el sistema calculara el interes automaticamente.",
+              //     ),
+              //     Scrollbar(
+              //       controller: _scrollControllerCulo,
+              //       isAlwaysShown: true,
+              //       child: SingleChildScrollView(
+              //         child: DraggableScrollbar(
+              //           child: Container(
+              //             constraints: BoxConstraints(maxHeight: 100),
+              //             child: ListView.builder(
+              //               controller: _scrollControllerCulo,
+              //               itemCount: 1,
+              //               itemBuilder: (context, index) {
+              //                 return Padding(
+              //                   padding: const EdgeInsets.only(bottom: 18.0),
+              //                   child: MyTable(
+              //                     columns: ["#", "Capital", "Interes", "Cuota", "Balance"], 
+              //                     rows: (listaAmortizacion.length == 0) 
+              //                     ? [] 
+              //                     : listaAmortizacion.asMap().map((index, e) => MapEntry(index, ["${index + 1}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList()
+              //                     // : List.generate(listaAmortizacion.length, (index) => listaAmortizacion.map((e) => e.))
+              //                   ),
+              //                 );
+              //               }
+              //             ),
+              //           ),
+              //         ),
+              //       ),
+              //     )
+              //   ],
+              // ), 
               okFunction: _calcularAmortizacion
             );
           }
@@ -1109,6 +1414,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     _tabController = TabController(length: 4, vsync: this);
     _scrollController = ScrollController();
     _scrollControllerCulo = ScrollController();
+    _streamControllerAmortizacion = BehaviorSubject();
     _streamControllerTipo = BehaviorSubject();
     _streamControllerGarantia = BehaviorSubject();
     _streamControllerCuenta = BehaviorSubject();
@@ -1313,7 +1619,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                         controller: _txtMonto,
                         hint: "Monto",
                         isRequired: true,
-                        xlarge: 3,
+                        xlarge: 4,
                         onChanged: _txtMontoChange,
                       ),
                       onFocusChange: (hasFocus){
@@ -1335,19 +1641,22 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       controller: _txtInteres,
                       hint: "% interes",
                       isRequired: true,
-                      xlarge: 4.5,
+                      xlarge: 4,
                       isDecimal: true,
                       onChanged: _interesChanged,
                     ),
-                    MyTextFormField(
-                      // labelText: "Cliente",
-                      title: "% interes anual *",
-                      controller: _txtInteresAnual,
-                      hint: "% interes anual",
-                      isRequired: true,
-                      xlarge: 4.5,
-                      isDecimal: true,
-                      onChanged: _interesAnualChanged,
+                    Visibility(
+                      visible: false,
+                      child: MyTextFormField(
+                        // labelText: "Cliente",
+                        title: "% interes anual *",
+                        controller: _txtInteresAnual,
+                        hint: "% interes anual",
+                        isRequired: true,
+                        xlarge: 4,
+                        isDecimal: true,
+                        onChanged: _interesAnualChanged,
+                      ),
                     ),
                     MyTextFormField(
                       // labelText: "Cliente",
@@ -1355,8 +1664,15 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       controller: _txtCuotas,
                       hint: "Cuotas",
                       isRequired: true,
-                      xlarge: 4.5,
+                      xlarge: 4,
                       isDigitOnly: true
+                    ),
+                     MyTextFormField(
+                      // labelText: "Cliente",
+                      title: "Codigo unico",
+                      controller: _txtCodigo,
+                      hint: "Codigo unico",
+                      xlarge: 4,
                     ),
                     MyDatePicker(
                       title: "Fecha",
@@ -1379,7 +1695,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       xlarge: 4,
                     ),
                     MyDropdownButton(
-                      xlarge: 4,
+                      xlarge: 4.2,
                       title: "Caja *",
                       elements: listaCaja.map<String>((e) => e.descripcion).toList(),
                       onChanged: (data){
@@ -1388,13 +1704,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                         });
                       },
                     ),
-                    MyTextFormField(
-                      // labelText: "Cliente",
-                      title: "Codigo unico",
-                      controller: _txtCodigo,
-                      hint: "Codigo unico",
-                      xlarge: 4,
-                    ),
+                   
                     
                     Visibility(
                       visible: _tipoPlazo.descripcion == "Diario",
@@ -1983,7 +2293,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       cargando: _cargando,
       prestamos: true,
       body: [
-        MyHeader(title: "Prestamo", subtitle: "Agregue todos los prestamos con sus respectivas garantias, garantes y cobradores.", function: _guardar, actionFuncion: "en proceso...", function2: _showModalBottomSheetAmortizacion, actionFuncion2: "AMORTIZACION",),
+        MyHeader(title: "Prestamo", subtitle: "Agregue todos los prestamos con sus respectivas garantias, garantes y cobradores.", function: _guardar, actionFuncion: "Guardar", function2: _showDialogAmortizacion, actionFuncion2: "AMORTIZACION",),
          
         Expanded(
           child: StreamBuilder(

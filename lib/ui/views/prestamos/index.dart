@@ -52,6 +52,25 @@ class _PrestamosScreenState extends State<PrestamosScreen> {
     _streamController.add(listaPrestamo);
   }
 
+  _agregar() async {
+    dynamic data = await Navigator.pushNamed(context, "/addPrestamo");
+    if(data == null)
+      return;
+
+    if(!(data is Prestamo))
+      return;
+
+    int idx = listaPrestamo.indexWhere((element) => element.id == data.id);
+    if(idx == -1){
+      listaPrestamo.add(data);
+      _streamController.add(listaPrestamo);
+    }
+    else{
+      listaPrestamo[idx] = data;
+      _streamController.add(listaPrestamo);
+    }
+  }
+
   _getCustomerPhoto(String namePhoto, {size: 40, radius: 20}){
     return Container(
           // color: Colors.blue,
@@ -137,9 +156,7 @@ class _PrestamosScreenState extends State<PrestamosScreen> {
       cargando: _cargando,
       prestamos: true,
       body: [
-        MyHeader(title: "Prestamos", subtitle: "Vea todos sus prestamos y filtrelos por fecha, estado, nombre y cedula del cliente.", function: (){
-          Navigator.pushNamed(context, "/addPrestamo");
-        }, actionFuncion: "Agregar",),
+        MyHeader(title: "Prestamos", subtitle: "Vea todos sus prestamos y filtrelos por fecha, estado, nombre y cedula del cliente.", function: _agregar, actionFuncion: "Agregar",),
         Stack(
           // mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [

@@ -10,6 +10,7 @@ import 'package:prestamo/ui/views/gastos/add.dart';
 import 'package:prestamo/ui/views/gastos/index.dart';
 import 'package:prestamo/ui/views/prestamos/add.dart';
 import 'package:prestamo/ui/views/prestamos/index.dart';
+import 'package:prestamo/ui/views/pruebascroll.dart';
 import 'package:prestamo/ui/views/rutas/index.dart';
 
 
@@ -21,6 +22,9 @@ class MyRouter {
         return  MaterialPageRoute(
           builder: (_)=> ClientesScreen()
         );
+        // return  MaterialPageRoute(
+        //   builder: (_)=> PruebaScroll()
+        // );
       case '/prestamos' :
         return  MaterialPageRoute(
           builder: (_)=> PrestamosScreen()
