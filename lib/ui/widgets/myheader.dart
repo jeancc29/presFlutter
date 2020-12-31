@@ -10,42 +10,16 @@ class MyHeader extends StatefulWidget {
   final Function function;
   final Function function2;
   final String actionFuncion2;
-  MyHeader({Key key, @required this.title, this.subtitle = "", this.actionFuncion, this.function, this.function2, this.actionFuncion2 = ""}) : super(key: key);
+  final Widget customFunction;
+  MyHeader({Key key, @required this.title, this.subtitle = "", this.actionFuncion, this.function, this.function2, this.actionFuncion2 = "", this.customFunction}) : super(key: key);
   @override
   _MyHeaderState createState() => _MyHeaderState();
 }
 
 class _MyHeaderState extends State<MyHeader> {
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Padding(
-                  // padding: const EdgeInsets.all(8.0),
-                  // child: Text("Clientes", style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold)),
-                  // ),
-                  // Padding(
-                  // padding: const EdgeInsets.all(8.0),
-                  // child: Text("Clientes", style: TextStyle(fontFamily: 'OpenSans', fontSize: 27, fontWeight: FontWeight.w700)),
-                  // ),
-                  Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(widget.title, style: TextStyle(color: Utils.fromHex("#202124"), fontFamily: 'GoogleSans',  fontSize: 32, fontWeight: FontWeight.w600, letterSpacing: 0.1)),
-                  ),
-                  
-                  // SizedBox(
-                  //   child: RaisedButton(
-                  //     color: Utils.colorPrimaryBlue,
-                  //     child: Text("Guardar", style: TextStyle(color: Colors.white),),
-                  //     onPressed: (){},
-                  //   ),
-                  // )
-                  
-                  Row(
+
+  _defaultButtons(){
+    return Row(
                     children: [
                       Visibility(
                         visible: widget.actionFuncion2.isNotEmpty,
@@ -70,7 +44,7 @@ class _MyHeaderState extends State<MyHeader> {
                           //     child: Text(widget.actionFuncion, style: TextStyle(color: Colors.white, fontFamily: "Roboto", fontWeight: FontWeight.w500),)
                           //   )
                           // )
-                          myButton(function: widget.function, text: widget.actionFuncion)
+                          myButton(function: widget.function, text: (widget.function == null) ? "" : widget.actionFuncion)
                           // SizedBox(
                           //   width: 145,
                           //   child: ClipRRect(
@@ -156,8 +130,44 @@ class _MyHeaderState extends State<MyHeader> {
                         ),
                       ),
                     ],
+                  );
+                  
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Padding(
+                  // padding: const EdgeInsets.all(8.0),
+                  // child: Text("Clientes", style: TextStyle(fontSize: 27, fontWeight: FontWeight.bold)),
+                  // ),
+                  // Padding(
+                  // padding: const EdgeInsets.all(8.0),
+                  // child: Text("Clientes", style: TextStyle(fontFamily: 'OpenSans', fontSize: 27, fontWeight: FontWeight.w700)),
+                  // ),
+                  Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(widget.title, style: TextStyle(color: Utils.fromHex("#202124"), fontFamily: 'GoogleSans',  fontSize: 32, fontWeight: FontWeight.w600, letterSpacing: 0.1)),
                   ),
                   
+                  // SizedBox(
+                  //   child: RaisedButton(
+                  //     color: Utils.colorPrimaryBlue,
+                  //     child: Text("Guardar", style: TextStyle(color: Colors.white),),
+                  //     onPressed: (){},
+                  //   ),
+                  // )
+                  
+                  (widget.customFunction == null)
+                  ?
+                  _defaultButtons()
+                  :
+                  widget.customFunction
                 ],
               ),
               Visibility(

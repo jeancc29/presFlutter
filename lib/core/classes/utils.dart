@@ -11,10 +11,10 @@ import 'package:intl/intl.dart';
 import 'package:prestamo/core/models/cliente.dart';
 
 class  Utils {
-  // static final String URL = 'https://loteriasdo.cf';
+  static final String URL = 'https://loteriasdo.cf';
   // static final String URL_SOCKET = 'http://192.168.43.63:3000';
   // static final String URL = 'https://pruebass.ml';
-  static final String URL = 'http://127.0.0.1:8000';
+  // static final String URL = 'http://127.0.0.1:8000';
 
   // static final String URL = 'https://loteriasdo.gq';
   // static final String URL_SOCKET = URL.replaceFirst("https", "http") + ":3000";
@@ -251,6 +251,26 @@ class  Utils {
       nextMonth = new DateTime(date.year, date.month + monthsToAdd, date.day);
 
     return nextMonth;
+  }
+
+   static Container getCustomerPhoto(String namePhoto, {size: 40, radius: 20}){
+    return Container(
+          // color: Colors.blue,
+          width: size,
+          height: size,
+          child:  ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: Container(
+              // color: Colors.blue,
+              child: FadeInImage(
+                image: NetworkImage(
+                    '${Utils.URL}/assets/perfil/$namePhoto'),
+                placeholder: AssetImage('images/user.png'),
+              )
+            ),
+          ),
+        );
+    
   }
 
 }

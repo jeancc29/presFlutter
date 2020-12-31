@@ -193,10 +193,15 @@ class _PrestamosScreenState extends State<PrestamosScreen> {
             if(snapshot.hasData)
             return MyTable(
               columns: ["Estado", "Cliente", "Monto prestado", "Monto Cuota", "Balance pendiente", "Capital pendiente", "Proximo pago", "# Cuota", "Amortizacion", "Pagado", "Codigo", "Caja"], 
-              rows: snapshot.data.map((e) => ["Al dia", Row(children: [_getCustomerPhoto(e.cliente.nombreFoto), Padding(
+              rows: snapshot.data.map((e) => [e, "Al dia", Row(children: [_getCustomerPhoto(e.cliente.nombreFoto), Padding(
                 padding: const EdgeInsets.only(left: 4.0),
                 child: Text("${e.cliente.nombres} ${e.cliente.apellidos}"),
-              )]), "${e.monto}", "${e.cuota}", "${e.balancePendiente}", "${e.capitalPendiente}", "${e.fechaProximoPago}", "${e.numeroCuotas}", "${e.tipoAmortizacion.descripcion}", "${e.montoPagado}", "${e.codigo}", "${e.caja.descripcion}"]).toList()
+              )]), "${e.monto}", "${e.cuota}", "${e.balancePendiente}", "${e.capitalPendiente}", "${e.fechaProximoPago}", "${e.numeroCuotas}", "${e.tipoAmortizacion.descripcion}", "${e.montoPagado}", "${e.codigo}", "${e.caja.descripcion}"]).toList(),
+              // indexCellKeyToReturnOnClick: ,
+              onTap: (Prestamo data){
+                Navigator.pushNamed(context, "/showPrestamo", arguments: data);
+                print("OnTap: ${data.toJson()}");
+              },
             );
             return MyTable(
               columns: ["Estado", "Cliente", "Monto prestado", "Monto Cuota", "Balance pendiente", "Capital pendiente", "Proximo pago", "# Cuota", "Amortizacion", "Pagado", "Codigo", "Caja"], 

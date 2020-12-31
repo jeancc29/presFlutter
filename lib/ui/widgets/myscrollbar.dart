@@ -76,7 +76,7 @@ _controller.addListener(() { print("MyScrollbar SCrollchanged"); });
     return LayoutBuilder(
       builder: (context, BoxConstraints boxconstraint) {
         screenHeight = boxconstraint.maxHeight;
-       _calcularTamanoDelScroll();
+      //  _calcularTamanoDelScroll();
        
         return Stack(
               children: [

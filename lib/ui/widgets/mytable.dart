@@ -25,7 +25,7 @@ class _MyTableState extends State<MyTable> {
     super.initState();
   }
 
-  _onSelectChanged(String data){
+  _onSelectChanged(dynamic data){
     if(widget.onTap != null)
       widget.onTap(data);
   }
@@ -41,13 +41,15 @@ class _MyTableState extends State<MyTable> {
     print("second if");
 
     rows = widget.rows.map((row){
+      var firstDataToReturnOnChanged = row.first;
+      row.removeAt(0);
       DataRow dataRow = DataRow(
-        onSelectChanged: (data){_onSelectChanged(row[widget.indexCellKeyToReturnOnClick]);},
+        onSelectChanged: (data){_onSelectChanged(firstDataToReturnOnChanged);},
         cells: row.map((e) => DataCell((e is Widget) ? e : Text(e, style: TextStyle(fontFamily: "GoogleSans"), textAlign: TextAlign.center,))).toList() 
       );
 
       if(widget.delete != null)
-        dataRow.cells.add(DataCell(IconButton(icon: Icon(Icons.delete), onPressed: (){widget.delete(row[widget.indexCellKeyToReturnOnClick]);},)));
+        dataRow.cells.add(DataCell(IconButton(icon: Icon(Icons.delete), onPressed: (){widget.delete(firstDataToReturnOnChanged);},)));
       return dataRow;
     }).toList();
     List<DataRow> totals = getTotalsDataRow();

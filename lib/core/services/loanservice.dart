@@ -109,4 +109,44 @@ class LoanService{
 
     return parsed;
   }
+
+  static Future<Map<String, dynamic>> show({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Prestamo prestamo}) async {
+    var map = Map<String, dynamic>();
+    // prestamo.toJson();
+    // map["servidor"] = await Db.servidor();
+    map["data"] = {"id" : prestamo.id.toInt()};
+    Map<String, dynamic> map2 = Map<String, dynamic>();
+    // map2["data"] = map;
+    // print("map: ${map}");
+    // var jwt = await Utils.createJwt(map);
+    var response = await http.post(Utils.URL + "/api/loans/show", body: json.encode(map), headers: Utils.header);
+    int statusCode =response.statusCode;
+
+    
+
+    if(statusCode < 200 || statusCode > 400){
+      // print("Servidor LoanService all: ${response.body}");
+      var parsed = await compute(Utils.parseDatos, response.body);
+      print("Error: ${parsed}");
+      if(context != null)
+        Utils.showAlertDialog(content: "Error LoanService guardar: ${parsed["message"]}", title: "Error", context: context);
+      else
+        Utils.showSnackBar(content: "Error LoanService guardar: ${parsed["message"]}", scaffoldKey: scaffoldKey);
+      throw Exception("Error Servidor LoanService guardar: ");
+    }
+
+    var parsed = await compute(Utils.parseDatos, response.body);
+
+    if(parsed["errores"] == 1){
+      print("LoanService error all: ${parsed["mensaje"]}");
+      if(context != null)
+        Utils.showAlertDialog(content: parsed["mensaje"], title: "Error", context: context);
+      else
+        Utils.showSnackBar(content: parsed["mensaje"], scaffoldKey: scaffoldKey);
+      throw Exception("Error LoanService all");
+    }
+
+
+    return parsed;
+  }
 }
