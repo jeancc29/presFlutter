@@ -692,7 +692,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                                               columns: ["#", "fecha", "Capital", "Interes", "Cuota", "Balance"], 
                                               rows: (listaAmortizacion.length == 0) 
                                               ? [] 
-                                              : listaAmortizacion.asMap().map((index, e) => MapEntry(index, ["${index + 1}", "${e.fecha.year}-${e.fecha.month}-${e.fecha.day}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList(),
+                                              : listaAmortizacion.asMap().map((index, e) => MapEntry(index, [null, "${index + 1}", "${e.fecha.year}-${e.fecha.month}-${e.fecha.day}", "${Utils.toCurrency(e.capital)}", "${Utils.toCurrency(e.interes)}", "${Utils.toCurrency(e.cuota)}", "${Utils.toCurrency(e.capitalRestante)}"])).values.toList(),
                                               // totals: [["", "totales", _totalCapital(), _totalInteres(), _totalCuota(), ""]],
                                               // totals: [
                                               //   [Flexible(child: Text("Total interes")), "", "", "", "", _totalInteres()],
@@ -704,20 +704,26 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                                                 child: Column(
                                                   crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                  Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: [
-                                                      Text("Total interes", style: TextStyle(fontSize: 17, fontFamily: "GoogleSans", fontWeight: FontWeight.w500)),
-                                                      Text(_totalInteres(), style: TextStyle(fontSize: 17, fontFamily: "GoogleSans", fontWeight: FontWeight.w500)),
-                                                    ]
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(right: 14.0),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                        Text("Total interes", style: TextStyle(fontSize: 17, fontFamily: "GoogleSans", fontWeight: FontWeight.w500)),
+                                                        Text(_totalInteres(), style: TextStyle(fontSize: 17, fontFamily: "GoogleSans", fontWeight: FontWeight.w500)),
+                                                      ]
+                                                    ),
                                                   ),
                                                   Divider(),
-                                                  Row(
-                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                    children: [
-                                                    Text("Interes mas capital", style: TextStyle(fontSize: 17, fontFamily: "GoogleSans", fontWeight: FontWeight.w500)),
-                                                    Text(_totalInteresMasCapital(), style: TextStyle(fontSize: 17, fontFamily: "GoogleSans", fontWeight: FontWeight.w500)),
-                                                  ]),
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(right: 14.0),
+                                                    child: Row(
+                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                      children: [
+                                                      Text("Interes mas capital", style: TextStyle(fontSize: 17, fontFamily: "GoogleSans", fontWeight: FontWeight.w500)),
+                                                      Text(_totalInteresMasCapital(), style: TextStyle(fontSize: 17, fontFamily: "GoogleSans", fontWeight: FontWeight.w500)),
+                                                    ]),
+                                                  ),
                                                 ],),
                                           
                                               ),

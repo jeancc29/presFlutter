@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:prestamo/ui/widgets/myappbar.dart';
 import 'package:prestamo/ui/widgets/mywebdrawer.dart';
 
-myScaffold({@required BuildContext context, key, @required bool cargando, List<Widget> body, bool clientes = false, bool rutas = false, bool gastos = false, bool cajas = false, bool bancos = false, bool prestamos = false, bool configuracionPrestamo = false, bool cuentas = false}){
+myScaffold({@required BuildContext context, key, @required bool cargando, List<Widget> body, bool clientes = false, bool rutas = false, bool gastos = false, bool cajas = false, bool bancos = false, bool prestamos = false, bool configuracionPrestamo = false, bool cuentas = false, bool resizeToAvoidBottomInset = true}){
   return Scaffold(
+    resizeToAvoidBottomInset: false,
     key: key,
       backgroundColor: Colors.white,
       // drawer: Drawer( child: ListView(children: [

@@ -32,13 +32,12 @@ class _MyTableState extends State<MyTable> {
 
   List<DataRow> _init(){
     rows = List();
-    print("befoore first if");
+    
     if(widget.rows == null)
       return [];
-    print("first if");
+
     if(widget.rows.length == 0)
       return [];
-    print("second if");
 
     rows = widget.rows.map((row){
       var firstDataToReturnOnChanged = row.first;

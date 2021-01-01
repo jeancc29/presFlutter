@@ -76,7 +76,8 @@ class Prestamo {
         desembolso = (snapshot['desembolso'] != null) ? Desembolso.fromMap(Utils.parsedToJsonOrNot(snapshot['desembolso'])) : null,
         idcliente = snapshot['idcliente'] ?? 0,
         cliente = (snapshot['cliente'] != null) ? Cliente.fromMap(Utils.parsedToJsonOrNot(snapshot['cliente'])) : null,
-        amortizaciones = amortizacionesToMap(snapshot['amortizaciones']) ?? List(),
+        amortizaciones = amortizacionesToMap(snapshot['amortizaciones'] is String ? Utils.parseDatos(snapshot["amortizaciones"]) :snapshot['amortizaciones']) ?? List(),
+        //snapshot['amortizaciones'] is String ? Utils.parseDatos(snapshot["amortizaciones"]) : 
 
         cuota = Utils.toDouble(snapshot['cuota'].toString()) ?? 0,
         balancePendiente = Utils.toDouble(snapshot['balancePendiente'].toString()) ?? 0,
@@ -130,7 +131,7 @@ List diasExcluidosToJson() {
   }
 
   static List<Amortizacion> amortizacionesToMap(List<dynamic> amortizaciones){
-    if(amortizaciones != null)
+    if(amortizaciones != null && amortizaciones.length > 0)
       return amortizaciones.map((data) => Amortizacion.fromMap(data)).toList();
     else
       return List<Amortizacion>();
