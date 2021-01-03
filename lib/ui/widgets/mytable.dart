@@ -100,20 +100,32 @@ class _MyTableState extends State<MyTable> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Column(
-          children: [
-            DataTable(
-              showCheckboxColumn: false,
-              columns: _initColumn(),
-              rows: _init(),
-            ),
-            _customTotals(),
-          ],
-        ),
-      )
+    // return SingleChildScrollView(
+    //   scrollDirection: Axis.horizontal,
+    //   child: Column(
+    //     children: [
+    //       DataTable(
+    //         showCheckboxColumn: false,
+    //         columns: _initColumn(),
+    //         rows: _init(),
+    //       ),
+    //       _customTotals(),
+    //     ],
+    //   ),
+    // );
+    return Column(
+      children: [
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child:DataTable(
+                showCheckboxColumn: false,
+                columns: _initColumn(),
+                rows: _init(),
+              ),
+          ),
+          _customTotals(),
+      ],
     );
+    
   }
 }

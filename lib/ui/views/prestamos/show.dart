@@ -9,6 +9,7 @@ import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
 import 'package:prestamo/ui/widgets/mybutton.dart';
 import 'package:prestamo/ui/widgets/mydescription.dart';
 import 'package:prestamo/ui/widgets/myheader.dart';
+import 'package:prestamo/ui/widgets/mynestedscrollbar.dart';
 import 'package:prestamo/ui/widgets/myresizedcontainer.dart';
 import 'package:prestamo/ui/widgets/myscaffold.dart';
 import 'package:prestamo/ui/widgets/myscrollbar.dart';
@@ -24,6 +25,7 @@ class ShowPrestamo extends StatefulWidget {
 }
 
 class _ShowPrestamoState extends State<ShowPrestamo> with TickerProviderStateMixin {
+  ScrollController _scrollController;
   TabController _tabController;
   StreamController<Prestamo> _streamController;
   Prestamo _prestamo;
@@ -31,6 +33,7 @@ class _ShowPrestamoState extends State<ShowPrestamo> with TickerProviderStateMix
   @override
   void initState() {
     // TODO: implement initState
+    _scrollController = ScrollController();
     _tabController = TabController(length: 2, vsync: this);
     _streamController = BehaviorSubject();
     _init();
@@ -219,9 +222,54 @@ class _ShowPrestamoState extends State<ShowPrestamo> with TickerProviderStateMix
             stream: _streamController.stream,
             builder: (context, snapshot){
               if(snapshot.hasData)
-              return NestedScrollView(
-                headerSliverBuilder: (context, boxIs){
-                   return [
+              // return MyNestedScrollBar(
+              //   // controller: _scrollController,
+              //   headerSliverBuilder:
+              //       [
+              //     SliverToBoxAdapter(
+              //         child: Column(
+              //           children: [
+              //             _customerScreen(snapshot),
+              //             _loanDetailsScreen(snapshot),
+              //             MySubtitle(title: "Detalles", fontSize: 18,),
+              //           ],
+              //         )
+              //     ),
+              //     SliverToBoxAdapter(
+              //       child: TabBar(
+              //           controller: _tabController,
+              //           isScrollable: true,
+              //           labelStyle: TextStyle(color: Utils.colorPrimaryBlue, fontWeight: FontWeight.w700),
+              //           unselectedLabelStyle: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+              //           labelColor: Colors.black,
+              //           // indicatorWeight: 4.0,
+              //           indicator: CircleTabIndicator(color: Utils.colorPrimaryBlue, radius: 5),
+              //           tabs: [
+              //             Tab(
+              //               child: Text("Amortizacion"),
+              //             ),
+              //             Tab(
+              //               child: Text("Pagos"),
+              //             ),
+                         
+              //           ],
+              //         ),
+              //     ),
+              //   ], 
+              //   body: TabBarView(
+              //           controller: _tabController,
+              //             children: [
+              //               // Center(child: Text("En progreso..."),),
+              //               MyTable(
+              //                 columns: ["#", "Fecha", "Capital", "Interes", "Cuota"], 
+              //                 rows: snapshot.data.amortizaciones.asMap().map((index, value) => MapEntry(index, [null, "${index + 1}", "${value.fecha.toString()}", "${Utils.toCurrency(value.capital)}", "${Utils.toCurrency(value.interes)}", "${Utils.toCurrency(value.cuota)}"])).values.toList()
+              //               ),
+              //               Center(child: Text("En progreso..."),),
+              //             ]
+              //           ),
+              // );
+              return MyNestedScrollBar(
+                headerSliverBuilder: [
                   SliverToBoxAdapter(
                       child: Column(
                         children: [
@@ -251,16 +299,24 @@ class _ShowPrestamoState extends State<ShowPrestamo> with TickerProviderStateMix
                         ],
                       ),
                   ),
-                ]; 
-                }, 
+                ], 
                 body: TabBarView(
                         controller: _tabController,
-                          children: [
+                        children: [
                             // Center(child: Text("En progreso..."),),
-                            MyTable(
-                              columns: ["#", "Fecha", "Capital", "Interes", "Cuota"], 
-                              rows: snapshot.data.amortizaciones.asMap().map((index, value) => MapEntry(index, [null, "${index + 1}", "${value.fecha.toString()}", "${Utils.toCurrency(value.capital)}", "${Utils.toCurrency(value.interes)}", "${Utils.toCurrency(value.cuota)}"])).values.toList()
+                            ListView(
+                            // scrollDirection: Axis.horizontal,
+                              children: [
+                                DataTable(
+                                  columns: [ DataColumn(label: Text("Fecha")), DataColumn(label: Text("Capital")), DataColumn(label: Text("Interes")), DataColumn(label: Text("Cuota"))], 
+                                  rows: snapshot.data.amortizaciones.map<DataRow>((value) => DataRow(cells: [ DataCell(Text("${value.fecha.toString()}")), DataCell(Text("${Utils.toCurrency(value.capital)}")), DataCell(Text("${Utils.toCurrency(value.interes)}")), DataCell(Text("${Utils.toCurrency(value.cuota)}"))])).toList()
+                                ),
+                              ],
                             ),
+                            // MyTable(
+                            //   columns: ["#", "Fecha", "Capital", "Interes", "Cuota"], 
+                            //   rows: snapshot.data.amortizaciones.asMap().map((index, value) => MapEntry(index, [null, "${index + 1}", "${value.fecha.toString()}", "${Utils.toCurrency(value.capital)}", "${Utils.toCurrency(value.interes)}", "${Utils.toCurrency(value.cuota)}"])).values.toList()
+                            // ),
                             Center(child: Text("En progreso..."),),
                           ]
                         ),
@@ -293,19 +349,19 @@ class _ShowPrestamoState extends State<ShowPrestamo> with TickerProviderStateMix
                 //         ],
                 //       ),
                 //     ),
-                //     Expanded(
-                //       child: TabBarView(
-                //         controller: _tabController,
-                //           children: [
-                //             // Center(child: Text("En progreso..."),),
-                //             MyTable(
-                //               columns: ["#", "Fecha", "Capital", "Interes", "Cuota"], 
-                //               rows: snapshot.data.amortizaciones.asMap().map((index, value) => MapEntry(index, [null, "${index + 1}", "${value.fecha.toString()}", "${Utils.toCurrency(value.capital)}", "${Utils.toCurrency(value.interes)}", "${Utils.toCurrency(value.cuota)}"])).values.toList()
-                //             ),
-                //             Center(child: Text("En progreso..."),),
-                //           ]
-                //         ),
-                //     )
+                    // Expanded(
+                    //   child: TabBarView(
+                    //     controller: _tabController,
+                    //       children: [
+                    //         // Center(child: Text("En progreso..."),),
+                    //         MyTable(
+                    //           columns: ["#", "Fecha", "Capital", "Interes", "Cuota"], 
+                    //           rows: snapshot.data.amortizaciones.asMap().map((index, value) => MapEntry(index, [null, "${index + 1}", "${value.fecha.toString()}", "${Utils.toCurrency(value.capital)}", "${Utils.toCurrency(value.interes)}", "${Utils.toCurrency(value.cuota)}"])).values.toList()
+                    //         ),
+                    //         Center(child: Text("En progreso..."),),
+                    //       ]
+                    //     ),
+                    // )
                     
                 //   ],
                 // );
@@ -323,6 +379,75 @@ class _ShowPrestamoState extends State<ShowPrestamo> with TickerProviderStateMix
       cargando: false,
       context: context,
       prestamos: true,
+      // myNestedScrollBar: 
+    //  MyNestedScrollBar(
+    //     headerSliverBuilder: [SliverToBoxAdapter(child: Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height, color: Colors.blue),), SliverToBoxAdapter(child: Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height, color: Colors.red),)],
+    //     body: Container(width: MediaQuery.of(context).size.width, height: MediaQuery.of(context).size.height, color: Colors.yellow),
+    //   ),
+      
+      // MyNestedScrollBar(
+      //   headerSliverBuilder: [SliverToBoxAdapter(child: Container(width: 200, height: 200, color: Colors.blue),)],
+      //   body: Container(child: Text("Holaaa"), color: Colors.red),
+      // )
+      // MyNestedScrollBar(
+      //   headerSliverBuilder: [
+      //     SliverToBoxAdapter(
+      //       child: MyHeader(
+      //         title: "Detalle", 
+      //         customFunction: Padding(
+      //           padding: const EdgeInsets.only(right: 15.0),
+      //           child: Row(children: [
+      //             FlatButton(onPressed: _exportar, child: Text("Exportar", style: TextStyle(fontFamily: "GoogleSans", fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black.withOpacity(.7)),)),
+      //             FlatButton(onPressed: _contrato, child: Text("Contrato", style: TextStyle(fontFamily: "GoogleSans", fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black.withOpacity(.7)),)),
+      //             FlatButton(onPressed: _editar, child: Text("Editar", style: TextStyle(fontFamily: "GoogleSans", fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black.withOpacity(.7)),)),
+      //             myButton(function: _pagar, text: "Pagar"),
+                  
+      //           ],),
+      //         ),
+      //       ),
+      //     ),
+      //     SliverToBoxAdapter(
+      //       child: _screen()
+      //     )
+      //   ],
+      //   body: 
+      //   // Container(child: Text("hola"),)
+      //   StreamBuilder<Prestamo>(
+      //     stream: _streamController.stream,
+      //     builder: (context, snapshot) {
+      //       if(snapshot.hasData)
+      //       return TabBarView(
+      //         controller: _tabController,
+      //           children: [
+      //             // Center(child: Text("En progreso..."),),
+      //       //  Container(height: MediaQuery.of(context).size.height, width:  MediaQuery.of(context).size.width, color: Colors.green),
+      //             ListView(
+      //               // scrollDirection: Axis.horizontal,
+      //               children: [
+      //                   DataTable(
+      //                     columns: [ DataColumn(label: Text("Fecha")), DataColumn(label: Text("Capital")), DataColumn(label: Text("Interes")), DataColumn(label: Text("Cuota"))], 
+      //                     rows: snapshot.data.amortizaciones.map<DataRow>((value) => DataRow(cells: [ DataCell(Text("${value.fecha.toString()}")), DataCell(Text("${Utils.toCurrency(value.capital)}")), DataCell(Text("${Utils.toCurrency(value.interes)}")), DataCell(Text("${Utils.toCurrency(value.cuota)}"))])).toList()
+      //                   ),
+      //                     Text("Que bendito culo")
+      //                 ],
+      //               ),
+                  
+      //             // MyTable(
+      //             //   columns: ["#", "Fecha", "Capital", "Interes", "Cuota"], 
+      //             //   rows: snapshot.data.amortizaciones.asMap().map((index, value) => MapEntry(index, [null, "${index + 1}", "${value.fecha.toString()}", "${Utils.toCurrency(value.capital)}", "${Utils.toCurrency(value.interes)}", "${Utils.toCurrency(value.cuota)}"])).values.toList()
+      //             // ),
+      //             Center(child: Text("En progreso..."),),
+      //           ]
+      //         );
+      //       return Container(height: MediaQuery.of(context).size.height, width:  MediaQuery.of(context).size.width, color: Colors.green); 
+
+      //       return Container(height: MediaQuery.of(context).size.height, child: Center(child: CircularProgressIndicator()));
+      //     }
+      //   ),
+      //         ),
+        
+        // body:[ Container(child: Text("Errr culo"),)]
+      // );
       body: [
         MyHeader(
           title: "Detalle", 

@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:prestamo/core/classes/utils.dart';
 
-class MyScrollbar extends StatefulWidget {
-  final Widget child;
+class MyNestedScrollBar extends StatefulWidget {
+  final Widget body;
+  final List<SliverToBoxAdapter> headerSliverBuilder;
   final double height;
-  MyScrollbar({Key key, this.child, this.height}) : super(key: key);
+  MyNestedScrollBar({Key key, this.body, this.headerSliverBuilder, this.height}) : super(key: key);
 
   @override
-  _MyScrollbarState createState() => _MyScrollbarState();
+  _MyNestedScrollBarState createState() => _MyNestedScrollBarState();
 }
 
-class _MyScrollbarState extends State<MyScrollbar> {
+class _MyNestedScrollBarState extends State<MyNestedScrollBar> {
   ScrollController _controller;
   double oldScrollControllerHeight = 0;
   double _offset = 0;
@@ -32,9 +32,11 @@ _controller.addListener(() { print("MyScrollbar SCrollchanged"); });
 
   _calcularTamanoDelScrollWhenLoadAllWidget({@required double tamanoScrollController, @required double tamanoPantalla}){
     double tamanoScrollToReturn = 40;
-    double tamanoMitadDeLaPantalla = tamanoPantalla / 1.4;
-    if(tamanoMitadDeLaPantalla > tamanoScrollController)
-      tamanoScrollToReturn = tamanoPantalla - tamanoScrollController;
+    double tamanoMitadDeLaPantalla = tamanoPantalla / 1.6;
+    // if(tamanoMitadDeLaPantalla > tamanoScrollController)
+    //   tamanoScrollToReturn = tamanoPantalla - tamanoScrollController;
+
+    tamanoScrollToReturn = (tamanoScrollController + tamanoPantalla) - tamanoPantalla;
     // else if()
     // if(tamanoPantalla > tamanoScrollController)
     // double tmpScrollHeight = (tamanoScrollController / tamanoPantalla) != scrollHeight ? _controller.position.maxScrollExtent / boxconstraint.maxHeight : scrollHeight;
@@ -82,9 +84,12 @@ _controller.addListener(() { print("MyScrollbar SCrollchanged"); });
         return Stack(
               children: [
                 Container(
-                  child: SingleChildScrollView(
+                  child: NestedScrollView(
+                    headerSliverBuilder: (context, boxIs){
+                      return widget.headerSliverBuilder;
+                    },
                     controller: _controller,
-                    child: widget.child
+                    body: widget.body
                   ),
                 ),
                 //Scroll bar
@@ -117,18 +122,10 @@ _controller.addListener(() { print("MyScrollbar SCrollchanged"); });
                                 return;
                               // _controller.position.moveTo((dragUpdate.globalPosition.dy + scrollHeight) * tamanoTotalDelScrollSobreElHeightDelContainer);
                               setState(() {
-                                  // print("offset: $_offset deltady: ${dragUpdate.delta.dy} +: ${_offset + dragUpdate.delta.dy}");
+                                  print("offset: $_offset deltady: ${dragUpdate.delta.dy} +: ${_offset + dragUpdate.delta.dy}");
                                 // if(_offset >= 0){
                                   _offset += (_offset + dragUpdate.delta.dy >= 0) ? dragUpdate.delta.dy : 0;
-                                  _offset = Utils.redondear(_offset);
-                                  print("offset: $_offset deltady: ${dragUpdate.delta.dy} +: ${_offset + dragUpdate.delta.dy} scroll: ${_controller.position.maxScrollExtent}");
-                                  double calculo = 0;
-                                  // if(dragUpdate.delta.dy >= 0)
-                                  //   calculo = (_offset + scrollHeight) * tamanoTotalDelScrollSobreElHeightDelContainer;
-                                  // else
-                                    calculo = _offset * tamanoTotalDelScrollSobreElHeightDelContainer;
-
-                                  print("calculo: ${calculo}");
+                                  double calculo = (_offset) * tamanoTotalDelScrollSobreElHeightDelContainer;
                                    _controller.position.moveTo(_offset == 0 ? 0 : calculo);
                                 // }else{
                                   // if(_controller.position.pixels > 0)  
