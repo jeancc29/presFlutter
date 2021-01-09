@@ -21,8 +21,10 @@ class MyWebDrawer extends StatefulWidget {
   final bool configuracion;
   final bool configuracionPrestamo;
   final bool cuentas;
+  final bool usuarios;
+  final bool roles;
   final bool clientesBack;
-  MyWebDrawer({Key key, this.inicio = false, this.clientes = false, this.rutas = false, this.gastos = false, this.cajas = false, this.bancos = false, this.prestamos =  false, this.configuracion = false, this.configuracionPrestamo = false, this.cuentas = false, this.clientesBack = false}) : super(key: key);
+  MyWebDrawer({Key key, this.inicio = false, this.clientes = false, this.rutas = false, this.gastos = false, this.cajas = false, this.bancos = false, this.prestamos =  false, this.configuracion = false, this.configuracionPrestamo = false, this.cuentas = false, this.usuarios = false, this.roles = false, this.clientesBack = false}) : super(key: key);
   @override
   _MyWebDrawerState createState() => _MyWebDrawerState();
 }
@@ -108,6 +110,15 @@ class _MyWebDrawerState extends State<MyWebDrawer> {
                 listaMylisttile: [
                   MyListTile(title: "Bancos", icon: null, onTap: (){_gotTo("/bancos");}, selected: widget.bancos,), 
                   MyListTile(title: "Cuentas", icon: null, onTap: (){_gotTo("/cuentas");}, selected: widget.cuentas,), 
+                ]
+              ),
+              MyExpansionTile(
+                title: "Usuarios y roles", 
+                icon: Icons.supervised_user_circle_outlined, 
+                initialExpanded: widget.usuarios || widget.roles,
+                listaMylisttile: [
+                  MyListTile(title: "Usuarios", icon: null, onTap: (){_gotTo("/bancos");}, selected: widget.bancos,), 
+                  MyListTile(title: "Roles", icon: null, onTap: (){_gotTo("/roles");}, selected: widget.roles,), 
                 ]
               ),
               MyExpansionTile(

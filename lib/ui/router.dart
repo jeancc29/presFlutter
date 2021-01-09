@@ -12,6 +12,8 @@ import 'package:prestamo/ui/views/prestamos/add.dart';
 import 'package:prestamo/ui/views/prestamos/index.dart';
 import 'package:prestamo/ui/views/prestamos/show.dart';
 import 'package:prestamo/ui/views/pruebascroll.dart';
+import 'package:prestamo/ui/views/pruebascroll2.dart';
+import 'package:prestamo/ui/views/roles/roles.dart';
 import 'package:prestamo/ui/views/rutas/index.dart';
 
 
@@ -24,7 +26,7 @@ class MyRouter {
           builder: (_)=> ClientesScreen()
         );
         // return  MaterialPageRoute(
-        //   builder: (_)=> PruebaScroll()
+        //   builder: (_)=> PruebaScroll2()
         // );
       case '/prestamos' :
         return  MaterialPageRoute(
@@ -65,6 +67,10 @@ class MyRouter {
       case '/cuentas' :
         return  MaterialPageRoute(
           builder: (_)=> CuentasScreen()
+        );
+      case '/roles' :
+        return  MaterialPageRoute(
+          builder: (_)=> RolesScreen()
         );
       case '/configuracionPrestamo' :
         return  MaterialPageRoute(

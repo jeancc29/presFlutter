@@ -938,11 +938,11 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       // setState(() => _cargando = true);
       var parsed = await LoanService.index(context: context);
       print("_init: $parsed");
-      listaTipo = (parsed["tipos"] != null) ? parsed["tipos"].map<Tipo>((json) => Tipo.fromMap(json)).toList() : List<Tipo>();
-      listaCaja = (parsed["cajas"] != null) ? parsed["cajas"].map<Caja>((json) => Caja.fromMap(json)).toList() : List<Caja>();
-      listaBanco = (parsed["bancos"] != null) ? parsed["bancos"].map<Banco>((json) => Banco.fromMap(json)).toList() : List<Banco>();
-      listaCuenta = (parsed["cuentas"] != null) ? parsed["cuentas"].map<Cuenta>((json) => Cuenta.fromMap(json)).toList() : List<Cuenta>();
-      listaDia = (parsed["dias"] != null) ? parsed["dias"].map<Dia>((json) => Dia.fromMap(json)).toList() : List<Dia>();
+      listaTipo = (parsed["tipos"] != null) ? parsed["tipos"].map<Tipo>((json) => Tipo.fromMap(json)).toList() : [];
+      listaCaja = (parsed["cajas"] != null) ? parsed["cajas"].map<Caja>((json) => Caja.fromMap(json)).toList() : [];
+      listaBanco = (parsed["bancos"] != null) ? parsed["bancos"].map<Banco>((json) => Banco.fromMap(json)).toList() : [];
+      listaCuenta = (parsed["cuentas"] != null) ? parsed["cuentas"].map<Cuenta>((json) => Cuenta.fromMap(json)).toList() : [];
+      listaDia = (parsed["dias"] != null) ? parsed["dias"].map<Dia>((json) => Dia.fromMap(json)).toList() : [];
       _updateTab(ConfiguracionPrestamo.fromMap(parsed["configuracionPrestamo"]));
       _selectComboFirstValue();
       _streamControllerTipo.add(listaTipo);

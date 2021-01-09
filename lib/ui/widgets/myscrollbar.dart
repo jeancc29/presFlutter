@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:prestamo/core/classes/utils.dart';
 
@@ -21,11 +22,11 @@ class _MyScrollbarState extends State<MyScrollbar> {
   @override
   void initState() {
     _controller = ScrollController();
-_controller.addListener(() { print("MyScrollbar SCrollchanged"); });
+// _controller.addListener(() { print("MyScrollbar SCrollchanged"); });
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      print("WidgetsBinding: ${_controller.position.maxScrollExtent} screen: $screenHeight");
-      oldScrollControllerHeight = _controller.position.maxScrollExtent;
-      _calcularTamanoDelScrollWhenLoadAllWidget(tamanoScrollController: _controller.position.maxScrollExtent, tamanoPantalla: screenHeight);
+      // print("WidgetsBinding: ${_controller.position.maxScrollExtent} screen: $screenHeight");
+      // oldScrollControllerHeight = _controller.position.maxScrollExtent;
+      // _calcularTamanoDelScrollWhenLoadAllWidget(tamanoScrollController: _controller.position.maxScrollExtent, tamanoPantalla: screenHeight);
     });
     super.initState();
   }
@@ -72,42 +73,7 @@ _controller.addListener(() { print("MyScrollbar SCrollchanged"); });
       
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, BoxConstraints boxconstraint) {
-        screenHeight = boxconstraint.maxHeight;
-      //  _calcularTamanoDelScroll();
-       
-        return Stack(
-              children: [
-                Container(
-                  child: SingleChildScrollView(
-                    controller: _controller,
-                    child: widget.child
-                  ),
-                ),
-                //Scroll bar
-                Container(
-                    alignment: Alignment.centerRight,
-                    // height: MediaQuery.of(context).size.height,
-                    height: boxconstraint.maxHeight,
-                    width: 20.0,
-                    margin: EdgeInsets.only(left: boxconstraint.maxWidth - 20.0),
-                    // decoration: BoxDecoration(color: Colors.black12),
-                    child: Container(
-                      alignment: Alignment.topCenter,
-                        child: GestureDetector(
-                            child: Container(
-                            height: scrollHeight,
-                            width: 5.0,
-                            margin:
-                                EdgeInsets.only(left: 5.0, right: 5.0, top: _offset),
-                            decoration: BoxDecoration(
-                                color: Colors.grey,
-                                borderRadius: BorderRadius.all(Radius.circular(3.0))),
-                          ),
-                            onVerticalDragUpdate: (dragUpdate) {
+  _onVerticalDragUpdate(dragUpdate, BoxConstraints boxconstraint) {
                               
                               // double tmpScrollHeight = _calcularTamanoDelScroll(tamanoScrollController: _controller.position.maxScrollExtent, tamanoPantalla: boxconstraint.maxHeight);
                               // print("positionAnterior: $posicionAnterior nueva: ${dragUpdate.globalPosition.dy}");
@@ -143,10 +109,112 @@ _controller.addListener(() { print("MyScrollbar SCrollchanged"); });
                                 //   scrollHeight = tmpScrollHeight;
                                 // print("View offset ${_controller.offset} scroll-bar offset ${_offset} _controller: ${_controller.position.maxScrollExtent} screen: ${dragUpdate.globalPosition.distance}");
                               });
-                            },
+                            }
+
+  @override
+  Widget build(BuildContext context) {
+    return PrimaryScrollController(
+        controller: _controller,
+        child: CupertinoScrollbar(
+        controller: _controller,
+          isAlwaysShown: true,
+          thickness: 5,
+          child: SingleChildScrollView(
+            child: widget.child
+          )
+        )
+      );
+      
+    return LayoutBuilder(
+      builder: (context, BoxConstraints boxconstraint) {
+        screenHeight = boxconstraint.maxHeight;
+      //  _calcularTamanoDelScroll();
+
+      return PrimaryScrollController(
+        controller: _controller,
+        child: CupertinoScrollbar(
+        controller: _controller,
+          isAlwaysShown: true,
+          thickness: 5,
+          child: SingleChildScrollView(
+            child: widget.child
+          )
+        )
+      );
+
+      return SingleChildScrollView(
+        controller: _controller,
+        child: Stack(
+          // fit: StackFit.loose,
+          clipBehavior: Clip.antiAlias,
+          children: [
+          Container(
+                  child: widget.child,
+                ),
+          Container(
+                    alignment: Alignment.centerRight,
+                    // height: MediaQuery.of(context).size.height,
+                    height: boxconstraint.maxHeight,
+                    width: 20.0,
+                    margin: EdgeInsets.only(left: boxconstraint.maxWidth - 20.0),
+                    // decoration: BoxDecoration(color: Colors.black12),
+                    child: Container(
+                      alignment: Alignment.topCenter,
+                        child: GestureDetector(
+                            child: Container(
+                            height: scrollHeight,
+                            width: 5.0,
+                            margin:
+                                EdgeInsets.only(left: 5.0, right: 5.0, top: _offset),
+                            decoration: BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius: BorderRadius.all(Radius.circular(3.0))),
+                          ),
+                            onVerticalDragUpdate: (dragUpdate){
+                              _onVerticalDragUpdate(dragUpdate, boxconstraint);
+                            }
                       ),
                     )
                 ),
+              
+        ],)
+      );
+       
+        return Stack(
+              children: [
+                Container(
+                  child: SingleChildScrollView(
+                    controller: _controller,
+                    child: widget.child
+                  ),
+                ),
+                //Scroll bar
+                Container(
+                    alignment: Alignment.centerRight,
+                    // height: MediaQuery.of(context).size.height,
+                    height: boxconstraint.maxHeight,
+                    width: 20.0,
+                    margin: EdgeInsets.only(left: boxconstraint.maxWidth - 20.0),
+                    // decoration: BoxDecoration(color: Colors.black12),
+                    child: Container(
+                      alignment: Alignment.topCenter,
+                        child: GestureDetector(
+                            child: Container(
+                            height: scrollHeight,
+                            width: 5.0,
+                            margin:
+                                EdgeInsets.only(left: 5.0, right: 5.0, top: _offset),
+                            decoration: BoxDecoration(
+                                color: Colors.grey,
+                                borderRadius: BorderRadius.all(Radius.circular(3.0))),
+                          ),
+                            onVerticalDragUpdate: (dragUpdate){
+                              _onVerticalDragUpdate(dragUpdate, boxconstraint);
+                            }
+                      ),
+                    )
+                ),
+              
               ],
             );
       }
