@@ -4,6 +4,7 @@ import 'package:prestamo/ui/views/bancos/index.dart';
 import 'package:prestamo/ui/views/cajas/index.dart';
 import 'package:prestamo/ui/views/clientes/add.dart';
 import 'package:prestamo/ui/views/clientes/index.dart';
+import 'package:prestamo/ui/views/configuraciones/configuracionEmpresa.dart';
 import 'package:prestamo/ui/views/configuraciones/configuracionPrestamoscreen.dart';
 import 'package:prestamo/ui/views/cuentas/index.dart';
 import 'package:prestamo/ui/views/gastos/add.dart';
@@ -15,6 +16,8 @@ import 'package:prestamo/ui/views/pruebascroll.dart';
 import 'package:prestamo/ui/views/pruebascroll2.dart';
 import 'package:prestamo/ui/views/roles/roles.dart';
 import 'package:prestamo/ui/views/rutas/index.dart';
+import 'package:prestamo/ui/views/sucursales/add.dart';
+import 'package:prestamo/ui/views/sucursales/index.dart';
 
 
 
@@ -72,9 +75,21 @@ class MyRouter {
         return  MaterialPageRoute(
           builder: (_)=> RolesScreen()
         );
+      case '/sucursales' :
+        return  MaterialPageRoute(
+          builder: (_)=> SucursalesScreen()
+        );
+      case '/sucursales/add' :
+        return  MaterialPageRoute(
+          builder: (_)=> SucursalesAdd()
+        );
       case '/configuracionPrestamo' :
         return  MaterialPageRoute(
           builder: (_)=> ConfiguracionPrestamoScreen()
+        );
+      case '/configuracionEmpresa' :
+        return  MaterialPageRoute(
+          builder: (_)=> ConfiguracionEmpresaScreen()
         );
         // return  MaterialPageRoute(
         //   builder: (_)=> ClientesAdd()

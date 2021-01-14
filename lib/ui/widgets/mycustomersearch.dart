@@ -165,7 +165,8 @@ class _MyCustomerSearchFieldState extends State<MyCustomerSearchField> {
       builder: (context) => Positioned(
         left: offset.dx + widget.padding,
         top: offset.dy + size.height - widget.padding,
-        width: getWidth(size.width) - (widget.padding * 2),
+        // width: getWidth(size.width) - (widget.padding * 2),
+        width: size.width - (widget.padding * 2),
         child:
         Material(
           elevation: 4,

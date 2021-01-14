@@ -74,19 +74,28 @@ class _MyAlertDialogState extends State<MyAlertDialog> {
               titlePadding: EdgeInsets.only(left: 24, right: 15, top: 10),
               contentPadding: EdgeInsets.fromLTRB(24.0, 0, 15.0, 5.0),
               title:
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.title, style: TextStyle(fontFamily: "GoogleSans",fontSize: 18, color: Colors.black,fontWeight: FontWeight.w600)),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: IconButton(
-                      icon: Icon(Icons.clear),
-                      onPressed: (){
-                        Navigator.pop(context);
-                      },
-                    ),
-                  )
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(widget.title, style: TextStyle(fontFamily: "GoogleSans",fontSize: 18, color: Colors.black,fontWeight: FontWeight.w600)),
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: IconButton(
+                          icon: Icon(Icons.clear),
+                          onPressed: (){
+                            Navigator.pop(context);
+                          },
+                        ),
+                      )
+                    ],
+                  ),
+                    Padding(
+                    padding: const EdgeInsets.only(top: 3.0, bottom: 14, right: 3.0),
+                    child: Text((widget.description != null) ? widget.description : "", style: TextStyle(fontFamily: "GoogleSans", fontSize: 14, fontWeight: FontWeight.w400, color: Utils.fromHex("#5f6368"), letterSpacing: 0.5),),
+                  ),
                 ],
               )
               ,

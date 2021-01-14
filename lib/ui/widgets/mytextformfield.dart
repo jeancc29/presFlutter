@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
+import 'package:prestamo/ui/widgets/mydescription.dart';
 
 
 class MyTextFormField extends StatefulWidget {
@@ -202,6 +203,8 @@ String get _currency => NumberFormat.simpleCurrency(locale: _locale, decimalDigi
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Visibility(visible: widget.title != "",child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15, fontFamily: "GoogleSans"))),
+                  
+              // Visibility(visible: widget.title != "",child: MyDescripcon(title: "Proximo pago",),),
               Container(
                 // color: Colors.red,
                 // decoration: BoxDecoration(

@@ -3,7 +3,7 @@ import 'package:prestamo/ui/widgets/myappbar.dart';
 import 'package:prestamo/ui/widgets/mynestedscrollbar.dart';
 import 'package:prestamo/ui/widgets/mywebdrawer.dart';
 
-myScaffold({@required BuildContext context, key, @required bool cargando, Widget myNestedScrollBar, List<Widget> body, bool clientes = false, bool rutas = false, bool gastos = false, bool cajas = false, bool bancos = false, bool prestamos = false, bool configuracionPrestamo = false, bool cuentas = false, bool roles = false, bool resizeToAvoidBottomInset = true}){
+myScaffold({@required BuildContext context, key, @required bool cargando, Widget myNestedScrollBar, List<Widget> body, bool clientes = false, bool rutas = false, bool gastos = false, bool cajas = false, bool bancos = false, bool prestamos = false, bool configuracionPrestamo = false, bool configuracionEmpresa = false, bool cuentas = false, bool roles = false, bool sucursales = false, bool resizeToAvoidBottomInset = true}){
   Widget widget = SizedBox();
   // if(myNestedScrollBar != null)
   //   widget = myNestedScrollBar;
@@ -16,7 +16,7 @@ myScaffold({@required BuildContext context, key, @required bool cargando, Widget
       widget = myNestedScrollBar;
     else if(body != null)
       widget = Row(children: [
-        MyWebDrawer(clientes: clientes, cajas: cajas, rutas: rutas, gastos: gastos, bancos: bancos, prestamos: prestamos, configuracionPrestamo: configuracionPrestamo, cuentas: cuentas, roles: roles),
+        MyWebDrawer(clientes: clientes, cajas: cajas, rutas: rutas, gastos: gastos, bancos: bancos, prestamos: prestamos, configuracionPrestamo: configuracionPrestamo, configuracionEmpresa: configuracionEmpresa, cuentas: cuentas, roles: roles, sucursales: sucursales,),
         SizedBox(width: 40), 
         Expanded(
           child: Column(

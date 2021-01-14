@@ -9,6 +9,7 @@ import 'package:corsac_jwt/corsac_jwt.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:prestamo/core/models/cliente.dart';
+import 'package:prestamo/core/models/sucursal.dart';
 
 class  Utils {
   // static final String URL = 'https://loteriasdo.cf';
@@ -178,6 +179,103 @@ class  Utils {
           ),
         );
       //  return Image.memory(await Utils.blobfileToUint(cliente.foto));
+    }else{
+      return Container(
+          // color: Colors.red,
+          width: size,
+          height: size,
+          child:  ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: Container(
+              child: Image(image: AssetImage('images/user.png'), )
+            ),
+          ),
+        );
+    }
+
+    
+    // return  Image(image: AssetImage('images/user.png'), );
+  }
+  static Container getSucursalFoto(Sucursal sucursal, {size: 130, radius: 10}) {
+    if(sucursal.foto != null ){
+      return Container(
+          // color: Colors.blue,
+          width: size,
+          height: size,
+          child:  ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: Container(
+              // color: Colors.blue,
+              child: Image.memory(sucursal.foto)
+            ),
+          ),
+        );
+      //  return Image.memory(await Utils.blobfileToUint(cliente.foto));
+    }else if(sucursal.nombreFoto != null){
+      return Container(
+          // color: Colors.red,
+          width: size,
+          height: size,
+          child:  ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: Container(
+              child: FadeInImage(
+                image: NetworkImage(
+                    '${Utils.URL}/assets/perfil/${sucursal.nombreFoto}'),
+                placeholder: AssetImage('images/user.png'),
+              )
+            ),
+          ),
+        );
+    }else{
+      return Container(
+          // color: Colors.red,
+          width: size,
+          height: size,
+          child:  ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: Container(
+              child: Image(image: AssetImage('images/user.png'), )
+            ),
+          ),
+        );
+    }
+
+    
+    // return  Image(image: AssetImage('images/user.png'), );
+  }
+
+  static Container getWidgetUploadFoto(dynamic sucursal, {size: 130, radius: 10}) {
+    if(sucursal.foto != null ){
+      return Container(
+          // color: Colors.blue,
+          width: size,
+          height: size,
+          child:  ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: Container(
+              // color: Colors.blue,
+              child: Image.memory(sucursal.foto)
+            ),
+          ),
+        );
+      //  return Image.memory(await Utils.blobfileToUint(cliente.foto));
+    }else if(sucursal.nombreFoto != null){
+      return Container(
+          // color: Colors.red,
+          width: size,
+          height: size,
+          child:  ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: Container(
+              child: FadeInImage(
+                image: NetworkImage(
+                    '${Utils.URL}/assets/perfil/${sucursal.nombreFoto}'),
+                placeholder: AssetImage('images/user.png'),
+              )
+            ),
+          ),
+        );
     }else{
       return Container(
           // color: Colors.red,

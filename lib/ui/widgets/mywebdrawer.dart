@@ -20,11 +20,13 @@ class MyWebDrawer extends StatefulWidget {
   final bool prestamos;
   final bool configuracion;
   final bool configuracionPrestamo;
+  final bool configuracionEmpresa;
   final bool cuentas;
   final bool usuarios;
   final bool roles;
+  final bool sucursales;
   final bool clientesBack;
-  MyWebDrawer({Key key, this.inicio = false, this.clientes = false, this.rutas = false, this.gastos = false, this.cajas = false, this.bancos = false, this.prestamos =  false, this.configuracion = false, this.configuracionPrestamo = false, this.cuentas = false, this.usuarios = false, this.roles = false, this.clientesBack = false}) : super(key: key);
+  MyWebDrawer({Key key, this.inicio = false, this.clientes = false, this.rutas = false, this.gastos = false, this.cajas = false, this.bancos = false, this.prestamos =  false, this.configuracion = false, this.configuracionPrestamo = false, this.configuracionEmpresa = false, this.cuentas = false, this.usuarios = false, this.roles = false, this.sucursales = false, this.clientesBack = false}) : super(key: key);
   @override
   _MyWebDrawerState createState() => _MyWebDrawerState();
 }
@@ -110,6 +112,7 @@ class _MyWebDrawerState extends State<MyWebDrawer> {
                 listaMylisttile: [
                   MyListTile(title: "Bancos", icon: null, onTap: (){_gotTo("/bancos");}, selected: widget.bancos,), 
                   MyListTile(title: "Cuentas", icon: null, onTap: (){_gotTo("/cuentas");}, selected: widget.cuentas,), 
+                  MyListTile(title: "Sucursales", icon: null, onTap: (){_gotTo("/sucursales");}, selected: widget.sucursales,), 
                 ]
               ),
               MyExpansionTile(
@@ -124,9 +127,10 @@ class _MyWebDrawerState extends State<MyWebDrawer> {
               MyExpansionTile(
                 title: "Configuracion", 
                 icon: Icons.settings_outlined, 
-                initialExpanded: widget.configuracionPrestamo,
+                initialExpanded: widget.configuracionPrestamo || widget.configuracionEmpresa,
                 listaMylisttile: [
                   MyListTile(title: "Prestamo", icon: null, onTap: (){_gotTo("/configuracionPrestamo");}, selected: widget.configuracionPrestamo,), 
+                  MyListTile(title: "Empresa", icon: null, onTap: (){_gotTo("/configuracionEmpresa");}, selected: widget.configuracionEmpresa,), 
                 ]
               ),
               MyListTile(title: "Pagos", icon: Icons.payment, selected: false,),

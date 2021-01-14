@@ -11,7 +11,8 @@ class MyTable extends StatefulWidget {
   final int indexCellKeyToReturnOnClick;
   final String colorColumn;
   final double fontSizeColumn;
-  MyTable({Key key, @required this.columns, @required this.rows, this.totals, this.customTotals, this.onTap, this.delete, this.indexCellKeyToReturnOnClick = 0, this.padding = const EdgeInsets.only(bottom: 15, top: 15), this.colorColumn, this.fontSizeColumn}) : super(key: key);
+  final bool isScrolled;
+  MyTable({Key key, @required this.columns, @required this.rows, this.totals, this.customTotals, this.onTap, this.delete, this.indexCellKeyToReturnOnClick = 0, this.padding = const EdgeInsets.only(bottom: 15, top: 15), this.isScrolled = true, this.colorColumn, this.fontSizeColumn}) : super(key: key);
   @override
   _MyTableState createState() => _MyTableState();
 }
@@ -113,8 +114,25 @@ class _MyTableState extends State<MyTable> {
     //     ],
     //   ),
     // );
-    return Column(
+    return 
+    (widget.isScrolled == false)
+    ?
+     Row(
+       children: [
+         Expanded(
+           child: DataTable(
+                      showCheckboxColumn: false,
+                      columns: _initColumn(),
+                      rows: _init(),
+                    ),
+         ),
+       ],
+     )
+    :
+    Column(
       children: [
+        // (widget.isScrolled)
+        // ?
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child:DataTable(
@@ -123,9 +141,17 @@ class _MyTableState extends State<MyTable> {
                 rows: _init(),
               ),
           ),
+          // :
+          // DataTable(
+          //       showCheckboxColumn: false,
+          //       columns: _initColumn(),
+          //       rows: _init(),
+          //     )
+          // ,
           _customTotals(),
       ],
     );
+    
     
   }
 }

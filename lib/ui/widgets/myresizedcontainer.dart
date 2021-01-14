@@ -8,9 +8,10 @@ class MyResizedContainer extends StatefulWidget {
   final double large;
   final double xlarge;
   final double padding;
+  final Color color;
 
   final bool isRequired;
-  MyResizedContainer({Key key, this.child, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8, this.isRequired = false}) : super(key: key);
+  MyResizedContainer({Key key, this.child, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 5, this.padding = 8, this.isRequired = false, this.color = Colors.transparent}) : super(key: key);
   @override
   _MyResizedContainerState createState() => _MyResizedContainerState();
 }
@@ -57,7 +58,7 @@ class _MyResizedContainerState extends State<MyResizedContainer> {
         return Padding(
           padding: EdgeInsets.all(widget.padding),
           child: Container(
-                // color: Colors.red,
+                color: widget.color,
                 // decoration: BoxDecoration(
                 //   borderRadius: BorderRadius.circular(10),
                 //   border: Border.all(color: Colors.black, width: 1, style: BorderStyle.solid)

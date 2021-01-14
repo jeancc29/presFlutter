@@ -24,6 +24,7 @@ import 'package:prestamo/core/models/tipo.dart';
 class Rol {
   int id;
   String descripcion;
+  String permisosString;
   List<Permiso> permisos;
 
   Rol({this.id, this.descripcion, this.permisos});
@@ -31,6 +32,7 @@ class Rol {
   Rol.fromMap(Map snapshot) :
         id = Utils.toInt(snapshot['id'].toString()) ?? 0,
         descripcion = snapshot['descripcion'] ?? '',
+        permisosString = snapshot['permisosString'] ?? '',
         permisos = (snapshot['permisos'] == null) ? [] : permisosToMap(snapshot['permisos'] is String ? Utils.parseDatos(snapshot["permisos"]) :snapshot['permisos']) ?? []
         ;
 

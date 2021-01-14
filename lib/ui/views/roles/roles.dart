@@ -50,10 +50,15 @@ class _RolesScreenState extends State<RolesScreen> {
   }
 
   _search(String data){
+    print("ROlesSCreen _search: $data");
     if(data.isEmpty)
       _streamController.add(listaRol);
     else
-      _streamController.add(listaRol.where((element) => element.descripcion.indexOf(data) != -1).toList());
+      {
+        var element = listaRol.where((element) => element.descripcion.toLowerCase().indexOf(data) != -1).toList();
+        print("RolesScreen _serach length: ${element.length}");
+        _streamController.add(listaRol.where((element) => element.descripcion.toLowerCase().indexOf(data) != -1).toList());
+      }
   }
 
   @override
@@ -80,13 +85,17 @@ class _RolesScreenState extends State<RolesScreen> {
         e.seleccionado = false;
       });
     });
+    _txtDescripcion.text = "";
 
-    if(rol != null)
+    if(rol != null){
       listaEntidad.forEach((element) {
         element.permisos.forEach((element2) {
           element2.seleccionado = (rol.permisos.indexWhere((permiso) => permiso.id == element2.id) != -1) ? true : false;
         });
       });
+    _txtDescripcion.text = rol.descripcion;
+
+    }
 
     List<Widget> listaWidget = [];
 
@@ -317,7 +326,7 @@ class _RolesScreenState extends State<RolesScreen> {
                   MySubtitle(title: "Roles"),
                   MyTable(
                     columns: ["#", "Rol", "Permisos"], 
-                    rows: snapshot.data.asMap().map((index, value) => MapEntry(index, [value, "${index + 1}", "${value.descripcion}", "${(value.permisos.length > 0) ? value.permisos.map((p) => p.descripcion + ' ' + p.entidad.descripcion).toList().join(", ") : "Ninguno"}"])).values.toList(),
+                    rows: snapshot.data.asMap().map((index, value) => MapEntry(index, [value, "${index + 1}", "${value.descripcion}", "${value.permisosString}"])).values.toList(),
                     onTap: (data) async {
                       
                       var rol = await _showDialog(rol: data);

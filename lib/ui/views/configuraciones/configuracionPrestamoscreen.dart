@@ -109,7 +109,6 @@ class _ConfiguracionPrestamoScreenState extends State<ConfiguracionPrestamoScree
               ],
             ),
           );
-        
   }
 
   @override

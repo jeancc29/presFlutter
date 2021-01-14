@@ -72,7 +72,8 @@ class _MySideTextFormFieldState extends State<MySideTextFormField> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-        Flexible(flex: 2, child: Visibility(visible: widget.title != "",child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15),))),
+        // Flexible(flex: 2, child: Visibility(visible: widget.title != "",child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15, fontFamily: "GoogleSans"),))),
+        Flexible(flex: 2, child: Visibility(visible: widget.title != "",child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15, fontFamily: "GoogleSans", fontWeight: FontWeight.w400),))),
         Flexible(
           flex: 4,
           child: TextFormField(
