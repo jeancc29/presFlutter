@@ -8,6 +8,7 @@ import 'package:http/http.dart' as http;
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/cliente.dart';
 import 'package:prestamo/core/models/cuenta.dart';
+import 'package:prestamo/core/models/empresa.dart';
 import 'package:prestamo/core/models/sucursal.dart';
 
 
@@ -44,11 +45,11 @@ class CompanyService{
     return parsed;
   }
   
-  static Future<Map<String, dynamic>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Sucursal sucursal}) async {
+  static Future<Map<String, dynamic>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Empresa empresa}) async {
     var map = Map<String, dynamic>();
-    // sucursal.toJson();
+    // empresa.toJson();
     // map["servidor"] = await Db.servidor();
-    map["data"] = sucursal.toJson();
+    map["data"] = empresa.toJson();
     Map<String, dynamic> map2 = Map<String, dynamic>();
     // map2["data"] = map;
     // print("map: ${map}");

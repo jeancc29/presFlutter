@@ -31,6 +31,7 @@ class _MyDropdownButtonState extends State<MyDropdownButton> {
   }
 
   _initialValue(){
+      print("MyDropdownButton initialValue: ${widget.initialValue}");
     if(widget.initialValue != null){
       if(widget.elements.length > 0){
         var idx = widget.elements.indexWhere((element) => element == widget.initialValue);

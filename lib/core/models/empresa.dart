@@ -21,7 +21,7 @@ class Empresa {
   String nombreFoto;
   String nombre;
   Tipo tipoMora;
-  String porcentajeMora;
+  double porcentajeMora;
   int diasGracia;
   Moneda moneda;
   int status;
@@ -34,8 +34,8 @@ class Empresa {
 
   Empresa.fromMap(Map snapshot) :
         id = (snapshot['id'] != null) ? BigInt.from(snapshot['id']) : BigInt.from(0),
-        foto = (snapshot['foto'] != null) ? base64Decode(snapshot['foto']) : null,
-        nombreFoto = snapshot['nombreFoto'] ?? '',
+        // foto = (snapshot['foto'] != null) ? base64Decode(snapshot['foto']) : null,
+        nombreFoto = snapshot['foto'] ?? '',
         nombre = snapshot['nombre'] ?? '',
         tipoMora = (snapshot['tipoMora'] != null) ? Tipo.fromMap(snapshot['tipoMora']) : null,
         porcentajeMora = Utils.toDouble(snapshot['porcentajeMora'].toString()) ?? 0,
@@ -52,7 +52,7 @@ class Empresa {
     if(referencias != null)
       return referencias.map((data) => Referencia.fromMap(data)).toList();
     else
-      return List<Referencia>();
+      return [];
   }
 
   // static List<Empresa> EmpresaSuperpaleToMap(List<dynamic> Empresas){
@@ -68,13 +68,13 @@ class Empresa {
       "foto": (foto != null) ? base64Encode(foto) : null,
       "nombreFoto": nombreFoto,
       "nombre": nombre,
-      "tipoMora": tipoMora,
+      "tipoMora": (tipoMora != null) ? tipoMora.toJson() : null,
       "status": status,
       "porcentajeMora": porcentajeMora,
       "diasGracia": diasGracia,
-      "moneda": moneda,
+      "moneda": (moneda != null) ? moneda.toJson() : null,
       "idDireccion": idDireccion,
-      "direccion": direccion,
+      "direccion": (direccion != null) ? direccion.toJson() : null,
       "idContacto": idContacto,
       "contacto": (contacto != null) ? contacto.toJson() : null,
     };

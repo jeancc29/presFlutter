@@ -11,7 +11,8 @@ class MyHeader extends StatefulWidget {
   final Function function2;
   final String actionFuncion2;
   final Widget customFunction;
-  MyHeader({Key key, @required this.title, this.subtitle = "", this.actionFuncion, this.function, this.function2, this.actionFuncion2 = "", this.customFunction}) : super(key: key);
+  final bool cargando;
+  MyHeader({Key key, @required this.title, this.subtitle = "", this.actionFuncion, this.function, this.function2, this.actionFuncion2 = "", this.customFunction, this.cargando = false}) : super(key: key);
   @override
   _MyHeaderState createState() => _MyHeaderState();
 }
@@ -44,7 +45,15 @@ class _MyHeaderState extends State<MyHeader> {
                           //     child: Text(widget.actionFuncion, style: TextStyle(color: Colors.white, fontFamily: "Roboto", fontWeight: FontWeight.w500),)
                           //   )
                           // )
-                          myButton(function: widget.function, text: (widget.function == null) ? "" : widget.actionFuncion)
+                          // myButton(function: widget.function, text: (widget.function == null) ? "" : widget.actionFuncion)
+                          AbsorbPointer(
+                            absorbing: widget.cargando,
+                            child:  myButton(
+                            text: (widget.actionFuncion == null) ? "" : widget.actionFuncion,
+                            function: widget.function, 
+                            color: (widget.cargando) ? Colors.grey[300] : null,
+                            letterColor: (widget.cargando) ? Colors.grey : null,
+                          )),
                           // SizedBox(
                           //   width: 145,
                           //   child: ClipRRect(

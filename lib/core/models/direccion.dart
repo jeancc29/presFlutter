@@ -34,7 +34,9 @@ class Direccion {
     return {
       "id": id,
       "direccion": direccion,
+      "ciudad": ciudad.toJson(),
       "idCiudad": idCiudad,
+      "estado": estado.toJson(),
       "idEstado": idEstado,
       "sector": sector,
       "numero": numero,

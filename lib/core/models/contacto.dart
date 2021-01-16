@@ -9,9 +9,10 @@ class Contacto {
   String correo;
   String facebook;
   String instagram;
+  String rnc;
   
 
-  Contacto({this.id, this.telefono, this.extension, this.celular, this.fax, this.correo, this.facebook, this.instagram});
+  Contacto({this.id, this.telefono, this.extension, this.celular, this.fax, this.correo, this.facebook, this.instagram, this.rnc});
 
   Contacto.fromMap(Map snapshot) :
         id = snapshot['id'] ?? 0,
@@ -21,7 +22,8 @@ class Contacto {
         fax = snapshot['fax'] ?? '',
         correo = snapshot['correo'] ?? '',
         facebook = snapshot['facebook'] ?? '',
-        instagram = snapshot['instagram'] ?? ''
+        instagram = snapshot['instagram'] ?? '',
+        rnc = snapshot['rnc'] ?? ''
         ;
 
 
@@ -37,6 +39,7 @@ class Contacto {
       "correo": correo,
       "facebook": facebook,
       "instagram": instagram,
+      "rnc": rnc,
     };
   }
 }
