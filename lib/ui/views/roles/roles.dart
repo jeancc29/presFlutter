@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/models/entidad.dart';
 import 'package:prestamo/core/models/permiso.dart';
 import 'package:prestamo/core/models/rol.dart';
@@ -14,6 +15,7 @@ import 'package:prestamo/ui/widgets/myscrollbar.dart';
 import 'package:prestamo/ui/widgets/mysearch.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytable.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RolesScreen extends StatefulWidget {
@@ -22,6 +24,7 @@ class RolesScreen extends StatefulWidget {
 }
 
 class _RolesScreenState extends State<RolesScreen> {
+  AppDatabase db;
   var _formKey = GlobalKey<FormState>();
   var _scaffoldKey = GlobalKey<ScaffoldState>();
   var _txtSearch = TextEditingController();
@@ -35,7 +38,7 @@ class _RolesScreenState extends State<RolesScreen> {
   _init() async {
     // try {
       // setState(() => _cargando = true);
-      var parsed = await RoleService.index(context: context,);
+      var parsed = await RoleService.index(context: context, db: db);
       print("RolesScreen _init parsed: $parsed");
       listaRol = (parsed["roles"] != null) ? parsed["roles"].map<Rol>((json) => Rol.fromMap(json)).toList() : [];
       listaEntidad = (parsed["entidades"] != null) ? parsed["entidades"].map<Entidad>((json) => Entidad.fromMap(json)).toList() : [];
@@ -65,7 +68,6 @@ class _RolesScreenState extends State<RolesScreen> {
   void initState() {
     // TODO: implement initState
     _streamController = BehaviorSubject();
-    _init();
     super.initState();
   }
 
@@ -88,9 +90,9 @@ class _RolesScreenState extends State<RolesScreen> {
     _txtDescripcion.text = "";
 
     if(rol != null){
-      listaEntidad.forEach((element) {
-        element.permisos.forEach((element2) {
-          element2.seleccionado = (rol.permisos.indexWhere((permiso) => permiso.id == element2.id) != -1) ? true : false;
+      listaEntidad.forEach((entidad) {
+        entidad.permisos.forEach((permiso) {
+          permiso.seleccionado = (rol.permisos.indexWhere((permiso) => permiso.id == permiso.id) != -1) ? true : false;
         });
       });
     _txtDescripcion.text = rol.descripcion;
@@ -120,7 +122,8 @@ class _RolesScreenState extends State<RolesScreen> {
               return Checkbox(
                     onChanged: (data){ 
                       setState(() {
-                      _ckbExpansion = data;
+                      // _ckbExpansion = data;
+                       entidad.permisos.forEach((element) => element.seleccionado = data);
                     });
                     }, 
                   value: entidad.permisos.length == entidad.permisos.where((element) => element.seleccionado == true).toList().length
@@ -203,7 +206,7 @@ class _RolesScreenState extends State<RolesScreen> {
                           rolToSave.permisos.add(element2);
                       });
                     });
-                    var parsed = await RoleService.store(context: context, rol: rolToSave);
+                    var parsed = await RoleService.store(context: context, rol: rolToSave, db: db);
                     setState(() => cargando = false);
                     _back(rolToReturn: Rol.fromMap(parsed["rol"]));
                   }
@@ -259,7 +262,7 @@ class _RolesScreenState extends State<RolesScreen> {
               isDeleteDialog: true,
               okFunction: () async {
                 setState(() => cargando = true);
-                var parsed = await RoleService.delete(context: context, rol: rol);
+                var parsed = await RoleService.delete(context: context, rol: rol, db: db);
                 setState(() => cargando = false);
                 _back(rolToReturn: Rol.fromMap(parsed["rol"]));
               }
@@ -292,6 +295,15 @@ class _RolesScreenState extends State<RolesScreen> {
     }
   }
 
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+
+    super.didChangeDependencies();
+  }
   @override
   Widget build(BuildContext context) {
     return myScaffold(

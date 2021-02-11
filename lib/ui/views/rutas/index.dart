@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker_web/file_picker_web.dart';
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/ciudad.dart';
@@ -32,6 +33,7 @@ import 'package:prestamo/ui/widgets/mylisttile.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
 import 'package:prestamo/ui/widgets/mywebdrawer.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RutasScreen extends StatefulWidget {
@@ -40,6 +42,7 @@ class RutasScreen extends StatefulWidget {
 }
 
 class _RutasScreenState extends State<RutasScreen> with TickerProviderStateMixin {
+  AppDatabase db;
   bool _cargando = false;
   var _txtDescripcion = TextEditingController();
   var _formKey = GlobalKey<FormState>();
@@ -51,7 +54,7 @@ class _RutasScreenState extends State<RutasScreen> with TickerProviderStateMixin
   _init() async {
     try {
       setState(() => _cargando = true);
-      var parsed = await RouteService.index(context: context);
+      var parsed = await RouteService.index(context: context, db: db);
       print("_init: $parsed");
       listaRuta = (parsed["rutas"] != null) ? parsed["rutas"].map<Ruta>((json) => Ruta.fromMap(json)).toList() : List<Ruta>();
       // for(Cliente c in listaCliente){
@@ -70,7 +73,7 @@ class _RutasScreenState extends State<RutasScreen> with TickerProviderStateMixin
     // try {
       // setState(() => _cargando = true);
       _ruta.descripcion = _txtDescripcion.text;
-      var parsed = await RouteService.store(context: context, ruta: _ruta);
+      var parsed = await RouteService.store(context: context, ruta: _ruta, db: db);
       print("_store: $parsed");
       _insertRutaToListaRutas(parsed);
      
@@ -234,7 +237,7 @@ class _RutasScreenState extends State<RutasScreen> with TickerProviderStateMixin
    _delete(Ruta ruta) async {
     try {
       
-      var parsed = await RouteService.delete(context: context, ruta: ruta);
+      var parsed = await RouteService.delete(context: context, ruta: ruta, db: db);
       print("_delete: $parsed");
       _deleteRutaFromListaRutas(parsed);
      _streamControllerRutas.add(listaRuta);
@@ -298,8 +301,15 @@ class _RutasScreenState extends State<RutasScreen> with TickerProviderStateMixin
   void initState() {
     // TODO: implement initState
     _streamControllerRutas = BehaviorSubject();
-    _init();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
   }
 
   @override

@@ -26,8 +26,9 @@ class Permiso {
   String descripcion;
   Entidad entidad;
   bool seleccionado;
+  bool esPermisoRol;
 
-  Permiso({this.id, this.descripcion, this.seleccionado, this.entidad});
+  Permiso({this.id, this.descripcion, this.seleccionado, this.esPermisoRol, this.entidad});
 
   Permiso.fromMap(Map snapshot) :
         id = Utils.toInt(snapshot['id'].toString()) ?? 0,

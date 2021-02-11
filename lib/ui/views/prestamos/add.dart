@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/amortizacion.dart';
@@ -39,6 +40,7 @@ import 'package:prestamo/ui/widgets/mysidetextformfield.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytable.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class PrestamoAddScreen extends StatefulWidget {
@@ -49,6 +51,7 @@ class PrestamoAddScreen extends StatefulWidget {
 }
 
 class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProviderStateMixin {
+  AppDatabase db;
   TabController _tabController;
   List<String> listaTab = ["Prestamo", "Garante y cobrador", "Gasto", "Garantia", "Desembolso"];
   ScrollController _scrollController;
@@ -215,7 +218,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
       _prestamo.amortizaciones.forEach((element) {print("_guardar amortizacion prestao: ${element.fecha}");});
     // try {
       setState(() => _cargando = true);
-      var parsed = await LoanService.store(context: context, prestamo: _prestamo );
+      var parsed = await LoanService.store(context: context, prestamo: _prestamo, db: db);
       print("_guardar parsed: ${parsed["prestamo"]}");
       Navigator.pop(context, Prestamo.fromMap(parsed["prestamo"]));
       setState(() => _cargando = false);
@@ -936,7 +939,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
   _init() async {
     try {
       // setState(() => _cargando = true);
-      var parsed = await LoanService.index(context: context);
+      var parsed = await LoanService.index(context: context, db: db);
       print("_init: $parsed");
       listaTipo = (parsed["tipos"] != null) ? parsed["tipos"].map<Tipo>((json) => Tipo.fromMap(json)).toList() : [];
       listaCaja = (parsed["cajas"] != null) ? parsed["cajas"].map<Caja>((json) => Caja.fromMap(json)).toList() : [];
@@ -1425,7 +1428,6 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
     _streamControllerGarantia = BehaviorSubject();
     _streamControllerCuenta = BehaviorSubject();
     _streamControllerDiasExcluidos = BehaviorSubject();
-    _init();
     super.initState();
   }
 
@@ -1703,7 +1705,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                     MyDropdownButton(
                       xlarge: 4.2,
                       title: "Caja *",
-                      elements: listaCaja.map<String>((e) => e.descripcion).toList(),
+                      elements: (listaCaja.length == 0) ? ["Ninguna"] : listaCaja.map<String>((e) => e.descripcion).toList(),
                       onChanged: (data){
                         setState(() {
                           _caja = listaCaja.firstWhere((element) => element.descripcion == data);
@@ -1717,7 +1719,7 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                       child: StreamBuilder<List<Dia>>(
                         stream: _streamControllerDiasExcluidos.stream,
                         builder: (context, snapshot) {
-                          if(snapshot.hasData)
+                          if(snapshot.hasData && snapshot.data != null)
                             return MyDropdown(
                               title: "Dias excluidos",
                               onTap: _showModalSheetDiasExcluidos,
@@ -2290,6 +2292,14 @@ class _PrestamoAddScreenState extends State<PrestamoAddScreen> with TickerProvid
                               
    
     _streamControllerDiasExcluidos.add(listaDia.where((e) => e.seleccionado).toList());
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
   }
   
   @override

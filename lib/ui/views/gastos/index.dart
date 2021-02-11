@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker_web/file_picker_web.dart';
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/caja.dart';
@@ -35,6 +36,7 @@ import 'package:prestamo/ui/widgets/mylisttile.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
 import 'package:prestamo/ui/widgets/mywebdrawer.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class GastosScreen extends StatefulWidget {
@@ -43,6 +45,7 @@ class GastosScreen extends StatefulWidget {
 }
 
 class _GastosScreenState extends State<GastosScreen> with TickerProviderStateMixin {
+  AppDatabase db;
   bool _cargando = false;
   var _txtConcepto = TextEditingController();
   var _fecha = DateTime.now();
@@ -61,11 +64,11 @@ class _GastosScreenState extends State<GastosScreen> with TickerProviderStateMix
   _init() async {
     try {
       setState(() => _cargando = true);
-      var parsed = await ExpenseService.index(context: context);
+      var parsed = await ExpenseService.index(context: context, db: db);
       print("_init: ${parsed["cajas"]}");
-      listaGasto = (parsed["gastos"] != null) ? parsed["gastos"].map<Gasto>((json) => Gasto.fromMap(json)).toList() : List<Gasto>();
-      listaTipo = (parsed["tipos"] != null) ? parsed["tipos"].map<Tipo>((json) => Tipo.fromMap(json)).toList() : List<Tipo>();
-      listaCaja = (parsed["cajas"] != null) ? parsed["cajas"].map<Caja>((json) => Caja.fromMap(json)).toList() : List<Caja>();
+      listaGasto = (parsed["gastos"] != null) ? parsed["gastos"].map<Gasto>((json) => Gasto.fromMap(json)).toList() : [];
+      listaTipo = (parsed["tipos"] != null) ? parsed["tipos"].map<Tipo>((json) => Tipo.fromMap(json)).toList() : [];
+      listaCaja = (parsed["cajas"] != null) ? parsed["cajas"].map<Caja>((json) => Caja.fromMap(json)).toList() : [];
       // for(Cliente c in listaCliente){
       //   print("Nombre: ${c.nombres}");
       //   print("documento: ${c.documento.toJson()}");
@@ -152,7 +155,7 @@ class _GastosScreenState extends State<GastosScreen> with TickerProviderStateMix
    _delete(Gasto gasto) async {
     try {
       
-      var parsed = await ExpenseService.delete(context: context, gasto: gasto);
+      var parsed = await ExpenseService.delete(context: context, gasto: gasto, db: db);
       print("_delete: $parsed");
       _deleteGastoFromListaGasto(parsed);
      _streamControllerGastos.add(listaGasto);
@@ -216,8 +219,15 @@ class _GastosScreenState extends State<GastosScreen> with TickerProviderStateMix
   void initState() {
     // TODO: implement initState
     _streamControllerGastos = BehaviorSubject();
-    _init();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
   }
 
   @override

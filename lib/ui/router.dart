@@ -18,6 +18,8 @@ import 'package:prestamo/ui/views/roles/roles.dart';
 import 'package:prestamo/ui/views/rutas/index.dart';
 import 'package:prestamo/ui/views/sucursales/add.dart';
 import 'package:prestamo/ui/views/sucursales/index.dart';
+import 'package:prestamo/ui/views/usuarios/addUser.dart';
+import 'package:prestamo/ui/views/usuarios/login.dart';
 
 
 
@@ -25,8 +27,11 @@ class MyRouter {
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case '/' :
+        // return  MaterialPageRoute(
+        //   builder: (_)=> ClientesScreen()
+        // );
         return  MaterialPageRoute(
-          builder: (_)=> ClientesScreen()
+          builder: (_)=> LoginScreen()
         );
         // return  MaterialPageRoute(
         //   builder: (_)=> PruebaScroll2()
@@ -74,6 +79,10 @@ class MyRouter {
       case '/roles' :
         return  MaterialPageRoute(
           builder: (_)=> RolesScreen()
+        );
+      case '/usuarios' :
+        return  MaterialPageRoute(
+          builder: (_)=> AddUserScreen()
         );
       case '/sucursales' :
         return  MaterialPageRoute(

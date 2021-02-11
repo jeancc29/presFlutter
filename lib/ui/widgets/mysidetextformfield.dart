@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prestamo/core/classes/screensize.dart';
+import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
 
 
@@ -73,7 +74,7 @@ class _MySideTextFormFieldState extends State<MySideTextFormField> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
         // Flexible(flex: 2, child: Visibility(visible: widget.title != "",child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15, fontFamily: "GoogleSans"),))),
-        Flexible(flex: 2, child: Visibility(visible: widget.title != "",child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(fontSize: 15, fontFamily: "GoogleSans", fontWeight: FontWeight.w400),))),
+        Flexible(flex: 2, child: Visibility(visible: widget.title != "",child: Text(widget.title, textAlign: TextAlign.start, style: TextStyle(color: Colors.black, fontSize: 14, fontFamily: "GoogleSans",  letterSpacing: 0.4),))),
         Flexible(
           flex: 4,
           child: TextFormField(
@@ -88,7 +89,7 @@ class _MySideTextFormFieldState extends State<MySideTextFormField> {
                 isDense: true,
                 border: new OutlineInputBorder(
                   // borderRadius: new BorderRadius.circular(25.0),
-                  borderSide: new BorderSide(),
+                  borderSide: new BorderSide(color: Colors.blue, width: 0.1),
                 ),
               ),
               validator: 

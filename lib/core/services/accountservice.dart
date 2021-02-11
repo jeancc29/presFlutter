@@ -5,18 +5,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/cliente.dart';
 import 'package:prestamo/core/models/cuenta.dart';
 
 
 class AccountService{
-  static Future<Map<String, dynamic>> index({BuildContext context, scaffoldKey}) async {
+  static Future<Map<String, dynamic>> index({BuildContext context, scaffoldKey, AppDatabase db}) async {
     var map = Map<String, dynamic>();
+    map["data"] = await db.getUsuario();
     // map["servidor"] = await Db.servidor();
     // var jwt = await Utils.createJwt(map);
 
-    var response = await http.get(Utils.URL + "/api/accounts", headers: Utils.header);
+    // var response = await http.get(Utils.URL + "/api/accounts", headers: Utils.header);
+    var response = await http.post(Utils.URL + "/api/accounts", body: json.encode(map), headers: Utils.header);
     int statusCode = response.statusCode;
 
     if(statusCode < 200 || statusCode > 400){
@@ -70,11 +73,12 @@ class AccountService{
     return parsed;
   }
 
-  static Future<Map<String, dynamic>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Cuenta cuenta}) async {
+  static Future<Map<String, dynamic>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Cuenta cuenta, AppDatabase db}) async {
     var map = Map<String, dynamic>();
     // cuenta.toJson();
     // map["servidor"] = await Db.servidor();
     map["data"] = cuenta.toJson();
+    map["data"]["usuario"] = await db.getUsuario();
     Map<String, dynamic> map2 = Map<String, dynamic>();
     // map2["data"] = map;
     // print("map: ${map}");
@@ -110,11 +114,12 @@ class AccountService{
     return parsed;
   }
 
-  static Future<Map<String, dynamic>> delete({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Cuenta cuenta}) async {
+  static Future<Map<String, dynamic>> delete({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Cuenta cuenta, AppDatabase db}) async {
     var map = Map<String, dynamic>();
     // cliente.toJson();
     // map["servidor"] = await Db.servidor();
     map["data"] = cuenta.toJson();
+    map["data"]["usuario"] = await db.getUsuario();
     Map<String, dynamic> map2 = Map<String, dynamic>();
     // map2["data"] = map;
     // print("map: ${map}");

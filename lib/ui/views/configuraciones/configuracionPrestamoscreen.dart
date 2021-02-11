@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/configuracionprestamo.dart';
 import 'package:prestamo/core/services/loansettingservice.dart';
@@ -8,6 +9,7 @@ import 'package:prestamo/ui/widgets/myheader.dart';
 import 'package:prestamo/ui/widgets/myresizedcontainer.dart';
 import 'package:prestamo/ui/widgets/myscaffold.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ConfiguracionPrestamoScreen extends StatefulWidget {
@@ -16,6 +18,7 @@ class ConfiguracionPrestamoScreen extends StatefulWidget {
 }
 
 class _ConfiguracionPrestamoScreenState extends State<ConfiguracionPrestamoScreen> {
+  AppDatabase db;
   var _scaffoldKey = GlobalKey<ScaffoldState>();
   StreamController<ConfiguracionPrestamo> _streamController;
   bool _cargando = false;
@@ -25,21 +28,22 @@ class _ConfiguracionPrestamoScreenState extends State<ConfiguracionPrestamoScree
   ConfiguracionPrestamo configuracionPrestamo = ConfiguracionPrestamo();
   
   _init() async {
-    try {
+    // try {
       // setState(() => _cargando = true);
-      var parsed = await LoansettingService.index(context: context, );
-      configuracionPrestamo = ConfiguracionPrestamo.fromMap(parsed["configuracionPrestamo"]);
+      var parsed = await LoansettingService.index(context: context, db: db);
       print("ConfiguracionPrestamoScreen _init parsed ${parsed}");
-      print("ConfiguracionPrestamoScreen _init ${configuracionPrestamo.toJson()}");
-      _garantia = configuracionPrestamo.garantia;
-      _gasto = configuracionPrestamo.gasto;
-      _desembolso = configuracionPrestamo.desembolso;
+      configuracionPrestamo = (parsed["configuracionPrestamo"] == null) ? ConfiguracionPrestamo() : ConfiguracionPrestamo.fromMap(parsed["configuracionPrestamo"]);
+      // print("ConfiguracionPrestamoScreen _init parsed ${parsed}");
+      // print("ConfiguracionPrestamoScreen _init ${configuracionPrestamo.toJson()}");
+      _garantia = (configuracionPrestamo.garantia != null) ? configuracionPrestamo.garantia : false;
+      _gasto = (configuracionPrestamo.gasto != null) ? configuracionPrestamo.gasto : false;
+      _desembolso = (configuracionPrestamo.desembolso != null) ? configuracionPrestamo.desembolso : false;
       _streamController.add(configuracionPrestamo);
       // setState(() => _cargando = false);
-    } catch (e) {
-      print("ConfiguracionPrestamoScreen _init error: ${e.toString()}");
-      // setState(() => _cargando = false);
-    }
+    // } catch (e) {
+    //   print("ConfiguracionPrestamoScreen _init error: ${e.toString()}");
+    //   // setState(() => _cargando = false);
+    // }
   }
   _guardar() async {
     try {
@@ -47,7 +51,7 @@ class _ConfiguracionPrestamoScreenState extends State<ConfiguracionPrestamoScree
       configuracionPrestamo.garantia = _garantia;
       configuracionPrestamo.gasto = _gasto;
       configuracionPrestamo.desembolso = _desembolso;
-      configuracionPrestamo = await LoansettingService.store(context: context, configuracionPrestamo: configuracionPrestamo);
+      configuracionPrestamo = await LoansettingService.store(context: context, configuracionPrestamo: configuracionPrestamo, db: db);
       setState(() => _cargando = false);
       Utils.showSnackBar(content: "Se ha guardado correctamente", scaffoldKey: _scaffoldKey);
     } catch (e) {
@@ -115,8 +119,15 @@ class _ConfiguracionPrestamoScreenState extends State<ConfiguracionPrestamoScree
   void initState() {
     // TODO: implement initState
     _streamController = BehaviorSubject();
-    _init();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
   }
 
   @override

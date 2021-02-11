@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/cliente.dart';
 import 'package:prestamo/core/models/configuracionprestamo.dart';
@@ -12,12 +13,14 @@ import 'package:prestamo/ui/views/configuraciones/configuracionPrestamoscreen.da
 
 
 class LoansettingService{
-  static Future<Map<String, dynamic>> index({BuildContext context, scaffoldKey}) async {
+  static Future<Map<String, dynamic>> index({BuildContext context, scaffoldKey, AppDatabase db}) async {
     var map = Map<String, dynamic>();
+    map["data"] = await db.getUsuario();
     // map["servidor"] = await Db.servidor();
     // var jwt = await Utils.createJwt(map);
 
-    var response = await http.get(Utils.URL + "/api/loansettings", headers: Utils.header);
+    // var response = await http.get(Utils.URL + "/api/loansettings", headers: Utils.header);
+    var response = await http.post(Utils.URL + "/api/loansettings", body: json.encode(map), headers: Utils.header);
     int statusCode = response.statusCode;
 
     if(statusCode < 200 || statusCode > 400){
@@ -42,11 +45,12 @@ class LoansettingService{
     return parsed;
   }
   
-  static Future<ConfiguracionPrestamo>store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, ConfiguracionPrestamo configuracionPrestamo}) async {
+  static Future<ConfiguracionPrestamo>store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, ConfiguracionPrestamo configuracionPrestamo, AppDatabase db}) async {
     var map = Map<String, dynamic>();
     // cliente.toJson();
     // map["servidor"] = await Db.servidor();
     map["data"] = configuracionPrestamo.toJson();
+    map["data"]["usuario"] = await db.getUsuario();
     Map<String, dynamic> map2 = Map<String, dynamic>();
     // map2["data"] = map;
     // print("map: ${map}");

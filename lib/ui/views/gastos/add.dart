@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker_web/file_picker_web.dart';
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/caja.dart';
@@ -35,6 +36,7 @@ import 'package:prestamo/ui/widgets/mylisttile.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
 import 'package:prestamo/ui/widgets/mywebdrawer.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AddGastos extends StatefulWidget {
@@ -47,6 +49,7 @@ final Gasto data;
 }
 
 class _AddGastosState extends State<AddGastos> with TickerProviderStateMixin {
+  AppDatabase db;
   bool _cargando = false;
   var _txtConcepto = TextEditingController();
   var _fecha = DateTime.now();
@@ -67,7 +70,7 @@ class _AddGastosState extends State<AddGastos> with TickerProviderStateMixin {
   _init() async {
     try {
       setState(() => _cargando = true);
-      var parsed = await ExpenseService.index(context: context);
+      var parsed = await ExpenseService.index(context: context, db: db);
       print("_init: ${parsed["cajas"]}");
       listaGasto = (parsed["gastos"] != null) ? parsed["gastos"].map<Gasto>((json) => Gasto.fromMap(json)).toList() : List<Gasto>();
       listaTipo = (parsed["tipos"] != null) ? parsed["tipos"].map<Tipo>((json) => Tipo.fromMap(json)).toList() : List<Tipo>();
@@ -99,7 +102,7 @@ class _AddGastosState extends State<AddGastos> with TickerProviderStateMixin {
       _gasto.idUsuario = 1;
       
       
-      var parsed = await ExpenseService.store(context: context, gasto: _gasto);
+      var parsed = await ExpenseService.store(context: context, gasto: _gasto, db: db);
       print("_store: $parsed");
       _sendSavedGastoBack(parsed);
      
@@ -199,8 +202,15 @@ class _AddGastosState extends State<AddGastos> with TickerProviderStateMixin {
       else
         _update(widget.data);
 
-    _init();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
   }
 
   @override

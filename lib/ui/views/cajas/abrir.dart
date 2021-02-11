@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/caja.dart';
 import 'package:prestamo/core/services/boxservice.dart';
 import 'package:prestamo/ui/widgets/mydropdownbutton.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
+import 'package:provider/provider.dart';
 
 abrirCaja({BuildContext context, List<Caja> cajas}){
   var _formKey = GlobalKey<FormState>();
   var _txtMontoInicial = TextEditingController();
+  AppDatabase db = Provider.of<AppDatabase>(context);
   bool _cargando = false;
   int _indexCaja = 0;
   
@@ -26,7 +29,7 @@ abrirCaja({BuildContext context, List<Caja> cajas}){
           try {
             setState(() => _cargando = true);
             caja.balanceInicial = Utils.toDouble(_txtMontoInicial.text);
-            await BoxService.open(context: context, caja: caja);
+            await BoxService.open(context: context, caja: caja, db: db);
             setState(() => _cargando = false);
             _close();
           } catch (e) {

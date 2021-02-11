@@ -8,6 +8,7 @@ import 'dart:ui';
 import 'package:corsac_jwt/corsac_jwt.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/models/cliente.dart';
 import 'package:prestamo/core/models/sucursal.dart';
 
@@ -187,14 +188,14 @@ class  Utils {
           child:  ClipRRect(
             borderRadius: BorderRadius.circular(radius),
             child: Container(
-              child: Image(image: AssetImage('images/user.png'), )
+              child: Image(image: AssetImage('images/profile2.jpg'), )
             ),
           ),
         );
     }
 
     
-    // return  Image(image: AssetImage('images/user.png'), );
+    // return  Image(image: AssetImage('images/profile2.jpg'), );
   }
   static Container getSucursalFoto(Sucursal sucursal, {size: 130, radius: 10}) {
     if(sucursal.foto != null ){
@@ -222,7 +223,7 @@ class  Utils {
               child: FadeInImage(
                 image: NetworkImage(
                     '${Utils.URL}/assets/perfil/${sucursal.nombreFoto}'),
-                placeholder: AssetImage('images/user.png'),
+                placeholder: AssetImage('images/profile2.jpg'),
               )
             ),
           ),
@@ -235,14 +236,14 @@ class  Utils {
           child:  ClipRRect(
             borderRadius: BorderRadius.circular(radius),
             child: Container(
-              child: Image(image: AssetImage('images/user.png'), )
+              child: Image(image: AssetImage('images/profile2.jpg'), )
             ),
           ),
         );
     }
 
     
-    // return  Image(image: AssetImage('images/user.png'), );
+    // return  Image(image: AssetImage('images/profile2.jpg'), );
   }
 
   static Container getWidgetUploadFoto(dynamic sucursal, {size: 130, radius: 10}) {
@@ -271,7 +272,7 @@ class  Utils {
               child: FadeInImage(
                 image: NetworkImage(
                     '${Utils.URL}/assets/perfil/${sucursal.nombreFoto}'),
-                placeholder: AssetImage('images/user.png'),
+                placeholder: AssetImage('images/profile2.jpg'),
               )
             ),
           ),
@@ -284,14 +285,14 @@ class  Utils {
           child:  ClipRRect(
             borderRadius: BorderRadius.circular(radius),
             child: Container(
-              child: Image(image: AssetImage('images/user.png'), )
+              child: Image(image: AssetImage('images/profile2.jpg'), )
             ),
           ),
         );
     }
 
     
-    // return  Image(image: AssetImage('images/user.png'), );
+    // return  Image(image: AssetImage('images/profile2.jpg'), );
   }
 
   static Future<bool> showDialogConfirmarEliminacion({@required BuildContext context, @required String title, @required descripcion}){
@@ -363,12 +364,16 @@ class  Utils {
               child: FadeInImage(
                 image: NetworkImage(
                     '${Utils.URL}/assets/perfil/$namePhoto'),
-                placeholder: AssetImage('images/user.png'),
+                placeholder: AssetImage('images/profile2.jpg'),
               )
             ),
           ),
         );
     
+  }
+
+  static bool isSmallOrMedium(double size){
+    return (ScreenSize.isMedium(size) || ScreenSize.isSmall(size));
   }
 
 }

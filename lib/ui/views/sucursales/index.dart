@@ -3,6 +3,7 @@ import 'dart:html';
 
 import 'package:file_picker_web/file_picker_web.dart';
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/sucursal.dart';
 import 'package:prestamo/core/services/branchofficeservice.dart';
@@ -17,6 +18,7 @@ import 'package:prestamo/ui/widgets/mysearch.dart';
 import 'package:prestamo/ui/widgets/mySidetextformfield.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytable.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SucursalesScreen extends StatefulWidget {
@@ -25,6 +27,7 @@ class SucursalesScreen extends StatefulWidget {
 }
 
 class _SucursalesScreenState extends State<SucursalesScreen> {
+  AppDatabase db;
   var _txtSearch = TextEditingController();
   var _formKey = GlobalKey<FormState>();
   StreamController<Widget> _streamControllerFoto;
@@ -42,7 +45,7 @@ class _SucursalesScreenState extends State<SucursalesScreen> {
   bool _cargando = false;
 
   _init() async {
-    var parsed = await BranchofficeService.index(context: context);
+    var parsed = await BranchofficeService.index(context: context, db: db);
      listaSucursal = parsed["sucursales"].map<Sucursal>((json) => Sucursal.fromMap(json)).toList();
     _streamController.add(listaSucursal);
     _streamControllerFoto.add(Utils.getSucursalFoto(_sucursal, size: 80, radius: 30));
@@ -127,7 +130,7 @@ class _SucursalesScreenState extends State<SucursalesScreen> {
               sucursal.gerenteCobro = _txtGerenteCobros.text;
               sucursal.status = _status;
               setState(() => cargando = true);
-              var parsed = await BranchofficeService.store(context: context, sucursal: sucursal);
+              var parsed = await BranchofficeService.store(context: context, sucursal: sucursal, db: db);
               setState(() => cargando = false);
               _addRolToList(Sucursal.fromMap(parsed["sucursal"]));
               Navigator.pop(context);
@@ -194,6 +197,7 @@ class _SucursalesScreenState extends State<SucursalesScreen> {
                 //   }
                 // ),
               ),
+                      
                       ],
                     ),
               
@@ -327,7 +331,7 @@ class _SucursalesScreenState extends State<SucursalesScreen> {
               ), 
               okFunction: () async {
                 setState(() => cargando = true);
-                var parsed = await BranchofficeService.delete(context: context, sucursal: sucursal);
+                var parsed = await BranchofficeService.delete(context: context, sucursal: sucursal, db: db);
                 setState(() => cargando = false);
                 _deleteRolFromList(Sucursal.fromMap(parsed["sucursal"]));
                 Navigator.pop(context);
@@ -364,7 +368,6 @@ class _SucursalesScreenState extends State<SucursalesScreen> {
     // TODO: implement initState
     _streamController = BehaviorSubject();
     _streamControllerFoto = BehaviorSubject();
-    _init();
     super.initState();
   }
 
@@ -377,6 +380,13 @@ class _SucursalesScreenState extends State<SucursalesScreen> {
       _streamController.add(listaSucursal);
   }
 
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {

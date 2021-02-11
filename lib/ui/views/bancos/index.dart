@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/banco.dart';
 import 'package:prestamo/core/models/caja.dart';
@@ -9,6 +10,7 @@ import 'package:prestamo/core/services/boxservice.dart';
 import 'package:prestamo/ui/widgets/mycheckbox.dart';
 import 'package:prestamo/ui/widgets/myheader.dart';
 import 'package:prestamo/ui/widgets/myscaffold.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class BancosScreen extends StatefulWidget {
@@ -17,6 +19,7 @@ class BancosScreen extends StatefulWidget {
 }
 
 class _BancosScreenState extends State<BancosScreen> {
+  AppDatabase db;
   bool _cargando = false;
   var _formKey = GlobalKey<FormState>();
   StreamController<List<Banco>> _streamController;
@@ -32,9 +35,9 @@ class _BancosScreenState extends State<BancosScreen> {
   _init() async {
     try {
       setState(() => _cargando = true);
-      var parsed = await BankService.index(context: context);
+      var parsed = await BankService.index(context: context, db: db);
       print("_init: $parsed");
-      lista = (parsed["bancos"] != null) ? parsed["bancos"].map<Banco>((json) => Banco.fromMap(json)).toList() : List<Caja>();
+      lista = (parsed["bancos"] != null) ? parsed["bancos"].map<Banco>((json) => Banco.fromMap(json)).toList() : [];
       for(Banco c in lista){
         print("Nombre: ${c.descripcion}");
       }
@@ -51,7 +54,7 @@ class _BancosScreenState extends State<BancosScreen> {
       // setState(() => _cargando = true);
       _banco.descripcion = _txtDescripcion.text;
       _banco.estado = _ckbEstado;
-      var parsed = await BankService.store(context: context, banco: _banco);
+      var parsed = await BankService.store(context: context, banco: _banco, db: db);
       print("_store: $parsed");
       _insertBancoTolistas(parsed);
      
@@ -79,7 +82,7 @@ class _BancosScreenState extends State<BancosScreen> {
    _delete(Banco banco) async {
     try {
       
-      var parsed = await BankService.delete(context: context, banco: banco);
+      var parsed = await BankService.delete(context: context, banco: banco, db: db);
       print("_delete: $parsed");
       _deleteBancoFromlistas(parsed);
      _streamController.add(lista);
@@ -276,8 +279,15 @@ class _BancosScreenState extends State<BancosScreen> {
   void initState() {
     // TODO: implement initState
     _streamController = BehaviorSubject();
-    _init();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
   }
 
   @override

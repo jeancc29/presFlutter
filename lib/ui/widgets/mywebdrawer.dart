@@ -120,7 +120,7 @@ class _MyWebDrawerState extends State<MyWebDrawer> {
                 icon: Icons.supervised_user_circle_outlined, 
                 initialExpanded: widget.usuarios || widget.roles,
                 listaMylisttile: [
-                  MyListTile(title: "Usuarios", icon: null, onTap: (){_gotTo("/bancos");}, selected: widget.bancos,), 
+                  MyListTile(title: "Usuarios", icon: null, onTap: (){_gotTo("/usuarios");}, selected: widget.usuarios,), 
                   MyListTile(title: "Roles", icon: null, onTap: (){_gotTo("/roles");}, selected: widget.roles,), 
                 ]
               ),

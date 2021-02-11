@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/caja.dart';
 import 'package:prestamo/core/services/boxservice.dart';
 import 'package:prestamo/ui/widgets/mycheckbox.dart';
 import 'package:prestamo/ui/widgets/myheader.dart';
 import 'package:prestamo/ui/widgets/myscaffold.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CajasScreen extends StatefulWidget {
@@ -15,6 +17,7 @@ class CajasScreen extends StatefulWidget {
 }
 
 class _CajasScreenState extends State<CajasScreen> {
+  AppDatabase db;
   bool _cargando = false;
   var _formKey = GlobalKey<FormState>();
   StreamController<List<Caja>> _streamController;
@@ -33,9 +36,9 @@ class _CajasScreenState extends State<CajasScreen> {
   _init() async {
     try {
       setState(() => _cargando = true);
-      var parsed = await BoxService.index(context: context);
+      var parsed = await BoxService.index(context: context, db: db);
       print("_init: $parsed");
-      lista = (parsed["cajas"] != null) ? parsed["cajas"].map<Caja>((json) => Caja.fromMap(json)).toList() : List<Caja>();
+      lista = (parsed["cajas"] != null) ? parsed["cajas"].map<Caja>((json) => Caja.fromMap(json)).toList() : [];
       for(Caja c in lista){
         print("Nombre: ${c.descripcion}");
       }
@@ -55,7 +58,7 @@ class _CajasScreenState extends State<CajasScreen> {
       _caja.validarDesgloseCheques = _ckbValidarDesgloseCheques;
       _caja.validarDesgloseTarjetas = _ckbValidarDesgloseTarjetas;
       _caja.validarDesgloseTransferencias = _ckbValidarDesgloseTransferencias;
-      var parsed = await BoxService.store(context: context, caja: _caja);
+      var parsed = await BoxService.store(context: context, caja: _caja, db: db);
       print("_store: $parsed");
       _insertCajaTolistas(parsed);
      
@@ -89,7 +92,7 @@ class _CajasScreenState extends State<CajasScreen> {
    _delete(Caja caja) async {
     try {
       
-      var parsed = await BoxService.delete(context: context, caja: caja);
+      var parsed = await BoxService.delete(context: context, caja: caja, db: db);
       print("_delete: $parsed");
       _deleteCajaFromlistas(parsed);
      _streamController.add(lista);
@@ -302,8 +305,15 @@ class _CajasScreenState extends State<CajasScreen> {
   void initState() {
     // TODO: implement initState
     _streamController = BehaviorSubject();
-    _init();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
   }
 
   @override

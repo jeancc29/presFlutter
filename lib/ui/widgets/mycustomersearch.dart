@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/cliente.dart';
 import 'package:prestamo/core/services/customerservice.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MyCustomerSearchField extends StatefulWidget {
@@ -29,6 +31,8 @@ class MyCustomerSearchField extends StatefulWidget {
 }
 
 class _MyCustomerSearchFieldState extends State<MyCustomerSearchField> {
+  AppDatabase db;
+  int idEmpresa;
   double _width;
   FocusNode _myFocus = FocusNode();
   bool _tieneFoco = false;
@@ -36,6 +40,20 @@ class _MyCustomerSearchFieldState extends State<MyCustomerSearchField> {
   List<String> lista = ["Jean", "Carlos", "Contreras", "Manuel", "Pedro", "Estefania"];
 
   OverlayEntry _overlayEntry;
+
+  _init() async {
+    var usuario = await db.getUsuario();
+    if(usuario != null)
+      idEmpresa = usuario["id"];
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
+  }
 
   @override
   void initState() {
@@ -80,7 +98,8 @@ class _MyCustomerSearchFieldState extends State<MyCustomerSearchField> {
 
  Future<List<Cliente>> _search(String data) async {
     try {
-      var parsed = await CustomerService.search(context: context, data: data);
+      var parsed = await CustomerService.search(context: context, data: data, idEmpresa: idEmpresa);
+      print("_search ${parsed}");
       List<Cliente> listaCliente = parsed["clientes"].map<Cliente>((json) => Cliente.fromMap(json)).toList();
       return listaCliente;
     } catch (e) {

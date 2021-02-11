@@ -5,18 +5,21 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/cliente.dart';
 import 'package:prestamo/core/models/prestamo.dart';
 
 
 class LoanService{
-  static Future<Map<String, dynamic>> index({BuildContext context, scaffoldKey}) async {
+  static Future<Map<String, dynamic>> index({BuildContext context, scaffoldKey, AppDatabase db}) async {
     var map = Map<String, dynamic>();
+    map["data"] = await db.getUsuario();
     // map["servidor"] = await Db.servidor();
     // var jwt = await Utils.createJwt(map);
 
-    var response = await http.get(Utils.URL + "/api/loans", headers: Utils.header);
+    // var response = await http.get(Utils.URL + "/api/loans", headers: Utils.header);
+    var response = await http.post(Utils.URL + "/api/loans", body: json.encode(map), headers: Utils.header);
     int statusCode = response.statusCode;
 
     if(statusCode < 200 || statusCode > 400){
@@ -70,11 +73,13 @@ class LoanService{
     return parsed;
   }
 
-  static Future<Map<String, dynamic>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Prestamo prestamo}) async {
+  static Future<Map<String, dynamic>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Prestamo prestamo, AppDatabase db}) async {
     var map = Map<String, dynamic>();
     // prestamo.toJson();
     // map["servidor"] = await Db.servidor();
     map["data"] = prestamo.toJson();
+    map["data"]["usuario"] = await db.getUsuario();
+
     Map<String, dynamic> map2 = Map<String, dynamic>();
     // map2["data"] = map;
     // print("map: ${map}");
@@ -110,15 +115,22 @@ class LoanService{
     return parsed;
   }
 
-  static Future<Map<String, dynamic>> show({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Prestamo prestamo}) async {
-    var map = Map<String, dynamic>();
+  static Future<Map<String, dynamic>> show({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Prestamo prestamo, AppDatabase db}) async {
+    Map<String, dynamic> map = {
+      "data" : {
+        "id": prestamo.id.toInt(),
+        "usuario" : await db.getUsuario()
+      }
+    };
     // prestamo.toJson();
     // map["servidor"] = await Db.servidor();
-    map["data"] = {"id" : prestamo.id.toInt()};
+    // map["data"] = prestamo.id.toInt();
+    // map["data"]["usuario"] = await db.getUsuario();
     Map<String, dynamic> map2 = Map<String, dynamic>();
     // map2["data"] = map;
     // print("map: ${map}");
     // var jwt = await Utils.createJwt(map);
+    // return {};
     var response = await http.post(Utils.URL + "/api/loans/show", body: json.encode(map), headers: Utils.header);
     int statusCode =response.statusCode;
 

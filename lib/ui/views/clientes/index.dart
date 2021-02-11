@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker_web/file_picker_web.dart';
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/ciudad.dart';
@@ -30,6 +31,7 @@ import 'package:prestamo/ui/widgets/mylisttile.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
 import 'package:prestamo/ui/widgets/mywebdrawer.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ClientesScreen extends StatefulWidget {
@@ -38,6 +40,8 @@ class ClientesScreen extends StatefulWidget {
 }
 
 class _ClientesScreenState extends State<ClientesScreen> with TickerProviderStateMixin {
+  AppDatabase db;
+
   bool _cargando = false;
   bool _verTablaOContainers = false;
   StreamController<List<Cliente>> _streamControllerClientes;
@@ -52,8 +56,8 @@ class _ClientesScreenState extends State<ClientesScreen> with TickerProviderStat
   _init() async {
     try {
       setState(() => _cargando = true);
-      var parsed = await CustomerService.index(context: context);
-      listaCliente = (parsed["clientes"] != null) ? parsed["clientes"].map<Cliente>((json) => Cliente.fromMap(json)).toList() : List<Cliente>();
+      var parsed = await CustomerService.index(context: context, db: db);
+      listaCliente = (parsed["clientes"] != null) ? parsed["clientes"].map<Cliente>((json) => Cliente.fromMap(json)).toList() : [];
       // for(Cliente c in listaCliente){
       //   print("Nombre: ${c.nombres}");
       //   print("documento: ${c.documento.toJson()}");
@@ -77,8 +81,17 @@ class _ClientesScreenState extends State<ClientesScreen> with TickerProviderStat
   void initState() {
     // TODO: implement initState
     _streamControllerClientes = BehaviorSubject();
-    _init();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+
+    _init();
+
+    super.didChangeDependencies();
   }
 
   @override

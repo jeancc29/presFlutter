@@ -3,6 +3,7 @@ import 'dart:html';
 
 import 'package:file_picker_web/file_picker_web.dart';
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/ciudad.dart';
 import 'package:prestamo/core/models/contacto.dart';
@@ -20,6 +21,7 @@ import 'package:prestamo/ui/widgets/myscaffold.dart';
 import 'package:prestamo/ui/widgets/myscrollbar.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ConfiguracionEmpresaScreen extends StatefulWidget {
@@ -28,6 +30,7 @@ class ConfiguracionEmpresaScreen extends StatefulWidget {
 }
 
 class _ConfiguracionEmpresaScreenState extends State<ConfiguracionEmpresaScreen> {
+  AppDatabase db;
   var _txtNombre = TextEditingController();
   var _txtCorreo = TextEditingController();
   var _txtTelefono = TextEditingController();
@@ -53,7 +56,7 @@ class _ConfiguracionEmpresaScreenState extends State<ConfiguracionEmpresaScreen>
   Tipo _tipoMora = Tipo();
 
   _init() async {
-    var parsed = await CompanyService.index(context: context);
+    var parsed = await CompanyService.index(context: context, db: db);
     print("_init: ${parsed["empresa"]}");
     _empresa = (parsed["empresa"] != null) ? Empresa.fromMap(parsed["empresa"]) : Empresa();
     listaCiudad = (parsed["ciudades"] != null) ? parsed["ciudades"].map<Ciudad>((json) => Ciudad.fromMap(json)).toList() : [];
@@ -138,7 +141,6 @@ class _ConfiguracionEmpresaScreenState extends State<ConfiguracionEmpresaScreen>
     _streamControllerFoto = BehaviorSubject();
     _streamControllerEstados = BehaviorSubject();
     _streamControllerCiudades = BehaviorSubject();
-    _init();
     super.initState();
   }
 
@@ -235,13 +237,19 @@ class _ConfiguracionEmpresaScreenState extends State<ConfiguracionEmpresaScreen>
     _empresa.moneda = _moneda;
 
     print("_guardar ciudad: ${_empresa.direccion.ciudad.toJson()}");
-    var parsed = await CompanyService.store(context: context, empresa: _empresa);
+    var parsed = await CompanyService.store(context: context, empresa: _empresa, db: db);
     _empresa = Empresa.fromMap(parsed["empresa"]);
     setState(() => _cargando = false);
   }
 
 
-
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/cliente.dart';
 import 'package:prestamo/core/models/cuenta.dart';
@@ -12,12 +13,12 @@ import 'package:prestamo/core/models/rol.dart';
 
 
 class RoleService{
-  static Future<Map<String, dynamic>> index({BuildContext context, scaffoldKey}) async {
+  static Future<Map<String, dynamic>> index({BuildContext context, scaffoldKey, AppDatabase db}) async {
     var map = Map<String, dynamic>();
-    // map["servidor"] = await Db.servidor();
-    // var jwt = await Utils.createJwt(map);
+    map["data"] = await db.getUsuario();
 
-    var response = await http.get(Utils.URL + "/api/roles", headers: Utils.header);
+    // var response = await http.get(Utils.URL + "/api/roles", headers: Utils.header);
+    var response = await http.post(Utils.URL + "/api/roles", body: json.encode(map), headers: Utils.header);
     int statusCode = response.statusCode;
 
     if(statusCode < 200 || statusCode > 400){
@@ -71,11 +72,12 @@ class RoleService{
     return parsed;
   }
 
-  static Future<Map<String, dynamic>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Rol rol}) async {
+  static Future<Map<String, dynamic>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Rol rol, AppDatabase db}) async {
     var map = Map<String, dynamic>();
     // rol.toJson();
     // map["servidor"] = await Db.servidor();
     map["data"] = rol.toJson();
+    map["data"]["usuario"] = await db.getUsuario();
     Map<String, dynamic> map2 = Map<String, dynamic>();
     // map2["data"] = map;
     // print("map: ${map}");
@@ -111,11 +113,12 @@ class RoleService{
     return parsed;
   }
 
-  static Future<Map<String, dynamic>> delete({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Rol rol}) async {
+  static Future<Map<String, dynamic>> delete({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Rol rol, AppDatabase db}) async {
     var map = Map<String, dynamic>();
     // cliente.toJson();
     // map["servidor"] = await Db.servidor();
     map["data"] = rol.toJson();
+    map["data"]["usuario"] = await db.getUsuario();
     Map<String, dynamic> map2 = Map<String, dynamic>();
     // map2["data"] = map;
     // print("map: ${map}");

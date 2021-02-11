@@ -10,15 +10,16 @@ class MyDropdown extends StatefulWidget {
   final String hint; 
   final List<List<dynamic>> elements;
 
-   final double small;
+  final double small;
   final double medium;
   final double large;
   final double xlarge;
 
   final EdgeInsets padding;
   final dynamic leading;
+  final bool isFlat;
 
-  MyDropdown({Key key, @required this.title, this.onTap, this.hint, this.elements, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 3.9, this.padding = const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 15, right: 15), this.leading}) : super(key: key);
+  MyDropdown({Key key, @required this.title, this.onTap, this.hint, this.elements, this.small = 1, this.medium = 3, this.large = 4, this.xlarge = 3.9, this.padding = const EdgeInsets.only(top: 10.0, bottom: 10.0, left: 15, right: 15), this.leading, this.isFlat = false}) : super(key: key);
   @override
   _MyDropdownState createState() => _MyDropdownState();
 }
@@ -134,12 +135,58 @@ class _MyDropdownState extends State<MyDropdown> {
     // setState(() => _tieneFoco = _myFocus.hasFocus);
   }
 
+  _getDecoration(){
+    return (widget.isFlat) 
+    ? 
+    null 
+    : 
+    BoxDecoration(
+      color: Colors.blue.withOpacity(0.15),
+      borderRadius: BorderRadius.circular(5)
+    );
+  }
+
+  _getRow(){
+    return (widget.isFlat) 
+    ? 
+    Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child:  (widget.leading == false) ? Text("${hint == null ?  'No hay datos' : hint}", softWrap: true, overflow: TextOverflow.ellipsis, style: TextStyle(fontFamily: "GoogleSans", color: Utils.fromHex("#1967d2"), fontWeight: FontWeight.w700)) : Center(child: Text("${hint == null ?  'No hay datos' : hint}", softWrap: true, overflow: TextOverflow.ellipsis, style: TextStyle(fontFamily: "GoogleSans", color: Utils.fromHex("#1967d2"), fontWeight: FontWeight.w700)))
+        ),
+        Icon(Icons.arrow_drop_down, color: Utils.fromHex("#1967d2")),
+      ],
+    ) 
+    : 
+    Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        (widget.leading == false) ? SizedBox() : (widget.leading != null) ? widget.leading : Icon(Icons.calendar_today_outlined, color: Utils.fromHex("#1967d2"),),
+        Expanded(
+          child:  (widget.leading == false) ? Text("${hint == null ?  'No hay datos' : hint}", softWrap: true, overflow: TextOverflow.ellipsis, style: TextStyle(fontFamily: "GoogleSans", color: Utils.fromHex("#1967d2"), fontWeight: FontWeight.w700)) : Center(child: Text("${hint == null ?  'No hay datos' : hint}", softWrap: true, overflow: TextOverflow.ellipsis, style: TextStyle(fontFamily: "GoogleSans", color: Utils.fromHex("#1967d2"), fontWeight: FontWeight.w700)))
+        ),
+        Icon(Icons.arrow_drop_down, color: Utils.fromHex("#1967d2")),
+      ],
+    );
+  }
+
   @override
   void initState() {
     // TODO: implement initState
     hint = widget.hint;
     super.initState();
   }
+
+  @override
+  void didUpdateWidget(dynamic oldWidget) {
+    if (oldWidget.hint != widget.hint) {
+      hint = widget.hint;
+    }
+    super.didUpdateWidget(oldWidget);
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return MyResizedContainer(
@@ -150,7 +197,7 @@ class _MyDropdownState extends State<MyDropdown> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.title, style: TextStyle(fontFamily: "GoogleSans"),),
+          Visibility(visible: widget.title != null, child: Text("${(widget.title == null) ? '' : widget.title}", style: TextStyle(fontFamily: "GoogleSans"),)),
           InkWell(
             onTap: (){
               if(widget.elements == null)
@@ -162,20 +209,8 @@ class _MyDropdownState extends State<MyDropdown> {
             },
             child: Container(
               padding: widget.padding,
-              decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(5)
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  (widget.leading == false) ? SizedBox() : (widget.leading != null) ? widget.leading : Icon(Icons.calendar_today_outlined, color: Utils.fromHex("#1967d2"),),
-                  Expanded(
-                    child:  (widget.leading == false) ? Text("${hint == null ?  'No hay datos' : hint}", softWrap: true, overflow: TextOverflow.ellipsis, style: TextStyle(fontFamily: "GoogleSans", color: Utils.fromHex("#1967d2"), fontWeight: FontWeight.w700)) : Center(child: Text("${hint == null ?  'No hay datos' : hint}", softWrap: true, overflow: TextOverflow.ellipsis, style: TextStyle(fontFamily: "GoogleSans", color: Utils.fromHex("#1967d2"), fontWeight: FontWeight.w700)))
-                  ),
-                  Icon(Icons.arrow_drop_down, color: Utils.fromHex("#1967d2")),
-                ],
-              ),
+              decoration: _getDecoration(),
+              child: _getRow(),
             ),
           ),
         ],

@@ -6,6 +6,7 @@ import 'dart:typed_data';
 
 import 'package:file_picker_web/file_picker_web.dart';
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/screensize.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/ciudad.dart';
@@ -29,6 +30,7 @@ import 'package:prestamo/ui/widgets/mylisttile.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
 import 'package:prestamo/ui/widgets/mywebdrawer.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ClientesAdd extends StatefulWidget {
@@ -37,6 +39,7 @@ class ClientesAdd extends StatefulWidget {
 }
 
 class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin {
+  AppDatabase db;
   Cliente _cliente;
   Documento _documento;
   Trabajo _trabajo;
@@ -117,7 +120,7 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
       _streamControllerFotoCliente.add(await Utils.getClienteFoto(_cliente));
       setState(() => _cargando = true);
       print("antes de cusomerservice index");
-      var parsed = await CustomerService.index(context: context);
+      var parsed = await CustomerService.index(context: context, db: db);
       print("despues de cusomerservice index");
       listaCiudad = (parsed["ciudades"] != null) ? parsed["ciudades"].map<Ciudad>((json) => Ciudad.fromMap(json)).toList() : List<Ciudad>();
       listaEstado = (parsed["estados"] != null) ? parsed["estados"].map<Estado>((json) => Estado.fromMap(json)).toList() : List<Estado>();
@@ -366,8 +369,8 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
                       // return;
                       try {
                         setState(() => _cargando = true);
-                          await CustomerService.store(context: context, cliente: _cliente);
-                        setState(() => _cargando = false);
+                          await CustomerService.store(context: context, cliente: _cliente, db: db);
+                        // setState(() => _cargando = false);
                         Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => ClientesScreen()));
                       } catch (e) {
                         setState(() => _cargando = false);
@@ -399,8 +402,15 @@ class _ClientesAddState extends State<ClientesAdd> with TickerProviderStateMixin
     _tabController = TabController(length: 3, vsync: this);
     _scrollController = ScrollController();
     _scrollControllerTrabajo = ScrollController();
-    _init();
     super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
   }
 
   @override

@@ -1,25 +1,7 @@
 
 
-import 'dart:convert';
-import 'dart:html';
-import 'dart:typed_data';
-
 import 'package:prestamo/core/classes/utils.dart';
-import 'package:prestamo/core/models/amortizacion.dart';
-import 'package:prestamo/core/models/caja.dart';
-import 'package:prestamo/core/models/cobrador.dart';
-import 'package:prestamo/core/models/contacto.dart';
-import 'package:prestamo/core/models/desembolso.dart';
-import 'package:prestamo/core/models/dia.dart';
-import 'package:prestamo/core/models/direccion.dart';
-import 'package:prestamo/core/models/cliente.dart';
-import 'package:prestamo/core/models/garante.dart';
-import 'package:prestamo/core/models/garantia.dart';
-import 'package:prestamo/core/models/gastoprestamo.dart';
-import 'package:prestamo/core/models/negocio.dart';
 import 'package:prestamo/core/models/permiso.dart';
-import 'package:prestamo/core/models/referencia.dart';
-import 'package:prestamo/core/models/tipo.dart';
 
 class Rol {
   int id;

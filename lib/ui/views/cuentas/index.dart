@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/banco.dart';
 import 'package:prestamo/core/models/cuenta.dart';
@@ -12,6 +13,7 @@ import 'package:prestamo/ui/widgets/myscaffold.dart';
 import 'package:prestamo/ui/widgets/mysidedropdownbutton.dart';
 import 'package:prestamo/ui/widgets/mysidetextformfield.dart';
 import 'package:prestamo/ui/widgets/mytextformfield.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class CuentasScreen extends StatefulWidget {
@@ -20,6 +22,7 @@ class CuentasScreen extends StatefulWidget {
 }
 
 class _CuentasScreenState extends State<CuentasScreen> {
+  AppDatabase db;
   bool _cargando = false;
   var _formKey = GlobalKey<FormState>();
   StreamController<List<Cuenta>> _streamController;
@@ -48,7 +51,7 @@ class _CuentasScreenState extends State<CuentasScreen> {
 
   _init() async {
     try {
-     var parsed = await AccountService.index(context: context);
+     var parsed = await AccountService.index(context: context, db: db);
      listaCuenta = parsed["cuentas"].map<Cuenta>((json) => Cuenta.fromMap(json)).toList();
      listaBanco = parsed["bancos"].map<Banco>((json) => Banco.fromMap(json)).toList();
     if(listaBanco.length > 0)
@@ -66,7 +69,6 @@ class _CuentasScreenState extends State<CuentasScreen> {
   void initState() {
     // TODO: implement initState
     _streamController = BehaviorSubject();
-    _init();
     super.initState();
   }
 
@@ -74,7 +76,7 @@ class _CuentasScreenState extends State<CuentasScreen> {
       _cuenta.banco = _banco;
       _cuenta.idBanco = _banco.id;
       _cuenta.descripcion = _txtDescripcion.text;
-      var parsed = await AccountService.store(context: context, cuenta: _cuenta);
+      var parsed = await AccountService.store(context: context, cuenta: _cuenta, db: db);
       _addElementToList(Cuenta.fromMap(parsed["cuenta"]));
   }
 
@@ -141,7 +143,7 @@ class _CuentasScreenState extends State<CuentasScreen> {
               okFunction: () async {
                 try {
                   setState(() => _cargando = true);
-                  var parsed = await AccountService.delete(context: context, cuenta: cuenta);
+                  var parsed = await AccountService.delete(context: context, cuenta: cuenta, db: db);
                   listaCuenta.removeWhere((element) => element.id == cuenta.id);
                   _streamController.add(listaCuenta);
                   setState(() => _cargando = false);
@@ -350,7 +352,13 @@ class _CuentasScreenState extends State<CuentasScreen> {
     );
   }
 
-
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
+  }
   @override
   Widget build(BuildContext context) {
     return myScaffold(

@@ -2,6 +2,7 @@
 // import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/ui/router.dart';
 import 'package:provider/provider.dart';
 // import 'package:prestamo/ui/router.dart';
@@ -29,14 +30,19 @@ class MyApp extends StatelessWidget {
   
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      initialRoute: '/',
-      title: 'Product App',
-      theme: ThemeData(
-        fontFamily: 'OpenSans',
+    return Provider(
+      create: (context){
+          return AppDatabase();
+        },
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        initialRoute: '/',
+        title: 'Product App',
+        theme: ThemeData(
+          fontFamily: 'OpenSans',
+        ),
+        onGenerateRoute: MyRouter.generateRoute,
       ),
-      onGenerateRoute: MyRouter.generateRoute,
     );
   }
 }

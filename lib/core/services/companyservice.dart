@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:http/http.dart' as http;
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/cliente.dart';
 import 'package:prestamo/core/models/cuenta.dart';
@@ -13,14 +14,14 @@ import 'package:prestamo/core/models/sucursal.dart';
 
 
 class CompanyService{
-  static Future<Map<String, dynamic>> index({BuildContext context, scaffoldKey, int idUsuario = 1}) async {
+  static Future<Map<String, dynamic>> index({BuildContext context, scaffoldKey, AppDatabase db}) async {
     var map = Map<String, dynamic>();
     // map["servidor"] = await Db.servidor();
-    map["apiKey"] = "culo";
-    map["idUsuario"] = idUsuario;
+    map["data"] = await db.getUsuario();
     // var jwt = await Utils.createJwt(map);
 
-    var response = await http.get(Utils.URL + "/api/companies?data=${json.encode(map)}", headers: Utils.header);
+    // var response = await http.get(Utils.URL + "/api/companies?data=${json.encode(map)}", headers: Utils.header);
+    var response = await http.post(Utils.URL + "/api/companies", body: json.encode(map), headers: Utils.header);
     int statusCode = response.statusCode;
 
     if(statusCode < 200 || statusCode > 400){
@@ -45,11 +46,12 @@ class CompanyService{
     return parsed;
   }
   
-  static Future<Map<String, dynamic>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Empresa empresa}) async {
+  static Future<Map<String, dynamic>> store({BuildContext context, GlobalKey<ScaffoldState> scaffoldKey, Empresa empresa, AppDatabase db}) async {
     var map = Map<String, dynamic>();
     // empresa.toJson();
     // map["servidor"] = await Db.servidor();
     map["data"] = empresa.toJson();
+    map["data"]["usuario"] = await db.getUsuario();
     Map<String, dynamic> map2 = Map<String, dynamic>();
     // map2["data"] = map;
     // print("map: ${map}");

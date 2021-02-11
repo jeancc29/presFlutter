@@ -2,10 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/prestamo.dart';
 import 'package:prestamo/core/services/loanservice.dart';
 import 'package:prestamo/ui/widgets/draggablescrollbar.dart';
+import 'package:prestamo/ui/widgets/myalertdialog.dart';
 import 'package:prestamo/ui/widgets/mybutton.dart';
 import 'package:prestamo/ui/widgets/mydescription.dart';
 import 'package:prestamo/ui/widgets/myheader.dart';
@@ -15,6 +17,8 @@ import 'package:prestamo/ui/widgets/myscaffold.dart';
 import 'package:prestamo/ui/widgets/myscrollbar.dart';
 import 'package:prestamo/ui/widgets/mysubtitle.dart';
 import 'package:prestamo/ui/widgets/mytable.dart';
+import 'package:prestamo/ui/widgets/mytextformfield.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ShowPrestamo extends StatefulWidget {
@@ -25,6 +29,7 @@ class ShowPrestamo extends StatefulWidget {
 }
 
 class _ShowPrestamoState extends State<ShowPrestamo> with TickerProviderStateMixin {
+  AppDatabase db;
   ScrollController _scrollController;
   TabController _tabController;
   StreamController<Prestamo> _streamController;
@@ -36,12 +41,11 @@ class _ShowPrestamoState extends State<ShowPrestamo> with TickerProviderStateMix
     _scrollController = ScrollController();
     _tabController = TabController(length: 2, vsync: this);
     _streamController = BehaviorSubject();
-    _init();
     super.initState();
   }
 
   _init() async {
-    var prestamo = await LoanService.show(context: context, prestamo: widget.prestamo);
+    var prestamo = await LoanService.show(context: context, prestamo: widget.prestamo, db: db);
     if(prestamo["prestamo"] != null){
       _prestamo = Prestamo.fromMap(prestamo["prestamo"]);
       // print("_init Prestamo: ${json.decode(prestamo["prestamo"]["amortizaciones"])}");
@@ -51,7 +55,24 @@ class _ShowPrestamoState extends State<ShowPrestamo> with TickerProviderStateMix
   }
 
   _pagar(){
-
+    // showDialog(
+    //   context: context,
+    //   builder: (context){
+    //     return MyAlertDialog(
+    //       title: "Cobrar", 
+    //       description: "Realiza cobros, descuenta interes al cliente, asigna o quita mora, agrega comentario y mucho mas.",
+    //       content: Wrap(
+    //         children: [
+    //           MyTextFormField(
+    //             controller: _txtMonto,
+    //             hint: "Monto recibito",
+    //           ),
+    //         ],
+    //       ), 
+    //       okFunction: null
+    //     );
+    //   }
+    // );
   }
 
   _editar(){
@@ -184,7 +205,7 @@ class _ShowPrestamoState extends State<ShowPrestamo> with TickerProviderStateMix
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   MyDescripcon(title: "Mora", fontSize: 15,),
-                  Text("${snapshot.data.porcentajeInteres}%", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, fontFamily: "GoogleSans"),),
+                  Text("${snapshot.data.porcentajeMora}%", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, fontFamily: "GoogleSans"),),
                   // MyDescripcon(title: "0/3", fontSize: 15,),
                 ],
               ),
@@ -373,6 +394,13 @@ class _ShowPrestamoState extends State<ShowPrestamo> with TickerProviderStateMix
   }
 
 
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
+  }
   @override
   Widget build(BuildContext context) {
     return myScaffold(

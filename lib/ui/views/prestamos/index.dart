@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:prestamo/core/classes/database.dart';
 import 'package:prestamo/core/classes/utils.dart';
 import 'package:prestamo/core/models/prestamo.dart';
 import 'package:prestamo/core/models/tipo.dart';
@@ -14,6 +15,7 @@ import 'package:prestamo/ui/widgets/myiconbutton.dart';
 import 'package:prestamo/ui/widgets/myscaffold.dart';
 import 'package:prestamo/ui/widgets/mysearch.dart';
 import 'package:prestamo/ui/widgets/mytable.dart';
+import 'package:provider/provider.dart';
 import 'package:rxdart/rxdart.dart';
 
 class PrestamosScreen extends StatefulWidget {
@@ -22,6 +24,7 @@ class PrestamosScreen extends StatefulWidget {
 }
 
 class _PrestamosScreenState extends State<PrestamosScreen> {
+  AppDatabase db;
   StreamController<List<Prestamo>> _streamController;
   var _txtSearchController = TextEditingController();
   bool _cargando = false;
@@ -34,12 +37,11 @@ class _PrestamosScreenState extends State<PrestamosScreen> {
   void initState() {
     // TODO: implement initState
     _streamController = BehaviorSubject();
-    _init();
     super.initState();
   }
 
   _init() async {
-    var parsed = await LoanService.index(context: context);
+    var parsed = await LoanService.index(context: context, db: db);
     print("_init ${parsed["prestamos"]}");
     //  parsed["prestamos"].forEach((e){
     //   Prestamo.fromMap(e);
@@ -148,6 +150,13 @@ class _PrestamosScreenState extends State<PrestamosScreen> {
     );
   }
 
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    db = Provider.of<AppDatabase>(context);
+    _init();
+    super.didChangeDependencies();
+  }
   @override
   Widget build(BuildContext context) {
     return myScaffold(
